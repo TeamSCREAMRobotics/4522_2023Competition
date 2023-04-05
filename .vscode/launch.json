@@ -1,0 +1,55 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "FieldPointCalculator",
+      "request": "launch",
+      "mainClass": "test.FieldPointCalculator",
+      "projectName": "4522CompetitionCode2023"
+    },
+    {
+      "type": "java",
+      "name": "Launch MiscTest",
+      "request": "launch",
+      "mainClass": "test.MiscTest",
+      "projectName": "4522CompetitionCode2023"
+    },
+    {
+      "type": "java",
+      "name": "Launch SwerveDriveHelper",
+      "request": "launch",
+      "mainClass": "frc2023.swerve.SwerveDriveHelper",
+      "projectName": "4522CompetitionCode2023"
+    },
+    {
+      "type": "java",
+      "name": "Launch TrajectoryTest",
+      "request": "launch",
+      "mainClass": "test.TrajectoryTest",
+      "projectName": "4522CompetitionCode2023"
+    },
+    {
+      "type": "java",
+      "name": "Launch TrajectoryTest",
+      "request": "launch",
+      "mainClass": "test.TrajectoryTest",
+      "projectName": "2023 Competition"
+    },
+    {
+      "type": "wpilib",
+      "name": "WPILib Desktop Debug",
+      "request": "launch",
+      "desktop": true
+    },
+    {
+      "type": "wpilib",
+      "name": "WPILib roboRIO Debug",
+      "request": "launch",
+      "desktop": false
+    }
+  ]
+}
