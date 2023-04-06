@@ -1,11 +1,10 @@
-package com.team4522.lib.util;
+package com.team4522.lib.deviceConfiguration;
 
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkMaxPIDController;
-import com.team4522.lib.drivers.ErrorChecker;
-import com.team4522.lib.drivers.ErrorChecker.DeviceConfiguration;
+import com.team4522.lib.deviceConfiguration.ErrorChecker.DeviceConfiguration;
 import com.team4522.lib.pid.MotionMagicConstants;
 import com.team4522.lib.pid.PIDConstants;
 

@@ -9,10 +9,10 @@ public class TimeBoundIncrementor {
         this(lowerBound, upperBound, 0.0);
     }
 
-    public TimeBoundIncrementor(double lowerBound, double upperBound, double startValue){
+    public TimeBoundIncrementor(double lowerBound, double upperBound, double initialValue){
         mLowerBound = lowerBound;
         mUpperBound = upperBound;
-        mTime = startValue;
+        mTime = initialValue;
     }
 
     public void setTime(double time){

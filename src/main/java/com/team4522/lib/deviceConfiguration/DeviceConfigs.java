@@ -1,4 +1,4 @@
-package com.team4522.lib.drivers;
+package com.team4522.lib.deviceConfiguration;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
@@ -9,7 +9,7 @@ public class DeviceConfigs {
 	public static final int maxStatusFramePeriod = 255;
     public static final double kNominalVoltage = 12.6;
 
-    public static class CANCoderConfig {//TODO make all of the config classes into records when we update to java 17 for the 2024 frc season.
+    public static class CANCoderConfig {//TODO make all of the config classes(and other parts of the code) into records when we update to java 17 for the 2024 frc season.
         public int sensorDataPeriod = 20;
         public int vBatAndFaultsPeriod = 20;
         public AbsoluteSensorRange absoluteSensorRange = AbsoluteSensorRange.Signed_PlusMinus180;

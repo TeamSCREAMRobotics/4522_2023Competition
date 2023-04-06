@@ -512,13 +512,6 @@ public class Swerve extends Subsystem{//this is the wrapper for a facade design 
     }	
 
 	
-///////////////////  Telemetry and Logging  //////////////////////////////////////////////////////
-	@Override
-	public void outputTelemetry() {
-		// System.out.println(" Robot pose: " + getRobotPose());
-	}
-
-	
     public double getTrajectoryError() {
         return mSwerveDriveHelper.getTrajectoryError(getRobotPose().getTranslation());
     }
@@ -528,4 +521,11 @@ public class Swerve extends Subsystem{//this is the wrapper for a facade design 
         Pose2d robotPose = getRobotPose();
         return new Pose2d(robotPose.getTranslation(), robotPose.getRotation().rotateBy(Rotation2d.fromDegrees(180))).transformBy(new Transform2d(new Translation2d(VisionConstants.kFrontLimelightForward, -VisionConstants.kFrontLimelightRight), Rotation2d.fromDegrees(0)));
     }
+
+
+///////////////////  Telemetry and Logging  //////////////////////////////////////////////////////
+	@Override
+	public void outputTelemetry() {
+		// System.out.println(" Robot pose: " + getRobotPose());
+	}
 }

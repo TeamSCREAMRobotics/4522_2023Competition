@@ -36,7 +36,7 @@ public class PlacementStates {
             case MIDDLE:
                 return ArmConstants.Setpoints.kMiddleConeAutoStart;
             default:
-                DriverStation.reportError("error1 in getArmPlacementState", false);
+                DriverStation.reportError("error in getArmPlacementStateForAutoBeginning", false);
             case TOP:
                 return ArmConstants.Setpoints.kTopConeAutoStart;
         }
@@ -63,6 +63,9 @@ public class PlacementStates {
         return getSwervePlacementPoseAuto(node).getMirroredTranslation();
     }
 
+    /**
+     * @return Returns a pose that is slightly backed up from the placement state. This is so that if we are moving horizontally in the community, we don't run into the nodes
+     */
     public static Pose2d getSwerveBackupBeforePlaceState(Node node, Alliance alliance){
         return PlacementConstants.swerveBackupBeforePlaceStates[node.index].get(alliance);
     }
@@ -108,7 +111,7 @@ public class PlacementStates {
         }
 
         public double getXValue(Alliance alliance){
-            return getLocation(Level.HYBRID, alliance).getX();//the level is hybrid because we don't care about the y axis
+            return getLocation(Level.HYBRID, alliance).getX();//the level is arbitrarily hybrid because we don't care about the y axis
         }
 
         public Translation2d getLocation(Level level, Alliance alliance){

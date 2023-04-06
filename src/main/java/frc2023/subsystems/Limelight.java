@@ -73,12 +73,14 @@ public class Limelight extends Subsystem{
         APRILTAG, RETROREFLECTIVE;
     }
 
+
     private final InterpolatingTreeMap<Double, Double> txToMetersMap;
     private final InterpolatingTreeMap<Double, Double> tyToMetersMap;
     private final InterpolatingTreeMap<Double, Double> mAprilTagTAToSTDDevs;
     private final String mName;
     private final double mMaxSpeedForVisionUpdateTeleop;
     private final double mMaxSpeedForVisionUpdateAuto;
+
     private Limelight(String key, InterpolatingTreeMap<Double, Double> txToMetersMap, InterpolatingTreeMap<Double, Double> tyToMetersMap, 
                         InterpolatingTreeMap<Double, Double> aprilTagTAToSTDDevs, double maxSpeedForVisionUpdateTeleop, double maxSpeedForVisionUpdateAuto) {
         mNetworkTable = NetworkTableInstance.getDefault().getTable(key);
@@ -93,18 +95,20 @@ public class Limelight extends Subsystem{
 
 
     public synchronized void updateValues() {
-
+        //checks if the pipeline has changed and updates the measured pipeline
         int newPipeline = (int) mNetworkTable.getEntry("pipeline").getDouble(0);
         if(newPipeline != mPeriodicIO.currentPipeline) mPeriodicIO.pipelineChanged = true;
         else mPeriodicIO.pipelineChanged = false;
         mPeriodicIO.currentPipeline = newPipeline;
-
-        if(mPeriodicIO.pipelineChanged){
+        
+        if(mPeriodicIO.pipelineChanged){//we record the last time the pipeline has changed
             mPeriodicIO.lastPipelineChangeTimestamp = Timer.getFPGATimestamp();
-        } 
+        }
 
-        boolean canVisionUpdate = (Timer.getFPGATimestamp()-mPeriodicIO.lastPipelineChangeTimestamp >= VisionConstants.limelightSwitchPipelineDelay);//if we just switched pipelines, we can't vision update, for a bit of time
+        //if we just switched pipelines, we have to wait for a small duration before we can read correct vision measurements
+        boolean switchingPipelines = (Timer.getFPGATimestamp()-mPeriodicIO.lastPipelineChangeTimestamp  < VisionConstants.limelightSwitchPipelineDelay);
 
+        //we read the different network table values
         if(mPeriodicIO.currentPipeline == VisionConstants.kAprilTagPipeline) mPeriodicIO.targetType = VisionTargetType.APRILTAG;
         else mPeriodicIO.targetType = VisionTargetType.RETROREFLECTIVE;
 
@@ -120,9 +124,10 @@ public class Limelight extends Subsystem{
         mPeriodicIO.visionTimestamp = Timer.getFPGATimestamp() - mPeriodicIO.latency;//the time that the vision measurement was taken on the camera
         mPeriodicIO.lastUpdatedTimestamp = Timer.getFPGATimestamp();
 
-        if(canVisionUpdate && mPeriodicIO.robotPoseFromApriltag.isPresent()){
+        //If we are not switching pipelines, and we have a valid vision measurement from the apriltag or retroreflective tape, we add vision measurements to the list in swerve.
+        if(!switchingPipelines && mPeriodicIO.robotPoseFromApriltag.isPresent()){
             mSwerve.addVisionMeasurement(mPeriodicIO.robotPoseFromApriltag.get());//vision update from apriltag
-        } else if(canVisionUpdate && mPeriodicIO.robotPoseFromRetroReflective.isPresent()){// vision update from retroreflective vision tape. Only used on the front limelight
+        } else if(!switchingPipelines && mPeriodicIO.robotPoseFromRetroReflective.isPresent()){// vision update from retroreflective vision tape. Only used on the front limelight
             mSwerve.addVisionMeasurement(mPeriodicIO.robotPoseFromRetroReflective.get());
         } 
     }
@@ -130,8 +135,8 @@ public class Limelight extends Subsystem{
 
     /**
      *  tells the limelight which vision tape we are targeting. Originally we were going to use the pose of the robot to differentiate
-     *  which retroreflective vision target the limelight was seeing, but our pose estimate wasn't accurate enough. We assume that the 
-     *  target the limelight sees is the node the operator has selected. It is pretty accurate since we filter left/right for the vision tape.
+     *  which retroreflective vision target the limelight was seeing, but our pose estimate wasn't accurate enough for that to be reliable. We assume that the 
+     *  target the limelight sees is the node the operator has selected. This is pretty accurate since we filter left/right for the vision tape.
      */
     public void setVisionTargetNode(Node target){
         mPeriodicIO.visionTargetNode = target;
@@ -148,28 +153,41 @@ public class Limelight extends Subsystem{
 
 
     private Optional<TimestampedVisionUpdate> getRobotPoseFromApriltag(){
-
+        //we read the pose from the limelight and check if it doesn't see a target or if we aren't in apriltag mode, don't add a vision measurement
         NetworkTableEntry value = mNetworkTable.getEntry("botpose");
         double[] limelightPose = value.getDoubleArray(new double[0]);
         if(!mPeriodicIO.targetValid || limelightPose.length == 0 || mPeriodicIO.targetType != VisionTargetType.APRILTAG) return Optional.empty();//if there is no target, we don't have a vision update
+        if(limelightPose[0] == 0.0 && limelightPose[1] == 0.0) return Optional.empty();
 
-        Pose2d pose;
+        //We convert the raw limelight values to our mirrored coordinate system
+        Pose2d pose = convertLimelightPoseToScreamCoordinates(limelightPose);
+       
+        //This is our list of filters to discard potentially bad measurements
+        if(shouldDiscardApriltagPoseEstimate(pose)) return Optional.empty();
+
+        //if it makes it past the filters, we can use the vision update.
+        return Optional.of(new TimestampedVisionUpdate(mPeriodicIO.visionTimestamp, pose, getApriltagSTD_Devs(pose))); 
+    }
+
+    private Pose2d convertLimelightPoseToScreamCoordinates(double[] limelightPose){
         if(DriverStation.getAlliance() == Alliance.Blue){// we convert from the limelight coordinate system to our coordinate system.
-            pose = new Pose2d(new Translation2d(-limelightPose[1] + FieldConstants.fieldDimensions.getX()/2, limelightPose[0]), Rotation2d.fromDegrees(limelightPose[2]));
-            if(pose.getX() == 4.00 && pose.getY() == 0.00) return Optional.empty();
+            return new Pose2d(new Translation2d(-limelightPose[1] + FieldConstants.fieldDimensions.getX()/2, limelightPose[0]), Rotation2d.fromDegrees(limelightPose[2]));
         } else{
-            pose = new Pose2d(new Translation2d(limelightPose[1] - FieldConstants.fieldDimensions.getX()/2, -limelightPose[0]), Rotation2d.fromDegrees(limelightPose[2]));
-            if(pose.getX() == -4.00 && pose.getY() == -0.00) return Optional.empty();
+            return new Pose2d(new Translation2d(limelightPose[1] - FieldConstants.fieldDimensions.getX()/2, -limelightPose[0]), Rotation2d.fromDegrees(limelightPose[2]));
         } 
+    }
 
-        if(!mSwerve.atReference(pose, VisionConstants.swervePoseErrorToDiscardApriltagMeasurement, Rotation2d.fromDegrees(Double.MAX_VALUE))) return Optional.empty();// if the vision update is a certain distance from our current pose estimate, we assume it is wrong and filter it out.
-
-        if(mSwerve.getTranslationalSpeed() > mMaxSpeedForVisionUpdateAuto && Timer.getFPGATimestamp() <= 15.0) return Optional.empty();// auto filtering  //we filter the measuremnt based on the robot speed. If the robot is moving too fast, we don't trust the 
-                                                                                                                                                //measurement enough to use it. We have different max speeds for auto and teleop
-        else if(mSwerve.getTranslationalSpeed() > mMaxSpeedForVisionUpdateTeleop) return Optional.empty();// teleop filtering
+    private boolean shouldDiscardApriltagPoseEstimate(Pose2d poseEstimate){
         
-        if(Math.abs(mSwerve.getRotationalSpeed().getRadians()) > 0.4 ) return Optional.empty();// we also filter based on rotational speed
-        return Optional.of(new TimestampedVisionUpdate(mPeriodicIO.visionTimestamp, pose, getApriltagSTD_Devs(pose))); //if it makes it past the filters, we can use the vision update.
+        if(!mSwerve.atReference(poseEstimate, VisionConstants.swervePoseErrorToDiscardApriltagMeasurement, Rotation2d.fromDegrees(Double.MAX_VALUE))) return true;// if the vision update is a certain distance from our current pose estimate, we assume it is wrong and filter it out.
+
+        if(mSwerve.getTranslationalSpeed() > mMaxSpeedForVisionUpdateAuto && Timer.getFPGATimestamp() <= 15.0) return true;// auto filtering  //we filter the measuremnt based on the robot speed. If the robot is moving too fast, we don't trust the 
+                                                                                                                                                //measurement enough to use it. We have different max speeds for auto and teleop because we trust our swerve odometry more during auto
+        else if(mSwerve.getTranslationalSpeed() > mMaxSpeedForVisionUpdateTeleop) return true;// teleop filtering
+        
+        if(Math.abs(mSwerve.getRotationalSpeed().getRadians()) > 0.4 ) return true;// we also filter based on rotational speed
+
+        return false;
     }
 
     public Matrix<N3, N1> getApriltagSTD_Devs(Pose2d visionPose){//we change the std devs based on the distance from the tag, measured by the limelight "ta" value.
@@ -194,10 +212,11 @@ public class Limelight extends Subsystem{
         if(!mPeriodicIO.targetValid || mPeriodicIO.targetType != VisionTargetType.RETROREFLECTIVE) return Optional.empty();
         if(Math.abs(mSwerve.getRobotPose().getRotation().minus(SwerveConstants.robotForwardAngle).getDegrees()) > VisionConstants.angleThresholdToCountRetroReflectiveMeasurement.getDegrees()) return Optional.empty();
 
+        //checks the target pose, and xOffset and yOffset from target, returns a translation2d for the robot and the stdDevs for the angle are infinite becasue we can't measure angle.
         Pose2d referencePose = PlacementStates.getSwervePlacementPose(targetNode, DriverStation.getAlliance());
-        Translation2d offset = new Translation2d(-getXOffsetMeters(), getYOffsetMeters());
-//checks the target pose, and xOffset and yOffset from target, returns a translation2d for the robot and the stdDevs for the angle are infinite becasue we can't measure angle.
+        Translation2d offset = new Translation2d(-getXOffsetMetersRetroReflective(), getYOffsetMetersRetroReflective());
         Pose2d pose = new Pose2d(referencePose.getTranslation().plus(offset), referencePose.getRotation());
+        
         return Optional.of(new TimestampedVisionUpdate(mPeriodicIO.visionTimestamp, pose, getRetroreflectiveSTD_Devs()));
     }
 
@@ -261,21 +280,10 @@ public class Limelight extends Subsystem{
         // if(mPeriodicIO.robotPoseFromApriltag.isPresent()) System.out.println("apriltag : " + mPeriodicIO.robotPoseFromApriltag.get().pose) ;
     }
 
-
-    public double tx(){
-        return mPeriodicIO.targetX;
-    }
-
-
-    public double ty(){
-        return mPeriodicIO.targetY;
-    }
-
-
     /**
      * @return robotcentric x offset
      */
-    public double getXOffsetMeters(){
+    public double getXOffsetMetersRetroReflective(){
         return txToMetersMap.get(mPeriodicIO.targetX);
     }
 
@@ -283,13 +291,8 @@ public class Limelight extends Subsystem{
     /**
      * @return robotcentric y offset
      */
-    public double getYOffsetMeters(){
+    public double getYOffsetMetersRetroReflective(){
         return tyToMetersMap.get(mPeriodicIO.targetY);
-    }
-
-
-    public double getLatency(){
-        return mPeriodicIO.latency;
     }
 
 

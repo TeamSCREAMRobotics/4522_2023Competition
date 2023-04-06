@@ -246,11 +246,11 @@ public class Intake extends Subsystem{
 	}
 
 	public double getCurrentDraw(){
-		return mRollerMotor.getOutputCurrent() + mUpperConveyorMotor.getOutputCurrent() + mLowerConveyorMotor.getOutputCurrent();
+		return mRollerMotor.getOutputCurrent() + mUpperConveyorMotor.getOutputCurrent() + mLowerConveyorMotor.getOutputCurrent() + mShooterMotor.getSupplyCurrent();
 	}
 
 	public double getVoltage(){
-		return (mRollerMotor.getBusVoltage() + mUpperConveyorMotor.getBusVoltage() + mLowerConveyorMotor.getBusVoltage()) / 3.0;
+		return (mRollerMotor.getBusVoltage() + mUpperConveyorMotor.getBusVoltage() + mLowerConveyorMotor.getBusVoltage() + mShooterMotor.getBusVoltage()) / 3.0;
 	}
 	
 	public double getPowerConsumption(){
@@ -462,7 +462,7 @@ public class Intake extends Subsystem{
 				mPeriodicIO.isExtended = false;
 				mPeriodicIO.rollerPercentOutput = 0.0;
 				mPeriodicIO. upperConveyorPercentOutput = 0.0;
-				mPeriodicIO.lowerConveyorPercentOutput = -0.7;
+				mPeriodicIO.lowerConveyorPercentOutput = LowerConveyorConstants.kEjectOnlyLowerConveyorPO;
 				mPeriodicIO.shooterPercentOutput = 0.0;
 				break;
 			case AUTO_INTAKE:

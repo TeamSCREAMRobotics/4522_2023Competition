@@ -5,9 +5,9 @@ import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.sensors.CANCoder;
+import com.team4522.lib.deviceConfiguration.DeviceUtil;
 import com.team4522.lib.logging.CSVWriteable;
 import com.team4522.lib.pid.PIDConstants;
-import com.team4522.lib.util.DeviceUtil;
 import com.team4522.lib.util.ScreamUtil;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -92,18 +92,18 @@ public class SwerveModule implements CSVWriteable {
 			mSteer.neutralOutput();
 			mDrive.neutralOutput();
 		} else{
-			runSteerMotor(mDesiredState.angle);
-			runDriveMotor(closedLoop, mDesiredState.speedMetersPerSecond);
+			setSteerMotor(mDesiredState.angle);
+			setDriveMotor(closedLoop, mDesiredState.speedMetersPerSecond);
 		}
 	}
 
-	private void runSteerMotor(Rotation2d angle){
+	private void setSteerMotor(Rotation2d angle){
 		double steerTarget = angle.getDegrees()/kSteerPositionCoefficient;
 		if(!angleOnTarget()) mSteer.set(ControlMode.MotionMagic, steerTarget, DemandType.ArbitraryFeedForward,  Math.signum(steerTarget-mSteer.getSelectedSensorPosition())*mModuleConstants.steerKS);
 		else mSteer.set(ControlMode.PercentOutput, 0);
 	}
 
-	private void runDriveMotor(boolean closedLoop, double speedMetersPerSecond){
+	private void setDriveMotor(boolean closedLoop, double speedMetersPerSecond){
 		if(closedLoop){
 			mDrive.set(ControlMode.Velocity, mDriveAccelerationLimiter.calculate(speedMetersPerSecond)/kDriveVelocityCoefficient, DemandType.ArbitraryFeedForward, Math.signum(speedMetersPerSecond)*mModuleConstants.driveKS);
 		}

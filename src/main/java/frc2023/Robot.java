@@ -46,7 +46,6 @@ public class Robot extends TimedRobot {
 
   private final PeriodicLoop mOdometryLoop;
   private final PeriodicLoop mTelemetryLoop;
-  private boolean mEnabled = false;
   private final PeriodicLoop mUpdatePIDsFromShuffleboard;
 
   public Robot(){
@@ -83,6 +82,7 @@ public class Robot extends TimedRobot {
     mPDH.clearStickyFaults();
   }
 
+
   @Override
   public void robotInit() {
     mOdometryLoop.start();
@@ -98,17 +98,19 @@ public class Robot extends TimedRobot {
     DriverStation.reportWarning("Robot Initialized", false);
   }
 
+
   @Override
   public void robotPeriodic() {
     mShuffleboardTabManager.update();
   }
 
+
   @Override
   public void autonomousInit() {
     mAutoRoutineExecutor.selectRoutine(mMatchTab.getSelectedAutoRoutine());
     mAutoRoutineExecutor.start();
-    if(!mEnabled) enabledInit();
   }
+
 
   @Override
   public void autonomousPeriodic() {
@@ -119,10 +121,12 @@ public class Robot extends TimedRobot {
     mSubsystemManager.writeOutputs();
   }
 
+
   @Override
   public void teleopInit() {
-    if(!mEnabled) enabledInit();
+    
   }
+
 
   @Override
   public void teleopPeriodic() {
@@ -130,26 +134,17 @@ public class Robot extends TimedRobot {
     mSubsystemManager.writeOutputs();
   }
   
-  public void enabledInit(){
-    System.out.println("ENABLED_INIT");
-    mEnabled = true;
-    mArm.configTelescopeSoftLimitsEnabled(true);
-    mArm.configPivotSoftLimitsEnabled(true);
-    mArm.setNeutralMode(NeutralMode.Brake, NeutralMode.Brake);
-    mSwerve.setNeutralMode(NeutralMode.Brake, NeutralMode.Brake);
-    mBackLimelight.setPipeline(0);
-  }
 
   Timer mTimeSinceDisabled = new Timer();
 
   @Override
   public void disabledInit() {
-    mEnabled = false;
     mAutoRoutineExecutor.stop();
     mSubsystemManager.stop();
     mTimeSinceDisabled.reset();
     mTimeSinceDisabled.start();
   }
+
 
   @Override
   public void disabledPeriodic() {
@@ -161,18 +156,28 @@ public class Robot extends TimedRobot {
     mBackLimelight.writeOutputs();
   }
 
+
+  @Override
+  public void disabledExit() {
+    System.out.println("ENABLED_INIT");
+    mArm.configTelescopeSoftLimitsEnabled(true);
+    mArm.configPivotSoftLimitsEnabled(true);
+    mArm.setNeutralMode(NeutralMode.Brake, NeutralMode.Brake);
+    mSwerve.setNeutralMode(NeutralMode.Brake, NeutralMode.Brake);
+    mBackLimelight.setPipeline(0);
+  }
+  
+
   @Override
   public void testInit() {
-    if(!mEnabled) enabledInit();
-    mSwerve.setNeutralMode(NeutralMode.Brake, NeutralMode.Brake);
+    mArm.configTelescopeSoftLimitsEnabled(false);//We disable the soft limits in test mode to test the arm hard stops, and we reenable soft limits in enabledInit.
+    mArm.configPivotSoftLimitsEnabled(false);
   }
+
 
   @Override
   public void testPeriodic() {
-    mArm.configTelescopeSoftLimitsEnabled(false);//We disable the soft limits in test mode to test the arm hard stops, and we reenable soft limits in enabledInit.
-    mArm.configPivotSoftLimitsEnabled(false);
-    if(mControlBoard.getArmManualOverride()){
-      
+    if(mControlBoard.getArmManualOverride()){      
 				double pivotPO = mControlBoard.getPivotPO();
 				double telescopePO = mControlBoard.getTelescopePO();
 				double multiplier = (mControlBoard.getArmManualSlowMode()? 0.5 : 1);

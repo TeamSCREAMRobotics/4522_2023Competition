@@ -31,6 +31,7 @@ public class ControlBoard {
 		mManualController = new ScreamXboxController(3);
 	}
 	
+	
 	private static ControlBoard mInstance = null;
 	public static ControlBoard getInstance(){
 		if(mInstance == null){
@@ -38,6 +39,7 @@ public class ControlBoard {
 		}
 		return mInstance;
 	}
+
 
 	public Translation2d getSwerveTranslation(){
 		Translation2d input = new Translation2d(mController.getAxis(Side.LEFT, Axis.X),
@@ -48,20 +50,24 @@ public class ControlBoard {
 		double y =  Math.signum(input.getY()) * MathUtil.applyDeadband(Math.abs(input.getY()), Math.abs(deadbandVector.getY()));
 
 		Translation2d deadbandedInput = new Translation2d(x, y);
-		deadbandedInput = snapToPole(deadbandedInput);
+		deadbandedInput = snapSwerveTranslationToPole(deadbandedInput);
 
 		return deadbandedInput.times(Math.pow(deadbandedInput.getNorm(), ControlBoardConstants.kTranslationJoystickSmoothingExponent)).times(SwerveConstants.kMaxDriveSpeed);
 	}
 
-	private Translation2d snapToPole(Translation2d driveInput){
-		
+
+	/** A lot of the time, while driving, you want to drive only straight forward or straight to the side. It is difficult for the driver to make the swerve go completely straight,
+	 * so if the input is within a certain threshold of right/up/left/down, we assume that they mean to drive straight in that direction. For example, if the kThresholdToSnapSwerveToPole is 5 degrees,
+	 * then if the driver holds the joystick at 86 degrees, the code will read it as inputting 90 degrees with the same magnitude. */
+	private Translation2d snapSwerveTranslationToPole(Translation2d driveInput){
+
 		Rotation2d threshold = ControlBoardConstants.kThresholdToSnapSwerveToPole;
 		for(int i = 0; i < 360; i+=90){
-
 			if(Math.abs(driveInput.getAngle().minus(Rotation2d.fromDegrees(i)).getDegrees()) < threshold.getDegrees()) return new Translation2d(driveInput.getNorm(), Rotation2d.fromDegrees(i));
 		}
 		return driveInput;
 	}
+
 
 	public Rotation2d getSwerveRotation(){
 		double turn = mController.getAxis(Side.RIGHT, Axis.X);
@@ -70,6 +76,7 @@ public class ControlBoard {
 
 		return Rotation2d.fromRadians(deadbandedAndSquaredRotation*SwerveConstants.kMaxDriveAngularSpeed);
 	}
+
 
 	public Optional<Rotation2d> getSwerveTargetAngle(){
 		switch(mController.getPOV()){
@@ -102,7 +109,6 @@ public class ControlBoard {
 			else if(mButtonboard.getRawButton(8)) mSelectedNode = Node.NODE8;
 			else if(mButtonboard.getRawButton(9)) mSelectedNode = Node.NODE9;
 		} else{
-			
 			if(mButtonboard.getRawButton(9)) mSelectedNode = Node.NODE1;
 			else if(mButtonboard.getRawButton(8)) mSelectedNode = Node.NODE2;
 			else if(mButtonboard.getRawButton(7)) mSelectedNode = Node.NODE3;
@@ -113,75 +119,91 @@ public class ControlBoard {
 			else if(mButtonboard.getRawButton(2)) mSelectedNode = Node.NODE8;
 			else if(mButtonboard.getRawButton(1)) mSelectedNode = Node.NODE9;
 		}
-		
 	}
+
 
 	Level mSelectedLevel = Level.TOP;
 	private void updateSelectedPlacementLevel(){
 		if(mButtonboard.getRawButton(12)) mSelectedLevel = Level.TOP;
 		else if(mButtonboard.getRawButton(11)) mSelectedLevel = Level.MIDDLE;
-		else if(mButtonboard.getRawButton(10)) mSelectedLevel =Level.HYBRID;
+		else if(mButtonboard.getRawButton(10)) mSelectedLevel = Level.HYBRID;
 	}
+
 
 	public boolean getAutoPlaceWithoutPosition(){
 		return mController.getButton(Button.A);
 	}
 
+
 	public boolean getSlowMode(){
 		return mController.getTrigger(Side.LEFT) > ControlBoardConstants.kTriggerThreshold;
 	}
+
 
 	public boolean getBackwardsEject(){
 		return mController.getButton(Button.X);
 	}
 
+
 	public boolean getPrepareIntakeForShot(){
 		return mController.getButton(Button.Y);
 	}
 
+
 	public boolean getLockWheels(){
 		return false;//mController.getButton(Button.B);
 	}	
+
 	
 	public boolean getZeroGyro(){
 		return mController.getButton(Button.BACK);
 	}
+
 	
 	public boolean getZeroPose(){
 		return mController.getButton(Button.START);
 	}
 
+
 	public boolean getIntake(){
 		return mController.getTrigger(Side.RIGHT) > ControlBoardConstants.kTriggerThreshold;
 	}
+
 
 	public boolean getEject(){
 		return mController.getButton(Button.LB);
 	}
 
+
 	public boolean getRobotCentric(){
 		return false;
 	}
+
 
 	public boolean getManualControllerResetPivot(){
 		return mManualController.getButton(Button.START);
 	}
 
+
 	public boolean getDodgeCounterClockwise() {
 		return false;//mController.getButton(Button.L_JOYSTICK);
 	}
+
 
     public boolean getDodgeClockwise() {
         return false; //mController.getButton(Button.R_JOYSTICK);
     }
 
+
     public boolean getDriveAndFaceAngle() {
         return false;
     }
 
-	public void setRumbleForEndGame(){
+
+	public void setRumbleForEndGame(){//we never ended up using the rumble for end game since it wasn't useful
 		mController.setRumble(RumbleType.kBothRumble, 0.3);
 	}
+
 
 	public void update(){
 		updateSelectedNode();
@@ -189,39 +211,38 @@ public class ControlBoard {
 	}
 
 
-	public boolean getGripperOpenForConeIntake(){
+	public boolean getOpenGripper(){
 		return mButtonboard.getBigSwitch() == Direction.DOWN;
 	}
 
-	public boolean getGripperOpenForPlace(){
-		return getGripperOpenForConeIntake();//they are the same, but this is easier to read
-	}
 
 	public boolean getCloseGripper(){
 		return mButtonboard.getBigSwitch() == Direction.UP;
 	}
 
-	public boolean getGripperFullOpen(){
-		return mButtonboard.getBigSwitch() == Direction.RIGHT;
-	}
 
 	public boolean armPlaceCone(){
 		return mButtonboard.getRawSwitch(2);
 	}
 
+
 	public boolean getArmManualOverride(){
 		return getManualOverrideSwtich();
 	}
 
+
 	private boolean getManualOverrideSwtich(){
 		return mButtonboard.getRawSwitch(3);
 	}
+
+
 	public double getPivotPO(){
 		double input = mManualController.getAxis(Side.LEFT, Axis.Y);
 		double y =  Math.signum(input) * MathUtil.applyDeadband(Math.abs(input), Math.abs(ControlBoardConstants.manualPivotPODeadband));
 		
 		return Math.signum(y) * Math.pow(y, 2) / 2;
 	}
+
 
 	public double getTelescopePO(){
 		double input = mManualController.getAxis(Side.RIGHT, Axis.Y);
@@ -230,29 +251,36 @@ public class ControlBoard {
 		return Math.signum(y) * Math.pow(y, 2) / 1.0;
 	}
 	
+
 	public boolean getShootCube(){
 		return mController.getButton(Button.RB);
 	}
+
 
 	public boolean getAutoShoot(){
 		return false;//mController.getButton(Button.R_JOYSTICK);
 	}
 
+
 	public boolean getSweep(){
 		return mController.getButton(Button.L_JOYSTICK);
 	}
+
 
 	public Node getSelectedNode() {
 		return mSelectedNode;
 	}
 
+
 	public Level getSelectedLevel() {
 		return mSelectedLevel;
 	}
 
+
 	public boolean getZeroTelescope(){
 		return mManualController.getButton(Button.BACK);
 	}
+
 
 	public boolean getTweakArmSetpointUp(){
 		return mManualController.getButtonPressed(Button.Y);
@@ -268,21 +296,26 @@ public class ControlBoard {
 		return mManualController.getTrigger(Side.LEFT) >= ControlBoardConstants.kTriggerThreshold;
 	}
 
+
     public boolean getSnapAngleAndShoot() {
         return mController.getButton(Button.B);
     }
+
 
     public boolean getPoopShootFromChargeLine() {
         return mController.getButton(Button.R_JOYSTICK);
     }
 
+
     public boolean getArmHoldSetpoint() {
         return mButtonboard.getRawSwitch(1);
     }
 
+
     public boolean getPreparePlacement() {
         return false;//Buttonboard.getRawSwitch(4);
     }
+
 
 	public double getSlowModeTranslationScalar() {
 		return MathUtil.interpolate(ControlBoardConstants.kSlowModeTranslationMinScalar, 1, 1-mController.getTrigger(Side.LEFT));
@@ -293,8 +326,8 @@ public class ControlBoard {
 		return	MathUtil.interpolate(ControlBoardConstants.kSlowModeRotationMinScalar, 1, 1-mController.getTrigger(Side.LEFT));		
 	}
 
+	
 	public boolean getFullAutoPlace() {
 		return false;
 	}
-
 }

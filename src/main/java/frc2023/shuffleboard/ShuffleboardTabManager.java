@@ -2,11 +2,12 @@ package frc2023.shuffleboard;
 
 import java.util.ArrayList;
 
+import frc2023.Constants;
 import frc2023.shuffleboard.tabs.*;
 public class ShuffleboardTabManager {
 
     // Adds more tabs to use when debugging
-    public final boolean mDebug = true;
+    public final boolean mDebug = Constants.includeDebugTabs;
 
     private static ShuffleboardTabManager mInstance; 
 

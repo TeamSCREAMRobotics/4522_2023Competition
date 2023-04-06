@@ -7,8 +7,8 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.MagnetFieldStrength;
+import com.team4522.lib.deviceConfiguration.DeviceUtil;
 import com.team4522.lib.pid.PIDConstants;
-import com.team4522.lib.util.DeviceUtil;
 import com.team4522.lib.util.ScreamUtil;
 
 import edu.wpi.first.math.MathUtil;
@@ -45,9 +45,8 @@ public class Arm extends Subsystem{
 	}
     public final PeriodicIO mPeriodicIO = new PeriodicIO();
 
-    //the pivot encoder is zeroed facing forward. This is so that we can zero it using a level for more accurate measurements
     private final TalonFX mPivotMotor;
-    public final CANCoder mPivotEncoder;
+    private final CANCoder mPivotEncoder;
     private final TalonSRX mTelescopeMotor;
     private final Devices mDevices = Devices.getInstance();
 	/**mutliply this by native steer native position to get degrees */
@@ -97,14 +96,14 @@ public class Arm extends Subsystem{
 
 
     private static Rotation2d armPositionToSprocketPosition(Rotation2d armPosition){// all of this logic will fail if the arm is within the wiggle room of being completely vertical. We cannot control the arm if gravity doesn't hold it to one side of its wiggle
-        if(armPosition.getDegrees() > 0) return subtractBacklash(armPosition);
-        else return addBacklash(armPosition);
+        if(armPosition.getDegrees() > 0) return subtractSlop(armPosition);
+        else return addSlop(armPosition);
     }
 
 
     private static Rotation2d sprocketPositionToArmPosition(Rotation2d sprocketPosition){
-        if(sprocketPosition.getDegrees() > 0) return addBacklash(sprocketPosition);
-        else return subtractBacklash(sprocketPosition);
+        if(sprocketPosition.getDegrees() > 0) return addSlop(sprocketPosition);
+        else return subtractSlop(sprocketPosition);
     }
     
 
@@ -122,28 +121,28 @@ public class Arm extends Subsystem{
         if(sensor == PivotSensorType.CANCODER) return getAbsoluteEncoder();
 
         Rotation2d sensorAngle = nativePivotPositionToRotation(mPivotMotor.getSelectedSensorPosition());
-        if(sensorAngle.getDegrees() > 0) return addBacklash(sensorAngle);
-        else return subtractBacklash(sensorAngle);
+        if(sensorAngle.getDegrees() > 0) return addSlop(sensorAngle);
+        else return subtractSlop(sensorAngle);
     }
 
     
     public Rotation2d getSprocketAngle(PivotSensorType sensor){
         if(sensor == PivotSensorType.INTEGRATED_SENSOR) return nativePivotPositionToRotation(mPivotMotor.getSelectedSensorPosition());
 
-        Rotation2d canconderAngle = getAbsoluteEncoder();
+        Rotation2d cancoderAngle = getAbsoluteEncoder();
 
-        if(canconderAngle.getDegrees() > 0) return subtractBacklash(canconderAngle);
-        else return addBacklash(canconderAngle);
+        if(cancoderAngle.getDegrees() > 0) return subtractSlop(cancoderAngle);
+        else return addSlop(cancoderAngle);
     }
 
 
-    private static Rotation2d addBacklash(Rotation2d rotation){
-        return rotation.plus(ArmConstants.kArmBacklash.div(2));
+    private static Rotation2d addSlop(Rotation2d rotation){
+        return rotation.plus(ArmConstants.kArmSlop.div(2));
     }
 
 
-    private static Rotation2d subtractBacklash(Rotation2d rotation){
-        return rotation.minus(ArmConstants.kArmBacklash.div(2));
+    private static Rotation2d subtractSlop(Rotation2d rotation){
+        return rotation.minus(ArmConstants.kArmSlop.div(2));
     }
 
 

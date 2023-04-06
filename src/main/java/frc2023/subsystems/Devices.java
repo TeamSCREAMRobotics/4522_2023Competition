@@ -10,13 +10,12 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.team254.CanDeviceId;
-
-import com.team4522.lib.drivers.DeviceConfigurationUtil;
-import com.team4522.lib.drivers.DeviceConfigs.CANCoderConfig;
-import com.team4522.lib.drivers.DeviceConfigs.CANSparkMaxConfig;
-import com.team4522.lib.drivers.DeviceConfigs.Pigeon2Config;
-import com.team4522.lib.drivers.DeviceConfigs.TalonFXConfig;
-import com.team4522.lib.drivers.DeviceConfigs.TalonSRXConfig;
+import com.team4522.lib.deviceConfiguration.DeviceConfigurationUtil;
+import com.team4522.lib.deviceConfiguration.DeviceConfigs.CANCoderConfig;
+import com.team4522.lib.deviceConfiguration.DeviceConfigs.CANSparkMaxConfig;
+import com.team4522.lib.deviceConfiguration.DeviceConfigs.Pigeon2Config;
+import com.team4522.lib.deviceConfiguration.DeviceConfigs.TalonFXConfig;
+import com.team4522.lib.deviceConfiguration.DeviceConfigs.TalonSRXConfig;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -62,7 +61,6 @@ public class Devices {
     public final CANCoder dPivotCANCoder;
     public final TalonSRX dArmTelescope;
     public final Solenoid dUpperGripperSolenoid;
-    public final Solenoid dLowerGripperSolenoid;
 
     public final CANSparkMax dIntakeMotor;
     public final Solenoid dIntakeSolenoid;
@@ -98,7 +96,6 @@ public class Devices {
         dArmTelescope = createArmTelecopeMotor(Ports.ArmTelescopeID);
 
         dUpperGripperSolenoid = new Solenoid(Ports.pneumaticsHubID, PneumaticsModuleType.REVPH, Ports.gripperUpperSolenoidID);
-        dLowerGripperSolenoid = new Solenoid(Ports.pneumaticsHubID, PneumaticsModuleType.REVPH, Ports.gripperLowerSolenoidID);
 
         dIntakeSolenoid = new Solenoid(Ports.pneumaticsHubID, PneumaticsModuleType.REVPH, Ports.intakeSolenoidID);
         dIntakeMotor = createIntakeMotor(Ports.intakeMotorID);

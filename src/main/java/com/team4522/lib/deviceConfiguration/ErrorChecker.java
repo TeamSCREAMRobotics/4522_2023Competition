@@ -1,4 +1,4 @@
-package com.team4522.lib.drivers;
+package com.team4522.lib.deviceConfiguration;
 
 import com.ctre.phoenix.ErrorCode;
 import com.revrobotics.REVLibError;

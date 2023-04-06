@@ -1,14 +1,14 @@
-package com.team4522.lib.drivers;
+package com.team4522.lib.deviceConfiguration;
 
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.*;
 import com.ctre.phoenix.sensors.*;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
-import com.team4522.lib.drivers.DeviceConfigs.*;
-import com.team4522.lib.drivers.ErrorChecker.*;
+import com.team4522.lib.deviceConfiguration.DeviceConfigs.*;
+import com.team4522.lib.deviceConfiguration.ErrorChecker.*;
 
-/**This clas is responsible for configuring devices with all of their settings, and if there are any errors in configuration, it will repeatedly configure the devices. If this fails,
+/**This class is responsible for configuring devices with all of their settings, and if there are any errors in configuration, it will repeatedly configure the devices. If this fails,
  * an error will be printed to the console telling us that there is something wrong with the device.
 */
 public class DeviceConfigurationUtil {//TODO add in settings as needed. We don't have all of the config variables setup because we don't use most of the motor settings

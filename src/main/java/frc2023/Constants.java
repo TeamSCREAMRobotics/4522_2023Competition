@@ -39,7 +39,8 @@ public class Constants {
 	public static final int kUpdatePIDsFromShuffleboardPeriodMilliseconds = (int) (kUpdatePIDsFromShuffleboardPeriodSeconds * 1000.0);
 
 	public static final boolean updatePIDsFromShuffleboard = false;
-	public static final boolean outputTelemetry = false;
+	public static final boolean outputTelemetry = true;
+    public static final boolean includeDebugTabs = true;
 
 	public static class ControlBoardConstants {
 		public static final double kSwerveTranslationDeadband = 0.15;
@@ -51,10 +52,8 @@ public class Constants {
 		 * This constant is the minimum value, when the trigger is held all the ways down */
 		public static final double kSlowModeTranslationMinScalar = 0.20;
 		public static final double kSlowModeRotationMinScalar = 0.20;
-		/** A lot of the time, while driving, you want to drive only straight forward or straight to the side. It is difficult for the driver to make the swerve go completely straight,
-		 * so if the input is within a certain threshold of right/up/left/down, we assume that they mean to drive straight in that direction. For example, if the threshold is 5 degrees,
-		 * then if the driver holds the joystick at 86 degrees, the code will read it as inputting 90 degrees with the same magnitude. */
-		public static final Rotation2d kThresholdToSnapSwerveToPole = Rotation2d.fromDegrees(5);
+
+		public static final Rotation2d kThresholdToSnapSwerveToPole = Rotation2d.fromDegrees(7);
 		public static final double manualPivotPODeadband = 0.1;
         public static final Rotation2d kTweakArmSetpointAmount = Rotation2d.fromDegrees(0.7);
 	}
@@ -253,7 +252,7 @@ public class Constants {
         public static final double kFrontLimelightForward = 0.3048;
         public static final double kFrontLimelightRight = 0.2286;
 
-        public static final double limelightSwitchPipelineDelay = 0.1;
+        public static final double limelightSwitchPipelineDelay = 0.07;
 
 		//Constants for filtering out possibly bad limelight measurements
         public static final Rotation2d angleThresholdToCountRetroReflectiveMeasurement = Rotation2d.fromDegrees(5);
@@ -261,7 +260,7 @@ public class Constants {
         public static final double kFrontMaxSpeedForVisionUpdateAuto = 0.45;
 		public static final double kBackMaxSpeedForVisionUpdateTeleop = 3.5;
 		public static final double kBackMaxSpeedForVisionUpdateAuto = 0.3;
-		public static final double swervePoseErrorToDiscardApriltagMeasurement = 2.5;
+		public static final double swervePoseErrorToDiscardApriltagMeasurement = 3.0;
 		
 		//TreeMaps for TA to standard deviations. The lower the TA value, the less confident we are in our measurements, so the higher the standard deviations must be.
 		public static final InterpolatingTreeMap<Double, Double> frontAprilTagTAToSTDDevs = new InterpolatingTreeMap<Double, Double>();
@@ -319,8 +318,8 @@ public class Constants {
 
 
 		/** The angle differnce of the arm as it wiggles without moving the chain. When measuring setpoints for the arm, we always measure the location of the arm. When setting the arm to
-		 * a setpoint, we add half of the backlash in the direction opposite of gravity, so that when the arm drops lower because of play in the system, it drops to the correct position. */
-		public static final Rotation2d kArmBacklash = Rotation2d.fromDegrees(4.4);
+		 * a setpoint, we add half of the slop in the direction opposite of gravity, so that when the arm drops lower because of play in the system, it drops to the correct position. */
+		public static final Rotation2d kArmSlop = Rotation2d.fromDegrees(4.4);
 
 		public static final Rotation2d kPivotAngleThresholdForTelescopeOut = Rotation2d.fromDegrees(75.0);
 
@@ -415,6 +414,7 @@ public class Constants {
 			public static final double kPoopShootFromChargeLinePO = 1.0;
             public static final double kPoopShootFromChargeLineAutoPO = 1.0;
             public static final double kPrepareForShot = -1.0;
+            public static final double kEjectOnlyLowerConveyorPO = -0.7;
 		}
 
 		public static class ShooterConstants {

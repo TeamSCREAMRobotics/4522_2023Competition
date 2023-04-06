@@ -6,12 +6,10 @@ public class Gripper extends Subsystem{
 
 	public final PeriodicIO mPeriodicIO = new PeriodicIO();
 	private final Solenoid mUpperSolenoid;
-	private final Solenoid mToiletSeatSolenoid;
     private final Devices mDevices = Devices.getInstance();
 	
 	private Gripper(){
-		mUpperSolenoid =  mDevices.dUpperGripperSolenoid;
-		mToiletSeatSolenoid = mDevices.dLowerGripperSolenoid;
+		mUpperSolenoid = mDevices.dUpperGripperSolenoid;
 	}
 	
 	private static Gripper mInstance = null;
@@ -23,15 +21,12 @@ public class Gripper extends Subsystem{
 	}
 
 	public enum GripperState{
-		DISABLED, PLACE_CONE, CLOSED, FULL_OPEN;
+		DISABLED, OPEN, CLOSED;
 	}
 
 	public class PeriodicIO{
 		//Inputs
 		public GripperState lastState = GripperState.DISABLED;
-		public boolean beamBrokenLastLoop = false;
-		public boolean seesGamePiece = false;
-		public boolean hasGamePiece = false;
 
 		//Outputs
 		public GripperState state = GripperState.DISABLED;
@@ -42,24 +37,12 @@ public class Gripper extends Subsystem{
 		mPeriodicIO.state = GripperState.DISABLED;
 	}
 
-    public void placeCone(){
-		mPeriodicIO.state = GripperState.PLACE_CONE;
+    public void open(){
+		mPeriodicIO.state = GripperState.OPEN;
 	}
-
-    public void openForConeIntake(){
-        mPeriodicIO.state = GripperState.PLACE_CONE;//this is not a bug
-    }
 
     public void close(){
 		mPeriodicIO.state = GripperState.CLOSED;
-	}
-
-	public void fullOpen(){
-		mPeriodicIO.state = GripperState.FULL_OPEN;
-	}
-
-	public GripperState get(){
-		return mPeriodicIO.state;
 	}
 	
 	public GripperState getLastState(){
@@ -77,18 +60,12 @@ public class Gripper extends Subsystem{
 			case DISABLED:
 				//literally does nothing while disabled
                 break;
-			case PLACE_CONE:
+			case OPEN:
 				mUpperSolenoid.set(true);
-				mToiletSeatSolenoid.set(false);
 				break;
             case CLOSED:
                 mUpperSolenoid.set(false);
-				mToiletSeatSolenoid.set(false);
                 break;
-			case FULL_OPEN:
-				mUpperSolenoid.set(true);
-				mToiletSeatSolenoid.set(true);
-				break;
 		}
 		mPeriodicIO.lastState = mPeriodicIO.state;
 	}

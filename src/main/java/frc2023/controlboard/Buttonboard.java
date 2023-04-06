@@ -30,7 +30,7 @@ public class Buttonboard {
     HashMap<Integer, ButtonboardPort> switchMap = new HashMap<Integer, ButtonboardPort>();
     private final int joystickXAxis;
     private final int joystickYAxis;
-    private final int joystickPort = 1;//the driverstation port that the joystick is on.
+    private final int joystickIndex = 1;//the driverstation port that the joystick is on.
 
     // HashMap<Direction, ButtonboardPort> bigSwitchMap = new HashMap<Direction, ButtonboardPort>();
 
@@ -107,8 +107,8 @@ public class Buttonboard {
     }
 
     public Direction getBigSwitch(){
-        int x = (int)usbDevices[joystickPort].getRawAxis(joystickXAxis);
-        int y = (int)usbDevices[joystickPort].getRawAxis(joystickYAxis);
+        int x = (int)usbDevices[joystickIndex].getRawAxis(joystickXAxis);
+        int y = (int)usbDevices[joystickIndex].getRawAxis(joystickYAxis);
 
         if(x == 1 && y == 0){
             return Direction.RIGHT;

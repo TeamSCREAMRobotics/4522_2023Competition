@@ -32,6 +32,7 @@ public class ArmAutoPlaceAction extends ActionBase{
         System.out.println("arm auto place action");
         mTimerSinceStart.reset();
         mTimerSinceStart.start();
+        mGripper.close();
     }
 
     @Override
@@ -40,28 +41,26 @@ public class ArmAutoPlaceAction extends ActionBase{
         if(mArm.atTargetPosition(mPlaceLocation) || mTimerSinceStart.get() >= timeoutSeconds){
             mWaitAfterAtPositionTimer.reset();
             mWaitAfterAtPositionTimer.start();
-            mGripper.placeCone();
+            mGripper.open();
         }
 
-        if(mTimerSinceStart.get() >= .25) mGripper.placeCone();
+        if(mTimerSinceStart.get() >= .25) mGripper.open();
     }
 
     @Override
     public void stop(boolean interrupted) {
         System.out.println("arm auto place stop");
         mArm.disable();
-        mGripper.placeCone();
+        mGripper.open();
     }
 
-    private GripperState mLastState = GripperState.DISABLED;
 
     @Override
     public boolean isFinished() {
-        if(mGripper.get() == GripperState.PLACE_CONE && mLastState != GripperState.PLACE_CONE){
+        if(mGripper.getLastState() == GripperState.OPEN){
             mTimerWaitAfterPlace.reset();
             mTimerWaitAfterPlace.start();
         }
-        mLastState = mGripper.getLastState();
         
         return mTimerWaitAfterPlace.get() >= timeAfterPlaceToFinish || mTimerSinceStart.get() > timeoutSeconds + timeAfterPlaceToFinish;
     }

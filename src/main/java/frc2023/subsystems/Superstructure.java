@@ -74,23 +74,10 @@ public class Superstructure {
 		} 
 		
 		if(shouldSelectNewAutoRoutine(desiredAutoRoutine)) selectNewAutoRoutine(desiredAutoRoutine);
+
+		
 		final boolean autoControl = mSelectedRoutine.isPresent();
 
-		//arm manual setpoint tweaking(for if the zero is wrong)
-		if(mControlBoard.getTweakArmSetpointUp()){
-			mArm.incrementSensorReading(ControlBoardConstants.kTweakArmSetpointAmount);
-		} else if(mControlBoard.getTweakArmSetpointDown()){
-			mArm.incrementSensorReading(ControlBoardConstants.kTweakArmSetpointAmount.times(-1));
-		}
-		//arm rezero buttons
-		if(mControlBoard.getManualControllerResetPivot()){
-			mArm.resetPivotToAngle(Rotation2d.fromDegrees(-90));
-		}
-		if(mControlBoard.getZeroTelescope()){
-			mArm.zeroTelescope();
-		}
-	
-		
 		if(autoControl){//if we are running an auto routine, execute the auto command
 			mAutoRoutineExecutor.execute();
 		} else {
@@ -124,9 +111,8 @@ public class Superstructure {
 
 
 			//Gripper
-			if(mControlBoard.getGripperOpenForConeIntake()) mGripper.openForConeIntake();
+			if(mControlBoard.getOpenGripper()) mGripper.open();
 			else if(mControlBoard.getCloseGripper()) mGripper.close();
-			else if(mControlBoard.getGripperFullOpen()) mGripper.fullOpen();
 
 			//Eject
 			if(eject){
@@ -138,10 +124,12 @@ public class Superstructure {
 				mIntake.shootCube(selectedLevel);
 			}
 
+			//Prepare shooter for shot
 			if(prepareShooterForShot){
 				mIntake.prepareForShot();
 			}
 			
+			//Snap and shoot
 			if(snapAndShoot){
 				if(mSwerve.atAngleReference(SwerveConstants.robotForwardAngle, Rotation2d.fromDegrees(15))){
 					mIntake.shootCube(selectedLevel);
@@ -221,6 +209,21 @@ public class Superstructure {
 			}
 
 
+			//arm manual setpoint tweaking(for if the zero is wrong)
+			if(mControlBoard.getTweakArmSetpointUp()){
+				mArm.incrementSensorReading(ControlBoardConstants.kTweakArmSetpointAmount);
+			} else if(mControlBoard.getTweakArmSetpointDown()){
+				mArm.incrementSensorReading(ControlBoardConstants.kTweakArmSetpointAmount.times(-1));
+			}
+			//arm rezero buttons
+			if(mControlBoard.getManualControllerResetPivot()){
+				mArm.resetPivotToAngle(Rotation2d.fromDegrees(-90));
+			}
+			if(mControlBoard.getZeroTelescope()){
+				mArm.zeroTelescope();
+			}
+
+
 			/////////  put all of the manual override code here  //////////
 			final boolean armManualOverride = mControlBoard.getArmManualOverride();
 
@@ -230,6 +233,8 @@ public class Superstructure {
 				double multiplier = (mControlBoard.getArmManualSlowMode()? 0.5 : 1);
 				mArm.setPercentOutput(pivotPO*multiplier, telescopePO*multiplier);
 			}
+
+
 		}
 
 

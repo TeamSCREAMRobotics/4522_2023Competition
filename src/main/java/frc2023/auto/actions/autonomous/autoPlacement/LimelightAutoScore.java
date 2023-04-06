@@ -88,8 +88,8 @@ public class LimelightAutoScore extends ActionBase{
             mArm.setPercentOutput(mControlBoard.getPivotPO(), mControlBoard.getTelescopePO());
         } 
 
-        if(mControlBoard.getGripperOpenForPlace()){
-            mGripper.placeCone();
+        if(mControlBoard.getOpenGripper()){
+            mGripper.open();
             successfulAutoPlace = true;
         } else if(mControlBoard.getCloseGripper()) mGripper.close();
     }
