@@ -116,11 +116,10 @@ public class Swerve extends Subsystem{//this is the wrapper for a facade design 
 		Twist2d twist = mSwerveDriveHelper.getKinematics().toTwist2d(wheelDeltas);
 
 		Rotation2d gyroYaw = getGyroYaw();
-		//Rotation3d robotRotation = getRobotRotation3d();//TODO test the pitch/roll math
+		Rotation3d robotRotation = getRobotRotation3d();//TODO test the pitch/roll math
 
-		twist = new Twist2d(twist.dx, twist.dy, gyroYaw.minus(mPeriodicIO.lastGyroYaw).getRadians());
+		twist = new Twist2d(twist.dx * Math.cos(robotRotation.getY()), twist.dy * Math.cos(robotRotation.getX()), gyroYaw.minus(mPeriodicIO.lastGyroYaw).getRadians());
 
-		System.out.println("TWIST: " + twist.dx / mPeriodicIO.dt+ "   y: " + twist.dy / mPeriodicIO.dt);
 		mPeriodicIO.robotBufferedTwists.addLast(twist);
 		mPeriodicIO.robotBufferedTwists.removeFirst();
 		mPeriodicIO.lastGyroYaw = gyroYaw;
@@ -530,7 +529,7 @@ public class Swerve extends Subsystem{//this is the wrapper for a facade design 
         // return Math.hypot(robotPose.getX()-mPeriodicIO.lastPose.getX(), robotPose.getY()-mPeriodicIO.lastPose.getY()) / (mPeriodicIO.dt);
     }	
 
-
+	
 	
     public double getTrajectoryError() {
         return mSwerveDriveHelper.getTrajectoryError(getRobotPose().getTranslation());
