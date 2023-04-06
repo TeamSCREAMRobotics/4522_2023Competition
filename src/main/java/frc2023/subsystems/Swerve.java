@@ -1,6 +1,7 @@
 package frc2023.subsystems;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,6 +20,7 @@ import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.util.CircularBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import frc2023.Constants.*;
@@ -58,6 +60,8 @@ public class Swerve extends Subsystem{//this is the wrapper for a facade design 
 		mPoseEstimator = new PoseEstimator(SwerveConstants.stateStandardDeviations);
 
 		resetPose(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
+
+		for(int i = 0; i < 10; i++) mPeriodicIO.robotBufferedTwists.add(new Twist2d());//TODO clean up
 	}
 
 
@@ -94,6 +98,8 @@ public class Swerve extends Subsystem{//this is the wrapper for a facade design 
 		public double lastTimeStamp = 0.0;
 		public double dt = 0.0;
 		public List<TimestampedVisionUpdate> storedVisionMeasurements = new ArrayList<>();
+		public Pose2d currentPose = new Pose2d();
+		public LinkedList<Twist2d> robotBufferedTwists = new LinkedList<Twist2d>();//TODO clean up
 	}
 
 
@@ -110,10 +116,13 @@ public class Swerve extends Subsystem{//this is the wrapper for a facade design 
 		Twist2d twist = mSwerveDriveHelper.getKinematics().toTwist2d(wheelDeltas);
 
 		Rotation2d gyroYaw = getGyroYaw();
-		Rotation3d robotRotation = getRobotRotation3d();//TODO test the pitch/roll math
+		//Rotation3d robotRotation = getRobotRotation3d();//TODO test the pitch/roll math
 
-		twist = new Twist2d(twist.dx * Math.cos(robotRotation.getY()), twist.dy * Math.cos(robotRotation.getX()), gyroYaw.minus(mPeriodicIO.lastGyroYaw).getRadians());
+		twist = new Twist2d(twist.dx, twist.dy, gyroYaw.minus(mPeriodicIO.lastGyroYaw).getRadians());
 
+		System.out.println("TWIST: " + twist.dx / mPeriodicIO.dt+ "   y: " + twist.dy / mPeriodicIO.dt);
+		mPeriodicIO.robotBufferedTwists.addLast(twist);
+		mPeriodicIO.robotBufferedTwists.removeFirst();
 		mPeriodicIO.lastGyroYaw = gyroYaw;
 
 		 updateVisionData();
@@ -400,10 +409,12 @@ public class Swerve extends Subsystem{//this is the wrapper for a facade design 
 				break;
 		}
 		mPeriodicIO.lastState = mPeriodicIO.state;
-		mPeriodicIO.lastPose = getRobotPose();
+		mPeriodicIO.lastPose = mPeriodicIO.currentPose;
+		mPeriodicIO.currentPose = getRobotPose();
 		mPeriodicIO.lastTimeStamp = mPeriodicIO.timeStamp;
 		mPeriodicIO.timeStamp = Timer.getFPGATimestamp();
 		mPeriodicIO.dt = mPeriodicIO.timeStamp - mPeriodicIO.lastTimeStamp;
+		System.out.println(getTranslationalSpeed() + "   rot: " + getRotationalSpeed().getDegrees());
 	}
 
 
@@ -502,14 +513,23 @@ public class Swerve extends Subsystem{//this is the wrapper for a facade design 
 
 
     public Rotation2d getRotationalSpeed() {
-        return getRobotPose().getRotation().minus(mPeriodicIO.lastPose.getRotation()).div(mPeriodicIO.dt);
+        return mPeriodicIO.currentPose.getRotation().minus(mPeriodicIO.lastPose.getRotation()).div(mPeriodicIO.dt);
     }
 
 
     public double getTranslationalSpeed() {
-		Pose2d robotPose = getRobotPose();
-        return Math.hypot(robotPose.getX()-mPeriodicIO.lastPose.getX(), robotPose.getY()-mPeriodicIO.lastPose.getY()) / (mPeriodicIO.dt);
+		double dx = 0; double dy = 0;//TODO clean up
+		for(int i = 0; i < mPeriodicIO.robotBufferedTwists.size(); i++){
+			dx += mPeriodicIO.robotBufferedTwists.get(i).dx;
+			dy += mPeriodicIO.robotBufferedTwists.get(i).dy;
+		}
+		dx =  dx /mPeriodicIO.robotBufferedTwists.size() / mPeriodicIO.dt;
+		dy = dy / mPeriodicIO.robotBufferedTwists.size() / mPeriodicIO.dt;
+		return Math.hypot(dx, dy);
+		// Pose2d robotPose = mPeriodicIO.currentPose;
+        // return Math.hypot(robotPose.getX()-mPeriodicIO.lastPose.getX(), robotPose.getY()-mPeriodicIO.lastPose.getY()) / (mPeriodicIO.dt);
     }	
+
 
 	
     public double getTrajectoryError() {

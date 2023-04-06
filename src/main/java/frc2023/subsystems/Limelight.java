@@ -157,11 +157,13 @@ public class Limelight extends Subsystem{
         NetworkTableEntry value = mNetworkTable.getEntry("botpose");
         double[] limelightPose = value.getDoubleArray(new double[0]);
         if(!mPeriodicIO.targetValid || limelightPose.length == 0 || mPeriodicIO.targetType != VisionTargetType.APRILTAG) return Optional.empty();//if there is no target, we don't have a vision update
-        if(limelightPose[0] == 0.0 && limelightPose[1] == 0.0) return Optional.empty();
+        if(limelightPose[0] == 0.0 && limelightPose[1] == 0.0){
+            return Optional.empty();
+        } 
 
         //We convert the raw limelight values to our mirrored coordinate system
         Pose2d pose = convertLimelightPoseToScreamCoordinates(limelightPose);
-       
+        
         //This is our list of filters to discard potentially bad measurements
         if(shouldDiscardApriltagPoseEstimate(pose)) return Optional.empty();
 
@@ -216,7 +218,7 @@ public class Limelight extends Subsystem{
         Pose2d referencePose = PlacementStates.getSwervePlacementPose(targetNode, DriverStation.getAlliance());
         Translation2d offset = new Translation2d(-getXOffsetMetersRetroReflective(), getYOffsetMetersRetroReflective());
         Pose2d pose = new Pose2d(referencePose.getTranslation().plus(offset), referencePose.getRotation());
-        
+
         return Optional.of(new TimestampedVisionUpdate(mPeriodicIO.visionTimestamp, pose, getRetroreflectiveSTD_Devs()));
     }
 
