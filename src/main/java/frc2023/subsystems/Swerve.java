@@ -27,6 +27,7 @@ import frc2023.Constants.*;
 import frc2023.swerve.SwerveDriveHelper;
 import frc2023.swerve.SwerveModule;
 import frc2023.swerve.SwerveRotationHelper;
+import frc2023.swerve.SwerveSpeedBuffer;
 
 public class Swerve extends Subsystem{//this is the wrapper for a facade design pattern. All of the math for Swerve is in SwerveDriveHelper.
 	public final PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -61,7 +62,6 @@ public class Swerve extends Subsystem{//this is the wrapper for a facade design 
 
 		resetPose(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
 
-		for(int i = 0; i < 10; i++) mPeriodicIO.robotBufferedTwists.add(new Twist2d());//TODO clean up
 	}
 
 
@@ -99,7 +99,7 @@ public class Swerve extends Subsystem{//this is the wrapper for a facade design 
 		public double dt = 0.0;
 		public List<TimestampedVisionUpdate> storedVisionMeasurements = new ArrayList<>();
 		public Pose2d currentPose = new Pose2d();
-		public LinkedList<Twist2d> robotBufferedTwists = new LinkedList<Twist2d>();//TODO clean up
+		public SwerveSpeedBuffer bufferedSpeed = new SwerveSpeedBuffer(SwerveConstants.swerveSpeedBufferSize);
 	}
 
 
@@ -114,18 +114,17 @@ public class Swerve extends Subsystem{//this is the wrapper for a facade design 
 		}
 
 		Twist2d twist = mSwerveDriveHelper.getKinematics().toTwist2d(wheelDeltas);
+		twist.dtheta = getGyroYaw().minus(mPeriodicIO.lastGyroYaw).getRadians();//changes the dTheta value to depend on the gyro because it is more accurate
 
-		Rotation2d gyroYaw = getGyroYaw();
 		Rotation3d robotRotation = getRobotRotation3d();//TODO test the pitch/roll math
 
-		twist = new Twist2d(twist.dx * Math.cos(robotRotation.getY()), twist.dy * Math.cos(robotRotation.getX()), gyroYaw.minus(mPeriodicIO.lastGyroYaw).getRadians());
+		mPeriodicIO.bufferedSpeed.updateMeasurement(twist, Timer.getFPGATimestamp());//adds the twist to the buffered speed before the odometry acounts for roll/pitch
 
-		mPeriodicIO.robotBufferedTwists.addLast(twist);
-		mPeriodicIO.robotBufferedTwists.removeFirst();
-		mPeriodicIO.lastGyroYaw = gyroYaw;
+		Twist2d twistAccountingForChargeStation = new Twist2d(twist.dx * Math.cos(robotRotation.getY()), twist.dy * Math.cos(robotRotation.getX()), twist.dtheta);
 
-		 updateVisionData();
-		 mPoseEstimator.addDriveData(Timer.getFPGATimestamp(), twist);
+		updateVisionData();
+		mPoseEstimator.addDriveData(Timer.getFPGATimestamp(), twistAccountingForChargeStation);
+		mPeriodicIO.lastGyroYaw = getGyroYaw();		
 	}
 
 
@@ -511,20 +510,13 @@ public class Swerve extends Subsystem{//this is the wrapper for a facade design 
 	}
 
 
-    public Rotation2d getRotationalSpeed() {
-        return mPeriodicIO.currentPose.getRotation().minus(mPeriodicIO.lastPose.getRotation()).div(mPeriodicIO.dt);
+    public Rotation2d getRotationalSpeed() {//TODO fix this as well
+        return mPeriodicIO.bufferedSpeed.getBufferedRotationalSpeed();
     }
 
 
     public double getTranslationalSpeed() {
-		double dx = 0; double dy = 0;//TODO clean up
-		for(int i = 0; i < mPeriodicIO.robotBufferedTwists.size(); i++){
-			dx += mPeriodicIO.robotBufferedTwists.get(i).dx;
-			dy += mPeriodicIO.robotBufferedTwists.get(i).dy;
-		}
-		dx =  dx /mPeriodicIO.robotBufferedTwists.size() / mPeriodicIO.dt;
-		dy = dy / mPeriodicIO.robotBufferedTwists.size() / mPeriodicIO.dt;
-		return Math.hypot(dx, dy);
+		return mPeriodicIO.bufferedSpeed.getBufferedTranslationalSpeed().getNorm();
 		// Pose2d robotPose = mPeriodicIO.currentPose;
         // return Math.hypot(robotPose.getX()-mPeriodicIO.lastPose.getX(), robotPose.getY()-mPeriodicIO.lastPose.getY()) / (mPeriodicIO.dt);
     }	

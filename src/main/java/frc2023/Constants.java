@@ -617,6 +617,7 @@ public class Constants {
         public static final double kDriveAfterPitchThresholdMetAutoBalance = 0.70;
 		public static final double kBackUpChargeStationJammedSpeed = 1.5;
 		public static final double kPitchToStopSwerveDuringBalance = 5.25;
+        public static final int swerveSpeedBufferSize = 10;
 	}
 
 	public static class SwerveModuleConstants {
