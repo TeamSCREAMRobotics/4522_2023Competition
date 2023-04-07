@@ -10,6 +10,4 @@ public abstract class Subsystem{
 	public void outputTelemetry() {}
 
 	public abstract void disable();
-
-	// public void registerLog(LogManager logManager) {}
 }

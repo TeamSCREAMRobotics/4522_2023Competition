@@ -13,11 +13,11 @@ public abstract class ShuffleboardTabBase {
         return mTab.add(name, defaultValue).withSize(1, 1).getEntry();
     }
 
-    protected GenericEntry createStringEntry(String name, String defaultValue) {
+    protected GenericEntry createBooleanEntry(String name, boolean defaultValue) {
         return mTab.add(name, defaultValue).withSize(1, 1).getEntry();
     }
 
-    protected GenericEntry createBooleanEntry(String name, boolean defaultValue) {
+    protected GenericEntry createStringEntry(String name, String defaultValue) {
         return mTab.add(name, defaultValue).withSize(1, 1).getEntry();
     }
 

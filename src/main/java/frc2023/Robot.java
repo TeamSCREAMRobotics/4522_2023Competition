@@ -140,7 +140,7 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledInit() {
     mAutoRoutineExecutor.stop();
-    mSubsystemManager.stop();
+    mSubsystemManager.stopAllSubsystems();
     mTimeSinceDisabled.reset();
     mTimeSinceDisabled.start();
   }

@@ -1,7 +1,6 @@
 package frc2023.subsystems;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,7 +19,6 @@ import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.util.CircularBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import frc2023.Constants.*;
@@ -45,6 +43,7 @@ public class Swerve extends Subsystem{//this is the wrapper for a facade design 
 		}
 		return mInstance;
 	}
+	
 
 	private Swerve(){
 		//Devices
@@ -382,7 +381,7 @@ public class Swerve extends Subsystem{//this is the wrapper for a facade design 
 				runClosedLoop(moduleStates);
 				break;
 			case VISION:
-				moduleStates = mSwerveDriveHelper.getVisionSnap(getRobotPose(), mPeriodicIO.targetPose);
+				moduleStates = mSwerveDriveHelper.getVisionSnapToPosition(getRobotPose(), mPeriodicIO.targetPose);
 				runClosedLoop(moduleStates);
 				break;
 			case POSITION:
@@ -510,7 +509,7 @@ public class Swerve extends Subsystem{//this is the wrapper for a facade design 
 	}
 
 
-    public Rotation2d getRotationalSpeed() {//TODO fix this as well
+    public Rotation2d getRotationalSpeed() {
         return mPeriodicIO.bufferedSpeed.getBufferedRotationalSpeed();
     }
 

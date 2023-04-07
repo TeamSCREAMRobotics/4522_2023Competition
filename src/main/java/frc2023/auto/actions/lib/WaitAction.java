@@ -4,11 +4,10 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class WaitAction extends ActionBase {
     
-    private final Timer mTimer;
+    private final Timer mTimer = new Timer();
     private final double mDuration;
 
     public WaitAction(double duration){
-        mTimer = new Timer();
         mDuration = duration;
     }
 

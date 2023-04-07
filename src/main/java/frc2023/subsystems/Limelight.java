@@ -69,8 +69,45 @@ public class Limelight extends Subsystem{
     };
 
 
+    public static class PeriodicIO {
+
+        // INPUTS
+        public Node visionTargetNode = Node.NODE1;
+        public VisionTargetType targetType;
+
+        public double lastUpdatedTimestamp;
+        public double lastPipelineChangeTimestamp;
+
+        public int currentPipeline;
+        public boolean pipelineChanged;
+        public double timeUntilCanUpdatePose;
+
+        public double latency;
+        public double visionTimestamp;
+        public int currentLEDMode;
+        public double targetX;
+        public double targetY;
+        public double targetArea;
+        public boolean targetValid;
+        public Optional<TimestampedVisionUpdate> robotPoseFromApriltag = Optional.empty();
+        public Optional<TimestampedVisionUpdate> robotPoseFromRetroReflective = Optional.empty();
+
+        // OUTPUTS
+        public int ledMode = 0; // 0 - use pipeline mode, 1 - off, 2 - blink, 3 - on
+        public int camMode = 0; // 0 - vision processing, 1 - driver camera
+        public int setPipeline = 0; // 0 - 9
+        public int stream = 0; // sets stream layout if another webcam is attached
+        public int snapshot = 0; // 0 - stop snapshots, 1 - 2 Hz
+    }
+
+
     public static enum VisionTargetType{
         APRILTAG, RETROREFLECTIVE;
+    }
+
+
+    public enum LedMode {
+        PIPELINE, OFF, BLINK, ON
     }
 
 
@@ -133,25 +170,6 @@ public class Limelight extends Subsystem{
     }
 
 
-    /**
-     *  tells the limelight which vision tape we are targeting. Originally we were going to use the pose of the robot to differentiate
-     *  which retroreflective vision target the limelight was seeing, but our pose estimate wasn't accurate enough for that to be reliable. We assume that the 
-     *  target the limelight sees is the node the operator has selected. This is pretty accurate since we filter left/right for the vision tape.
-     */
-    public void setVisionTargetNode(Node target){
-        mPeriodicIO.visionTargetNode = target;
-    }
-
-
-    @Override
-    public void disable(){}
-
-
-    public double getLastUpdateTimestamp(){
-        return mPeriodicIO.lastUpdatedTimestamp;
-    }
-
-
     private Optional<TimestampedVisionUpdate> getRobotPoseFromApriltag(){
         //we read the pose from the limelight and check if it doesn't see a target or if we aren't in apriltag mode, don't add a vision measurement
         NetworkTableEntry value = mNetworkTable.getEntry("botpose");
@@ -199,11 +217,6 @@ public class Limelight extends Subsystem{
     }
 
 
-    public Matrix<N3, N1> getRetroreflectiveSTD_Devs(){
-        return VisionConstants.retroReflectiveMeasurementStandardDeviations;
-    }
-
-
     /**
      * This is where we measure the robot's pose from the retroreflective vision tape. We have the robot's coordinates for each of its placement positions stored, and we measure the 
      * tx and ty values at that point. We then offset the robot's position in the x/y axes and measure the new limelight tx/ty values with the odometry. We have these values
@@ -223,40 +236,18 @@ public class Limelight extends Subsystem{
     }
 
 
-    public static class PeriodicIO {
-
-        // INPUTS
-        public Node visionTargetNode = Node.NODE1;
-        public VisionTargetType targetType;
-
-        public double lastUpdatedTimestamp;
-        public double lastPipelineChangeTimestamp;
-
-        public int currentPipeline;
-        public boolean pipelineChanged;
-        public double timeUntilCanUpdatePose;
-
-        public double latency;
-        public double visionTimestamp;
-        public int currentLEDMode;
-        public double targetX;
-        public double targetY;
-        public double targetArea;
-        public boolean targetValid;
-        public Optional<TimestampedVisionUpdate> robotPoseFromApriltag = Optional.empty();
-        public Optional<TimestampedVisionUpdate> robotPoseFromRetroReflective = Optional.empty();
-
-        // OUTPUTS
-        public int ledMode = 0; // 0 - use pipeline mode, 1 - off, 2 - blink, 3 - on
-        public int camMode = 0; // 0 - vision processing, 1 - driver camera
-        public int setPipeline = 0; // 0 - 9
-        public int stream = 0; // sets stream layout if another webcam is attached
-        public int snapshot = 0; // 0 - stop snapshots, 1 - 2 Hz
+    public Matrix<N3, N1> getRetroreflectiveSTD_Devs(){
+        return VisionConstants.retroReflectiveMeasurementStandardDeviations;
     }
 
 
-    public enum LedMode {
-        PIPELINE, OFF, BLINK, ON
+    /**
+     *  tells the limelight which vision tape we are targeting. Originally we were going to use the pose of the robot to differentiate
+     *  which retroreflective vision target the limelight was seeing, but our pose estimate wasn't accurate enough for that to be reliable. We assume that the 
+     *  target the limelight sees is the node the operator has selected. This is pretty accurate since we filter left/right for the vision tape.
+     */
+    public void setVisionTargetNode(Node target){
+        mPeriodicIO.visionTargetNode = target;
     }
 
 
@@ -278,9 +269,19 @@ public class Limelight extends Subsystem{
 
 
     @Override
+    public void disable(){}
+
+
+    public double getLastUpdateTimestamp(){
+        return mPeriodicIO.lastUpdatedTimestamp;
+    }
+
+
+    @Override
     public void outputTelemetry() {
         // if(mPeriodicIO.robotPoseFromApriltag.isPresent()) System.out.println("apriltag : " + mPeriodicIO.robotPoseFromApriltag.get().pose) ;
     }
+    
 
     /**
      * @return robotcentric x offset

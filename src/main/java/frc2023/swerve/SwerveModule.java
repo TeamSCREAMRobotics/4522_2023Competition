@@ -30,8 +30,8 @@ public class SwerveModule implements CSVWriteable {
 	/**mutliply this by steer native velocity to get degrees per second */
 	public final double kSteerVelocityCoefficient;
 
-	//instead of messing around with limiting the acceleration of the robot with profiledPIDControllers or slew rate limiters, we just limit the acceleration of the drive
-		//motor here. There is no situation where we wouldn't want to accceleration limit the drive motor, so it makes sense to do it in the swerve module
+	/** instead of messing around with limiting the acceleration of the robot with profiledPIDControllers or slew rate limiters, we just limit the acceleration of the drive
+		motor here. There is no situation where we wouldn't want to accceleration limit the drive motor, so it makes sense to do it in the swerve module */
 	private final SlewRateLimiter mDriveAccelerationLimiter = new SlewRateLimiter(SwerveModuleConstants.kDriveSlewRate, -SwerveModuleConstants.kDriveSlewRate, 0);
 	private SwerveModuleState mDesiredState = new SwerveModuleState();
 
@@ -54,36 +54,35 @@ public class SwerveModule implements CSVWriteable {
 		mDrive.setSelectedSensorPosition(0.0);
 	}
 
-	public void setDriveNeutralMode(NeutralMode mode){
-		mDrive.setNeutralMode(mode);
-	}
-
-	public void setSteerNeutralMode(NeutralMode mode){
-		mSteer.setNeutralMode(mode);
-	}
-
-	public String name(){
-		return mModuleConstants.name;
-	}
-
-	/**This method converts the desired state from the kinematics(which has a bounded rotation) and converts it to the nearest unbounded angle(so that we can use 
+	/**
+	 * 
+	 * 
+	 * 	 * This method converts the desired state from the kinematics(which has a bounded rotation) and converts it to the nearest unbounded angle(so that we can use 
 	 * motionmagic for the steer motors). It also reverses the modules if needed for the shortest module rotation 
+	 * 
+	 * @param desiredState The desired state of the module (generated from WPI's SwerveDriveKinematics)
+	 * @param currentAngleUnbounded The unbounded angle of the motor. It needs to be unbounded because we are using the onboard sensor on the TalonFX and we have to tell 
+	 *  	the motor to go to its nearest multiple of 360(180 with reversing module) angle. For example, if the module is reading 720 degrees and our desired state is 45 degrees,
+	 * 		the method would return (720 + 45) degrees
+	 * @return The SwerveModuleState with the shortest, unbounded angle to get to the module's desired state
+	 * 
 	 */
-	private static SwerveModuleState desiredStateToNativeState(SwerveModuleState desiredState, Rotation2d currentAngle){
-		double deltaDegrees = desiredState.angle.minus(currentAngle).getDegrees();
+	private static SwerveModuleState desiredStateToNativeState(SwerveModuleState desiredState, Rotation2d currentAngleUnbounded){
+		double deltaDegrees = desiredState.angle.minus(currentAngleUnbounded).getDegrees();
 		boolean invert = Math.abs(deltaDegrees) > 90;
 		if(invert) deltaDegrees -= Math.signum(deltaDegrees)*180;
 
 		return new SwerveModuleState(
 			(invert ? -1 : 1) * desiredState.speedMetersPerSecond,
-			Rotation2d.fromDegrees(currentAngle.getDegrees() + deltaDegrees)
+			Rotation2d.fromDegrees(currentAngleUnbounded.getDegrees() + deltaDegrees)
 		);
 	}
 
 	/**
 	 * This method sets the modules to move to their desired state
 	 * @param closedLoop if we are in closed loop control, we run the motors in velocity mode, otherwise we run them in percentoutput
-	 * @param deadbandWithMinSpeed If the speed of the swerve is below a minimum value, we don't run the drive or steer motors. If this value is false, the motors will move even at really low speeds
+	 * @param deadbandWithMinSpeed If the speed of the swerve is below a minimum value, we don't run the drive or steer motors. If this value is false, the motors will run regardless of how low the speed is.
+	 * We use this for locking the wheels, where we want the modules to turn but we want the speed to be 0.
 	 */
 	public void setDesiredState(SwerveModuleState moduleState, boolean closedLoop, boolean deadbandWithMinSpeed){
 		mDesiredState = desiredStateToNativeState(moduleState, Rotation2d.fromDegrees(getUnboundedAngle()));
@@ -95,6 +94,10 @@ public class SwerveModule implements CSVWriteable {
 			setSteerMotor(mDesiredState.angle);
 			setDriveMotor(closedLoop, mDesiredState.speedMetersPerSecond);
 		}
+	}
+	
+	public void setDesiredState(SwerveModuleState moduleState, boolean closedLoop){
+		setDesiredState(moduleState, closedLoop, false);
 	}
 
 	private void setSteerMotor(Rotation2d angle){
@@ -112,10 +115,9 @@ public class SwerveModule implements CSVWriteable {
 		}
 	}
 
-	public void setDesiredState(SwerveModuleState moduleState, boolean closedLoop){
-		setDesiredState(moduleState, closedLoop, false);
-	}
-
+	/**
+	 * Used to set the angle, but not move the drive motors. We use this for locking the wheels when the swerve isn't moving
+	 */
 	public void setAngle(Rotation2d angle){
 		setDesiredState(new SwerveModuleState(0, angle), true, false);
 	}
@@ -123,6 +125,18 @@ public class SwerveModule implements CSVWriteable {
 	public void stop(){
 		mSteer.neutralOutput();
 		mDrive.neutralOutput();
+	}
+
+	public void setDriveNeutralMode(NeutralMode mode){
+		mDrive.setNeutralMode(mode);
+	}
+
+	public void setSteerNeutralMode(NeutralMode mode){
+		mSteer.setNeutralMode(mode);
+	}
+
+	public String name(){
+		return mModuleConstants.name;
 	}
 
 	public void updateDrivePIDConstants(PIDConstants constants){

@@ -35,10 +35,12 @@ public class Superstructure {
 	private final Limelight mBackLimelight = Limelight.getBackInstance();
 	private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
 
+
 	private Superstructure(){
 		mTimerSinceSwerveEnabled.reset();
 		mTimerSinceSwerveEnabled.start();
 	}
+
 
 	private static Superstructure mInstance = null;
 	public static Superstructure getInstance(){
@@ -47,6 +49,7 @@ public class Superstructure {
 		}
 		return mInstance;
 	}
+
 
 	private Optional<ActionBase> mSelectedRoutine = Optional.empty();
 	private final Timer mTimerSinceSwerveEnabled = new Timer();
@@ -243,9 +246,11 @@ public class Superstructure {
 		}
 	}
 
+
 	private boolean shouldSelectNewAutoRoutine(Optional<ActionBase> desiredAutoRoutine) {
 		return !mSelectedRoutine.toString().equals(desiredAutoRoutine.toString());
 	}
+	
 	
 	private void selectNewAutoRoutine(Optional<ActionBase> newRoutine){
 		mSelectedRoutine = newRoutine;

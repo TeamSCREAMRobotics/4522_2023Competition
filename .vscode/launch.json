@@ -6,6 +6,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "MiscTest",
+      "request": "launch",
+      "mainClass": "test.MiscTest",
+      "projectName": "4522_2023Competition"
+    },
+    {
+      "type": "java",
       "name": "FieldPointCalculator",
       "request": "launch",
       "mainClass": "test.FieldPointCalculator",

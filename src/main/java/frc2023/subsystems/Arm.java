@@ -17,6 +17,16 @@ import edu.wpi.first.math.geometry.Translation2d;
 import frc2023.Constants.ArmConstants;
 import frc2023.PlacementStates.Level;
 
+    /**
+     * The pivot has slop, which means that the encoder reading of the motor will be different from the position of the arm by a value equal to half of the total slop.
+     * Our code uses the convention of Arm position is the actual arm, and sprocket position is the position that the motor goes to. For our setpoints, we use the location
+     * of the arm as the target, but to get the arm there we have to convert the arm position to the sprocket position based on the slop 
+     * of the pivot(which changes over time due to design modifications, chain stretching, etc. )
+     * 
+     * <p> We also have two sensors on the arm. One is the integrated sensor on our pivot TalonFX, which is able to measure the sprocketAngle. The other sensor is a 
+     * CANCoder that is mounted on the actual arm axle, which can only measure the arm position. Based on our measured slop value, we can convert between the two. We don't
+     * use the CANCoder anymore because it was mounted poorly, and we zero the arm with a level before every match.
+     */
 public class Arm extends Subsystem{
 
     private static Arm mInstance = null;
@@ -69,24 +79,10 @@ public class Arm extends Subsystem{
         DeviceUtil.configTalonSRXMotionMagic(mTelescopeMotor, ArmConstants.telescopeMotionMagicConstants, true);
     }
 
+
     //We have two sensors that can read the pivot. We have the onboard sensor for the TalonFX and a CANCoder mounted on the pivot. The CANCoder is mounted poorly, so we don't use it anymore
     public static enum PivotSensorType{
         CANCODER, INTEGRATED_SENSOR
-    }
-
-
-    public void configTelescopeSoftLimitsEnabled(boolean enabled){
-        //These methods could be used with our error checker, but we don't want to use it here. The error checker uses a while loop, so if the device didn't configure properly, 
-            // the robot could lose control for up to a few seconds. If the arm has a connection issue, we will still see it before the match when it configures, and 
-            //if it fails mid-match we can't do anything about a bad wire connection and will have to use manual override anyways
-        mTelescopeMotor.configReverseSoftLimitEnable(enabled);
-        mTelescopeMotor.configForwardSoftLimitEnable(enabled);
-    }
-
-
-    public void configPivotSoftLimitsEnabled(boolean enabled){
-        mPivotMotor.configForwardSoftLimitEnable(enabled);
-        mPivotMotor.configReverseSoftLimitEnable(enabled);
     }
 
 
@@ -94,26 +90,9 @@ public class Arm extends Subsystem{
 		mPivotMotor.setSelectedSensorPosition(armPositionToSprocketPosition(armAngle).getDegrees()/kPivotPositionCoefficient);
     }
 
-
-    private static Rotation2d armPositionToSprocketPosition(Rotation2d armPosition){// all of this logic will fail if the arm is within the wiggle room of being completely vertical. We cannot control the arm if gravity doesn't hold it to one side of its wiggle
-        if(armPosition.getDegrees() > 0) return subtractSlop(armPosition);
-        else return addSlop(armPosition);
-    }
-
-
-    private static Rotation2d sprocketPositionToArmPosition(Rotation2d sprocketPosition){
-        if(sprocketPosition.getDegrees() > 0) return addSlop(sprocketPosition);
-        else return subtractSlop(sprocketPosition);
-    }
-    
-
-    public void updatePivotPIDConstants(PIDConstants constants) {
-        DeviceUtil.configTalonFXPID(mPivotMotor, constants, false);
-    }
-
-
-    public void updateTelescopePIDConstants(PIDConstants constants) {
-        DeviceUtil.configTalonSRXPID(mTelescopeMotor, constants, false);
+        
+    public void zeroTelescope(){
+        mTelescopeMotor.setSelectedSensorPosition(ArmConstants.kPotentiometerMin);
     }
 
 
@@ -135,96 +114,12 @@ public class Arm extends Subsystem{
         else return addSlop(cancoderAngle);
     }
 
+    /////////////////////////////////////// Methods to set the arm state //////////////////////////////////////////////////////////////////////////////////
 
-    private static Rotation2d addSlop(Rotation2d rotation){
-        return rotation.plus(ArmConstants.kArmSlop.div(2));
-    }
-
-
-    private static Rotation2d subtractSlop(Rotation2d rotation){
-        return rotation.minus(ArmConstants.kArmSlop.div(2));
-    }
-
-
-    private Rotation2d getAbsoluteEncoder(){
-        return ScreamUtil.boundRotation(Rotation2d.fromDegrees(mPivotEncoder.getAbsolutePosition()).minus(ArmConstants.PivotAngleOffset));
-    }
-
-
-    public boolean atTargetPosition(Rotation2d pivotTarget, double telescopeTarget){
-        return pivotOnTarget(pivotTarget) && telescopeOnTarget(telescopeTarget);
-    }   
-
-
-    public boolean atTargetPosition(Translation2d position){
-        return atTargetPosition(position.getAngle(), position.getNorm());
-    }
-
-
-    public void zeroTelescope(){
-        mTelescopeMotor.setSelectedSensorPosition(ArmConstants.kPotentiometerMin);
-    }
-
-
-    public double getDesiredLength(){
-        return mPeriodicIO.targetLength;
-    }
-
-
-    public ArmState getLastState(){
-        return mPeriodicIO.lastState;
-    }
-
-
-    public Rotation2d getPivotTarget(){
-        return mPeriodicIO.targetSprocketAngle;
-    }
-
-
-    public ArmState getState(){
-        return mPeriodicIO.lastState;
-    }
-
-
-    public ArmState getDesiredState(){
-        return mPeriodicIO.state;
-    }
-
-
-    public boolean pivotOnTarget(Rotation2d pivotTarget){
-		return Math.abs(getPivotError(pivotTarget).getDegrees()) < ArmConstants.kPivotAngleOnTargetThreshold.getDegrees();
-	}
-
-
-    public boolean pivotOnThresholdForTelescopeOut(Rotation2d pivotTarget){
-		return Math.abs(getPivotError(pivotTarget).getDegrees()) < ArmConstants.kPivotAngleThresholdForTelescopeOut.getDegrees();
-    }
-
-
-    public boolean telescopeOnTarget(double targetLength){
-		return Math.abs(getTelescopeLengthError(targetLength)) < ArmConstants.kTelescopeAtTargetThreshold;
-	}
-
-
-    public Rotation2d getPivotError(Rotation2d pivotTarget){
-        return pivotTarget.minus(getSprocketAngle(PivotSensorType.INTEGRATED_SENSOR));
-    }
-
-
-    public double getTelescopeLengthError(double targetLength){
-        return targetLength - getLength();
-    }
-
-    
     public void setPercentOutput(double pivotOutput, double telescopeOutput){
         mPeriodicIO.state = ArmState.MANUAL;
         mPeriodicIO.pivotPercentOutput = pivotOutput;
         mPeriodicIO.telescopePercentOutput = telescopeOutput;
-    }
-
-
-    private double boundLength(double desiredLength){
-        return MathUtil.clamp(desiredLength, ArmConstants.kMinTelescopeLength, ArmConstants.kMaxTelescopeLength);
     }
 
 
@@ -235,18 +130,18 @@ public class Arm extends Subsystem{
     }
 
 
-    public void setPlacementPosition(Level level){
-        switch(level){
-            case HYBRID:
-                placeHybridCone();
-                break;
-            case MIDDLE:
-                placeMidCone();
-                break;
-            case TOP:
-                placeTopCone();
-                break;
-        }
+    public void setPosition(double armLength, Rotation2d pivotRotation, boolean hasCone){
+        setPosition(new Translation2d(armLength, pivotRotation), hasCone);
+    }
+
+
+    /**
+     * Runs like the normal position mode, but we don't suck the telescope in while the arm is pivoting. This is what we use in auto when we slam the cone down.
+     */
+    public void setPositionWithoutLimits(Translation2d armPosition, boolean hasCone){
+        mPeriodicIO.hasCone = hasCone;
+        mPeriodicIO.state = ArmState.POSITION_NO_LIMITS;
+        updateTargetSetpoint(armPosition);
     }
 
 
@@ -271,15 +166,18 @@ public class Arm extends Subsystem{
     }
 
 
-    public void setPosition(double armLength, Rotation2d pivotRotation, boolean hasCone){
-        setPosition(new Translation2d(armLength, pivotRotation), hasCone);
-    }
-
-
-    public void setPositionWithoutLimits(Translation2d armPosition, boolean hasCone){
-        mPeriodicIO.hasCone = hasCone;
-        mPeriodicIO.state = ArmState.POSITION_NO_LIMITS;
-        updateTargetSetpoint(armPosition);
+    public void setPlacementPosition(Level level){
+        switch(level){
+            case HYBRID:
+                placeHybridCone();
+                break;
+            case MIDDLE:
+                placeMidCone();
+                break;
+            case TOP:
+                placeTopCone();
+                break;
+        }
     }
 
 
@@ -319,33 +217,8 @@ public class Arm extends Subsystem{
 
     private void updateTargetSetpoint(Translation2d setpoint){
         mPeriodicIO.targetSprocketAngle = armPositionToSprocketPosition(setpoint.getAngle());
-        mPeriodicIO.targetLength = boundLength(setpoint.getNorm());
+        mPeriodicIO.targetLength = boundTelescopeLength(setpoint.getNorm());
     }
-
-
-	private static Rotation2d nativePivotPositionToRotation(double nativePosition){
-		return Rotation2d.fromDegrees(nativePosition * kPivotPositionCoefficient);
-	}
-
-
-    private static double pivotAngleToNativePosition(Rotation2d pivotAngle){
-		return pivotAngle.getDegrees() / kPivotPositionCoefficient;
-	}
-
-
-    public double getLength(){
-        return nativeUnitsToArmLength(mTelescopeMotor.getSelectedSensorPosition());
-    }
-
-
-    public static double nativeUnitsToArmLength(double nativeUnits){
-        return ArmConstants.kMinTelescopeLength + (nativeUnits - ArmConstants.kPotentiometerMin) * kTelescopePositionCoefficient;
-    }
-
-
-    public static double armLengthToNativeUnits(double armLength){
-        return (armLength - ArmConstants.kMinTelescopeLength) / kTelescopePositionCoefficient + ArmConstants.kPotentiometerMin;
-    }   
 
 
     @Override
@@ -361,6 +234,7 @@ public class Arm extends Subsystem{
         mPeriodicIO.state = ArmState.DISABLED;
     }
 
+    //////////////////////////////////////////// Writing Outputs ///////////////////////////////////////////////////////////////
 
     public double calculatePivotGravityFeedforward(boolean hasCone){
         return -getArmAngle(PivotSensorType.INTEGRATED_SENSOR).getSin() * (hasCone? ArmConstants.gravityFeedforwardMapWithCone.get(getLength()) : ArmConstants.gravityFeedforwardMapWithoutCone.get(getLength()));
@@ -378,11 +252,13 @@ public class Arm extends Subsystem{
         } 
         else mTelescopeMotor.set(ControlMode.PercentOutput, 0);
     }
+    
 
-    private void telescopeOut(double targetLength, boolean hasCone){
+    private void moveTelescopeToTarget(double targetLength, boolean hasCone){
         if(!telescopeOnTarget(targetLength)) mTelescopeMotor.set(ControlMode.MotionMagic, armLengthToNativeUnits(targetLength), DemandType.ArbitraryFeedForward, calculateTelescopeGravityFeedforward(hasCone, getTelescopeLengthError(targetLength)));
         else mTelescopeMotor.set(ControlMode.PercentOutput, 0);
     }
+
 
     private void movePivotToTarget(Rotation2d targetSprocketAngle, boolean hasCone){
         if(pivotOnTarget(targetSprocketAngle)){
@@ -391,6 +267,7 @@ public class Arm extends Subsystem{
             mPivotMotor.set(ControlMode.MotionMagic, pivotAngleToNativePosition(targetSprocketAngle), DemandType.ArbitraryFeedForward, calculatePivotGravityFeedforward(hasCone));
         }
     }
+
 
     @Override
     public void writeOutputs() {
@@ -405,7 +282,7 @@ public class Arm extends Subsystem{
                 break;
             case PLACE_MID_CONE:
                 if(pivotOnThresholdForTelescopeOut(mPeriodicIO.targetSprocketAngle)){
-                    telescopeOut(mPeriodicIO.targetLength, mPeriodicIO.hasCone);
+                    moveTelescopeToTarget(mPeriodicIO.targetLength, mPeriodicIO.hasCone);
                 } else{
                     suckInTelescope();
                 }
@@ -427,7 +304,7 @@ public class Arm extends Subsystem{
             case POSITION:
             
                 if(pivotOnThresholdForTelescopeOut(mPeriodicIO.targetSprocketAngle)){
-                    telescopeOut(mPeriodicIO.targetLength, mPeriodicIO.hasCone);
+                    moveTelescopeToTarget(mPeriodicIO.targetLength, mPeriodicIO.hasCone);
                 } else{
                     suckInTelescope();
                 }
@@ -435,7 +312,7 @@ public class Arm extends Subsystem{
 
                 break;
             case POSITION_NO_LIMITS:
-                telescopeOut(mPeriodicIO.targetLength, mPeriodicIO.hasCone);
+                moveTelescopeToTarget(mPeriodicIO.targetLength, mPeriodicIO.hasCone);
                 movePivotToTarget(mPeriodicIO.targetSprocketAngle, mPeriodicIO.hasCone);
                 break;
             default:
@@ -444,26 +321,150 @@ public class Arm extends Subsystem{
         mPeriodicIO.lastState = mPeriodicIO.state;
     }
 
+///////////////////////////////////////// Arm Position Logic Methods /////////////////////////////////////////////////////////////////////
+
+    private static Rotation2d armPositionToSprocketPosition(Rotation2d armPosition){// all of this logic will fail if the arm is within the wiggle room of being completely vertical. We cannot control the arm if gravity doesn't hold it to one side of its wiggle
+        if(armPosition.getDegrees() > 0) return subtractSlop(armPosition);
+        else return addSlop(armPosition);
+    }
+
+
+    private static Rotation2d sprocketPositionToArmPosition(Rotation2d sprocketPosition){
+        if(sprocketPosition.getDegrees() > 0) return addSlop(sprocketPosition);
+        else return subtractSlop(sprocketPosition);
+    }
+    
+
+    private static Rotation2d addSlop(Rotation2d rotation){
+        return rotation.plus(ArmConstants.kArmSlop.div(2));
+    }
+
+
+    private static Rotation2d subtractSlop(Rotation2d rotation){
+        return rotation.minus(ArmConstants.kArmSlop.div(2));
+    }
+
+
+    private static Rotation2d nativePivotPositionToRotation(double nativePosition){
+        return Rotation2d.fromDegrees(nativePosition * kPivotPositionCoefficient);
+    }
+
+
+    private static double pivotAngleToNativePosition(Rotation2d pivotAngle){
+        return pivotAngle.getDegrees() / kPivotPositionCoefficient;
+    }
+
+
+    public static double nativeUnitsToArmLength(double nativeUnits){
+        return ArmConstants.kMinTelescopeLength + (nativeUnits - ArmConstants.kPotentiometerMin) * kTelescopePositionCoefficient;
+    }
+
+
+    public static double armLengthToNativeUnits(double armLength){
+        return (armLength - ArmConstants.kMinTelescopeLength) / kTelescopePositionCoefficient + ArmConstants.kPotentiometerMin;
+    }   
+
+
+    private double boundTelescopeLength(double desiredLength){
+        return MathUtil.clamp(desiredLength, ArmConstants.kMinTelescopeLength, ArmConstants.kMaxTelescopeLength);
+    }
+
+
+    public boolean atTargetPosition(Rotation2d pivotTarget, double telescopeTarget){
+        return pivotOnTarget(pivotTarget) && telescopeOnTarget(telescopeTarget);
+    }   
+
+
+    public boolean atTargetPosition(Translation2d position){
+        return atTargetPosition(position.getAngle(), position.getNorm());
+    }
+    
+
+    public boolean pivotOnTarget(Rotation2d pivotTarget){
+		return Math.abs(getPivotError(pivotTarget).getDegrees()) < ArmConstants.kPivotAngleOnTargetThreshold.getDegrees();
+	}
+
+
+    /**
+     * If the arm is within a certain threshold of our target position, this is true, otherwise we suck in the telescope while pivoting
+     */
+    public boolean pivotOnThresholdForTelescopeOut(Rotation2d pivotTarget){
+		return Math.abs(getPivotError(pivotTarget).getDegrees()) < ArmConstants.kPivotAngleThresholdForTelescopeOut.getDegrees();
+    }
+
+
+    public boolean telescopeOnTarget(double targetLength){
+		return Math.abs(getTelescopeLengthError(targetLength)) < ArmConstants.kTelescopeAtTargetThreshold;
+	}
+
+////////////////////////////////////////////////////////// Misc Methods ////////////////////////////////////////////////////////////////////
 
     @Override
     public void outputTelemetry(){}
 
+
+    public void setNeutralMode(NeutralMode pivotMode, NeutralMode telescopeMode) {
+        mPivotMotor.setNeutralMode(pivotMode);
+        mTelescopeMotor.setNeutralMode(telescopeMode);
+    }
+
+
+    public void incrementSensorReading(Rotation2d addition) {
+        resetPivotToAngle(getArmAngle(PivotSensorType.INTEGRATED_SENSOR).plus(addition));
+    }
+
+
+    public void configTelescopeSoftLimitsEnabled(boolean enabled){
+        //These methods could be used with our error checker, but we don't want to use it here. The error checker uses a while loop, so if the device didn't configure properly, 
+            // the robot could lose control for up to a few seconds. If the arm has a connection issue, we will still see it before the match when it configures, and 
+            //if it fails mid-match we can't do anything about a bad wire connection and will have to use manual override anyways
+        mTelescopeMotor.configReverseSoftLimitEnable(enabled);
+        mTelescopeMotor.configForwardSoftLimitEnable(enabled);
+    }
+
+
+    public void configPivotSoftLimitsEnabled(boolean enabled){
+        mPivotMotor.configForwardSoftLimitEnable(enabled);
+        mPivotMotor.configReverseSoftLimitEnable(enabled);
+    }
+
+
+    public void updatePivotPIDConstants(PIDConstants constants) {
+        DeviceUtil.configTalonFXPID(mPivotMotor, constants, false);
+    }
+
+
+    public void updateTelescopePIDConstants(PIDConstants constants) {
+        DeviceUtil.configTalonSRXPID(mTelescopeMotor, constants, false);
+    }
+
+////////////////////////////// Getters ///////////////////////////////////////////////////////////////////////////
+
+    public ArmState getLastState(){
+        return mPeriodicIO.lastState;
+    }
+
+
+    public ArmState getDesiredState(){
+        return mPeriodicIO.state;
+    }
+
+
+    public double getLength(){
+        return nativeUnitsToArmLength(mTelescopeMotor.getSelectedSensorPosition());
+    }
+
+
+    public double getDesiredLength(){
+        return mPeriodicIO.targetLength;
+    }
+
+
+    public Rotation2d getPivotTarget(){
+        return mPeriodicIO.targetSprocketAngle;
+    }
+
     
-	public double getCurrentDraw(){
-		return mPivotMotor.getSupplyCurrent() + mTelescopeMotor.getSupplyCurrent();
-	}
-
-
-	public double getVoltage(){
-		return (mPivotMotor.getBusVoltage() + mTelescopeMotor.getBusVoltage()) / 2;
-	}
-
-
-	public double getPowerConsumption(){
-		return mPivotMotor.getSupplyCurrent()*mPivotMotor.getBusVoltage() + mTelescopeMotor.getSupplyCurrent()*mTelescopeMotor.getBusVoltage();
-	}
-
-
     public double getTelescopeSensorPosition() {
         return mTelescopeMotor.getSelectedSensorPosition();
     }
@@ -479,18 +480,37 @@ public class Arm extends Subsystem{
     }
 
 
+    public Rotation2d getPivotError(Rotation2d pivotTarget){
+        return pivotTarget.minus(getSprocketAngle(PivotSensorType.INTEGRATED_SENSOR));
+    }
+
+
+    public double getTelescopeLengthError(double targetLength){
+        return targetLength - getLength();
+    }
+    
+
+    private Rotation2d getAbsoluteEncoder(){
+        return ScreamUtil.boundRotation(Rotation2d.fromDegrees(mPivotEncoder.getAbsolutePosition()).minus(ArmConstants.PivotAngleOffset));
+    }
+    
+
     public MagnetFieldStrength getPivotMagnetStatus() {
         return mPivotEncoder.getMagnetFieldStrength();
     }
 
 
-    public void setNeutralMode(NeutralMode pivotMode, NeutralMode telescopeMode) {
-        mPivotMotor.setNeutralMode(pivotMode);
-        mTelescopeMotor.setNeutralMode(telescopeMode);
-    }
+	public double getCurrentDraw(){
+		return mPivotMotor.getSupplyCurrent() + mTelescopeMotor.getSupplyCurrent();
+	}
 
 
-    public void incrementSensorReading(Rotation2d addition) {
-        resetPivotToAngle(getArmAngle(PivotSensorType.INTEGRATED_SENSOR).plus(addition));
-    }
+	public double getVoltage(){
+		return (mPivotMotor.getBusVoltage() + mTelescopeMotor.getBusVoltage()) / 2;
+	}
+
+
+	public double getPowerConsumption(){
+		return mPivotMotor.getSupplyCurrent()*mPivotMotor.getBusVoltage() + mTelescopeMotor.getSupplyCurrent()*mTelescopeMotor.getBusVoltage();
+	}
 }

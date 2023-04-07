@@ -27,9 +27,10 @@ public class PlacementStates {
     }
 
     /**
-     * @return the arm translation for an auto place. This is only for the start locations that the robot beins at during auto.
+     * @return the arm translation for placemnt at the beginning of auto. These setpoints are different than our normal swerve is lined up, so the arm can slam
+     *  the cone down aggressively. This means the arm telescope must be extended less because the cone is propelled out by the centrifugal force.
      */
-    public static Translation2d getArmPlacementStateForAutoBeginning(Level level){
+    public static Translation2d getArmPlacementStateForAuto(Level level){
         switch(level){
             case HYBRID:
                 return ArmConstants.Setpoints.kHybridConeAutoStart;
@@ -42,23 +43,38 @@ public class PlacementStates {
         }
     }
 
+    /**
+     * @return returns the pose that the robot should be in to auto place at the selected node
+     */
     public static Pose2d getSwervePlacementPose(Node node, Alliance alliance){
         return getSwervePlacementPose(node).get(alliance);
     }
 
+    /**
+     * @return returns the pose that the robot should be in to auto place at the selected node
+     */
     public static MirroredPose getSwervePlacementPose(Node node){
         return PlacementConstants.swervePlacementStates[node.index];
     }
 
+    /**
+     * @return returns the translation that the robot should be in to auto place at the selected node
+     */
     public static MirroredTranslation getSwervePlacementTranslation(Node node){
         return getSwervePlacementPose(node).getMirroredTranslation();
     }
 
     
+    /**
+     * @return returns the pose that the robot should be in to auto place at the selected node for auto. We have the robot shoot cubes from slightly further back during auto
+     */
     public static MirroredPose getSwervePlacementPoseAuto(Node node){
         return PlacementConstants.swerveAutoPlacementStates[node.index];
     }
     
+    /**
+     * @return returns the translation that the robot should be in to auto place at the selected node for auto. We have the robot shoot cubes from slightly further back during auto
+     */
     public static MirroredTranslation getSwervePlacementTranslationAuto(Node node){
         return getSwervePlacementPoseAuto(node).getMirroredTranslation();
     }
@@ -70,6 +86,12 @@ public class PlacementStates {
         return PlacementConstants.swerveBackupBeforePlaceStates[node.index].get(alliance);
     }
 
+    /**
+     * @return returns which limelight pipeline we need to select for the given node. 
+     * 
+     * <p> We have a pipeline for apriltags(for cubes) and retroreflective pipelines that
+     * bias towards the left and right sides to help filter which target the robot goes towards.
+     */
     public static int getVisionPipeline(Node node, Alliance alliance){
         if(node.isCube()) return VisionConstants.kAprilTagPipeline;
         

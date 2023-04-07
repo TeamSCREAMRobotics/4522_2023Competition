@@ -36,6 +36,7 @@ public class Intake extends Subsystem{
         mShooterMotor = mDevices.dShooterMotor;
 		mBeamBreak = mDevices.dBeamBreak;
 	}
+
 	
 	private static Intake mInstance = null;
 	public static Intake getInstance(){
@@ -45,25 +46,21 @@ public class Intake extends Subsystem{
 		return mInstance;
 	}
 
-	public static enum IntakeState{
-		DISABLED, RETRACT, EXTEND, INTAKE, EJECT, RETRACT_AND_RUN, MANUAL, SHOOT_CUBE_HIGH, SHOOT_CUBE_MID, SHOOT_CUBE_HIGH_AUTO, SHOOT_CUBE_MID_AUTO, 
-				BACKWARDS_EJECT, FORCE_RETRACT, SWEEP, REV_FOR_SHOT, INTAKE_FOR_POOPSHOOT, EJECT_ONLY_LOWER_CONVEYOR, 
-				AUTO_INTAKE, POOP_SHOOT_FROM_CHARGE_LINE, POOP_SHOOT_FROM_CHARGE_LINE_AUTO, PREPARE_FOR_SHOT;
+
+	public static enum IntakeState{//we have a lot of control states for the intake.
+		DISABLED, RETRACT, EXTEND, INTAKE, EJECT, RETRACT_AND_RUN, SHOOT_CUBE_HIGH, SHOOT_CUBE_MID, BACKWARDS_EJECT, FORCE_RETRACT, SWEEP, INTAKE_FOR_POOPSHOOT, 
+						EJECT_ONLY_LOWER_CONVEYOR, POOP_SHOOT_FROM_CHARGE_LINE, PREPARE_FOR_SHOT,
+			SHOOT_CUBE_HIGH_AUTO, SHOOT_CUBE_MID_AUTO, INAKE_AUTO, POOP_SHOOT_FROM_CHARGE_LINE_AUTO;
 		
 		public boolean isPoopShootState(){
 			return this == BACKWARDS_EJECT || this == POOP_SHOOT_FROM_CHARGE_LINE || this == POOP_SHOOT_FROM_CHARGE_LINE_AUTO;
 		}
 	}
 
+
 	public class PeriodicIO{
-		public double shooterRevPO = 0.0;
 		//Inputs
 		public IntakeState lastState = IntakeState.RETRACT;
-		public double manualRollerPO = 0.0;
-		public double manualUpperConveyorPO = 0.0;
-		public double manualLowerConveyorPO = 0.0;
-		public double manualShooterPO = 0.0;
-		public boolean extend = false;
 		public TimeBoundIncrementor timeBeforeWheelsCanRun = new TimeBoundIncrementor(0.0, IntakeConstants.kWaitBeforeRunWheelsDuration, IntakeConstants.kWaitBeforeRunWheelsDuration);
 		public TimeBoundIncrementor timeBeforeCanShoot = new TimeBoundIncrementor(0.0, ShooterConstants.kTimeBeforeCanShoot, ShooterConstants.kTimeBeforeCanShoot);
 
@@ -76,69 +73,7 @@ public class Intake extends Subsystem{
 		public double shooterPercentOutput = 0.0;
 	}
 
-	public void manual(double rollerPercentOutput, double upperConveyorPercentOutput, double lowerConveyorPercentOutput, double shooterPO, boolean extend){
-		mPeriodicIO.state = IntakeState.MANUAL;
-		mPeriodicIO.manualRollerPO = rollerPercentOutput;
-		mPeriodicIO.manualUpperConveyorPO = upperConveyorPercentOutput;
-		mPeriodicIO.manualLowerConveyorPO = lowerConveyorPercentOutput;
-		mPeriodicIO.manualShooterPO = shooterPO;
-		mPeriodicIO.extend = extend;
-	}
-
-	public void sweep(){
-		mPeriodicIO.state = IntakeState.SWEEP;
-	}
-
-	public void intake(){
-		mPeriodicIO.state = IntakeState.INTAKE;
-	}
-
-	public void eject(){
-		mPeriodicIO.state = IntakeState.EJECT;
-	}
-	
-	public void extend(){
-		mPeriodicIO.state = IntakeState.EXTEND;
-	}
-
-	public void poopShootFromChargeLine(){
-		mPeriodicIO.state = IntakeState.POOP_SHOOT_FROM_CHARGE_LINE;
-	}
-
-	
-	public void poopShootFromChargeLineAuto(){
-		mPeriodicIO.state = IntakeState.POOP_SHOOT_FROM_CHARGE_LINE_AUTO;
-	}
-
-	public void autoIntake(){
-		mPeriodicIO.state = IntakeState.AUTO_INTAKE;
-	}
-
-	@Override
-	public void disable(){
-		mPeriodicIO.state = IntakeState.DISABLED;
-	}
-
-	public void ejectOnlyLowerConveyor(){
-		mPeriodicIO.state = IntakeState.EJECT_ONLY_LOWER_CONVEYOR;
-	}
-	public void backwardsEject(){
-		mPeriodicIO.state = IntakeState.BACKWARDS_EJECT;
-	}
-	
-	public void shootCube(Level level){
-		switch(level){
-			case HYBRID:
-				eject();
-				break;
-			case MIDDLE:
-				shootCubeMid();
-				break;
-			case TOP:
-				shootCubeHigh();
-				break;
-		}
-	}
+//////////////////////////// Methods that set the intake state ////////////////////////////////////////////////////////////////////////
 
 	private final Timer retractTimer = new Timer();
 	public void retract(){// this is the retract logic for teleop; If we retract immediately, the intake will sometimes get jammed on the cube and get stuck outside of frame perimeter.
@@ -158,6 +93,113 @@ public class Intake extends Subsystem{
 			mPeriodicIO.state = IntakeState.RETRACT_AND_RUN;
 		}
 	}
+
+
+	public void intake(){
+		mPeriodicIO.state = IntakeState.INTAKE;
+	}
+
+
+	public void eject(){
+		mPeriodicIO.state = IntakeState.EJECT;
+	}
+	
+
+	public void shootCubeHigh(){
+		mPeriodicIO.state = IntakeState.SHOOT_CUBE_HIGH;
+	}
+
+	
+	public void shootCubeMid(){
+		mPeriodicIO.state = IntakeState.SHOOT_CUBE_MID;
+	}
+
+
+	private void shootCubeHighAuto() {
+		mPeriodicIO.state = IntakeState.SHOOT_CUBE_HIGH_AUTO;
+	}
+
+
+	public void shootCubeMidAuto() {
+		mPeriodicIO.state = IntakeState.SHOOT_CUBE_MID_AUTO;
+	}
+
+	public void shootCube(Level level){
+		switch(level){
+			case HYBRID:
+				eject();
+				break;
+			case MIDDLE:
+				shootCubeMid();
+				break;
+			case TOP:
+				shootCubeHigh();
+				break;
+		}
+	}
+
+
+	@Override
+	public void disable(){
+		mPeriodicIO.state = IntakeState.DISABLED;
+	}
+
+
+	public void extend(){
+		mPeriodicIO.state = IntakeState.EXTEND;
+	}
+
+
+	public void poopShootFromChargeLine(){
+		mPeriodicIO.state = IntakeState.POOP_SHOOT_FROM_CHARGE_LINE;
+	}
+	
+	public void forceRetract() {
+		mPeriodicIO.state = IntakeState.FORCE_RETRACT;
+	}
+
+
+	public void intakeForPoopshoot(){
+		mPeriodicIO.state = IntakeState.INTAKE_FOR_POOPSHOOT;
+	}
+
+
+	public void sweep(){
+		mPeriodicIO.state = IntakeState.SWEEP;
+	}
+
+	public void ejectOnlyLowerConveyor(){
+		mPeriodicIO.state = IntakeState.EJECT_ONLY_LOWER_CONVEYOR;
+	}
+
+
+	public void backwardsEject(){
+		mPeriodicIO.state = IntakeState.BACKWARDS_EJECT;
+	}
+
+
+	public void intakeDuringAuto(){
+		mPeriodicIO.state = IntakeState.INAKE_AUTO;
+	}
+
+
+	public void poopShootFromChargeLineAuto(){
+		mPeriodicIO.state = IntakeState.POOP_SHOOT_FROM_CHARGE_LINE_AUTO;
+	}
+
+
+	@Override
+	public void stop() {
+		mPeriodicIO.state = IntakeState.DISABLED;
+		mRollerMotor.stopMotor();
+		mUpperConveyorMotor.stopMotor();
+		mLowerConveyorMotor.stopMotor();
+	}
+
+	public void prepareForShot() {
+		mPeriodicIO.state = IntakeState.PREPARE_FOR_SHOT;
+	}
+
 
 	public void setDesiredState(IntakeState desiredState){
 		switch(desiredState){
@@ -185,20 +227,11 @@ public class Intake extends Subsystem{
 			case SHOOT_CUBE_MID:
 				shootCubeMid();
 				break;
-			case SHOOT_CUBE_HIGH_AUTO:
-				shootCubeHighAuto();
-				break;
-			case SHOOT_CUBE_MID_AUTO:
-				shootCubeMidAuto();
-				break;
 			case BACKWARDS_EJECT:
 				backwardsEject();
 				break;
 			case EJECT_ONLY_LOWER_CONVEYOR:
 				ejectOnlyLowerConveyor();
-				break;
-			case AUTO_INTAKE:
-				autoIntake();
 				break;
 			case POOP_SHOOT_FROM_CHARGE_LINE:
 				poopShootFromChargeLine();
@@ -206,73 +239,27 @@ public class Intake extends Subsystem{
 			case INTAKE_FOR_POOPSHOOT:
 				intakeForPoopshoot();
 				break;
-			case POOP_SHOOT_FROM_CHARGE_LINE_AUTO:
-				poopShootFromChargeLineAuto();
-				break;
 			case PREPARE_FOR_SHOT:
 				prepareForShot();
 				break;
+			case SHOOT_CUBE_HIGH_AUTO:
+				shootCubeHighAuto();
+				break;
+			case SHOOT_CUBE_MID_AUTO:
+				shootCubeMidAuto();
+				break;
+			case INAKE_AUTO:
+				intakeDuringAuto();
+				break;
+			case POOP_SHOOT_FROM_CHARGE_LINE_AUTO:
+				poopShootFromChargeLineAuto();
+				break;
 			default:
-			DriverStation.reportError("Wrong IntakeState Chosen in setDesiredState()", false);
+			DriverStation.reportError("Wrong/Unimplemented IntakeState Chosen in setDesiredState()", false);
 		}
 	}
 
-	public void forceRetract() {
-		mPeriodicIO.state = IntakeState.FORCE_RETRACT;
-	}
-
-	public void shootCubeMidAuto() {
-		mPeriodicIO.state = IntakeState.SHOOT_CUBE_MID_AUTO;
-	}
-
-	public void intakeForPoopshoot(){
-		mPeriodicIO.state = IntakeState.INTAKE_FOR_POOPSHOOT;
-	}
-
-	private void shootCubeHighAuto() {
-		mPeriodicIO.state = IntakeState.SHOOT_CUBE_HIGH_AUTO;
-	}
-
-	public boolean beamBroken(){
-		return !mBeamBreak.get();
-	}
-
-	public boolean extended(){
-		return mSolenoid.get();
-	}
-
-	public IntakeState getLastState(){
-		return mPeriodicIO.lastState;
-	}
-
-	public double getCurrentDraw(){
-		return mRollerMotor.getOutputCurrent() + mUpperConveyorMotor.getOutputCurrent() + mLowerConveyorMotor.getOutputCurrent() + mShooterMotor.getSupplyCurrent();
-	}
-
-	public double getVoltage(){
-		return (mRollerMotor.getBusVoltage() + mUpperConveyorMotor.getBusVoltage() + mLowerConveyorMotor.getBusVoltage() + mShooterMotor.getBusVoltage()) / 3.0;
-	}
-	
-	public double getPowerConsumption(){
-		return getCurrentDraw()*getVoltage();
-	}
-
-	@Override
-	public void stop() {
-		mPeriodicIO.state = IntakeState.DISABLED;
-		mRollerMotor.stopMotor();
-		mUpperConveyorMotor.stopMotor();
-		mLowerConveyorMotor.stopMotor();
-	}
-
-	public void shootCubeHigh(){
-		mPeriodicIO.state = IntakeState.SHOOT_CUBE_HIGH;
-	}
-	
-	public void shootCubeMid(){
-		mPeriodicIO.state = IntakeState.SHOOT_CUBE_MID;
-	}
-
+	////////////////////////////////////////////////// Writing Outputs ////////////////////////////////////////////////////////////////////////////////////////////////
 	private double lastTimeStamp;
 	
 	private double intakeModeBeamBrokenTimeStamp = -Integer.MAX_VALUE;
@@ -350,13 +337,6 @@ public class Intake extends Subsystem{
 				mPeriodicIO.shooterPercentOutput = 0.0;
 
 				mPeriodicIO.isExtended = false;
-				break;
-			case MANUAL:
-				mPeriodicIO.rollerPercentOutput = mPeriodicIO.manualRollerPO;
-				mPeriodicIO.upperConveyorPercentOutput = mPeriodicIO.manualUpperConveyorPO;
-				mPeriodicIO.lowerConveyorPercentOutput = mPeriodicIO.manualLowerConveyorPO;
-				mPeriodicIO.shooterPercentOutput = mPeriodicIO.manualShooterPO;
-				mPeriodicIO.isExtended = mPeriodicIO.extend;
 				break;
 			case SHOOT_CUBE_HIGH:
 				mPeriodicIO.isExtended = true;
@@ -451,13 +431,6 @@ public class Intake extends Subsystem{
 				}
 				mPeriodicIO.shooterPercentOutput = ShooterConstants.kPoopShootFromChargeLineAutoPO;
 				break;
-			case REV_FOR_SHOT:
-				mPeriodicIO.isExtended = false;
-				mPeriodicIO.rollerPercentOutput = 0.0;
-				mPeriodicIO.upperConveyorPercentOutput = 0.0;
-				mPeriodicIO.lowerConveyorPercentOutput = LowerConveyorConstants.kPreparePoopShoot;
-				mPeriodicIO.shooterPercentOutput = mPeriodicIO.shooterRevPO;
-				break;
 			case EJECT_ONLY_LOWER_CONVEYOR:
 				mPeriodicIO.isExtended = false;
 				mPeriodicIO.rollerPercentOutput = 0.0;
@@ -465,7 +438,7 @@ public class Intake extends Subsystem{
 				mPeriodicIO.lowerConveyorPercentOutput = LowerConveyorConstants.kEjectOnlyLowerConveyorPO;
 				mPeriodicIO.shooterPercentOutput = 0.0;
 				break;
-			case AUTO_INTAKE:
+			case INAKE_AUTO:
 				mPeriodicIO.isExtended = true;
 				if(wheelsCanRun){
 					mPeriodicIO.isExtended = true;
@@ -509,6 +482,7 @@ public class Intake extends Subsystem{
 		lastTimeStamp = timeStamp;
 	}
 
+
 	public void setPeriodicOutputsToZero(){
 		mPeriodicIO.rollerPercentOutput = 0.0;
 		mPeriodicIO.upperConveyorPercentOutput = 0.0;
@@ -516,33 +490,54 @@ public class Intake extends Subsystem{
 		mPeriodicIO.shooterPercentOutput = 0.0;
 	}
 	
+/////////////////////////////////////////////////// Misc Methods ///////////////////////////////////////////////////////////////////////////////////////////////////////
 	@Override
 	public void outputTelemetry() {
 		
 	}
 
-    public boolean isExtended() {
-        return mPeriodicIO.isExtended;
-    }
+
+	public boolean beamBroken(){
+		return !mBeamBreak.get();
+	}
+
+
+	public boolean isExtended(){
+		return mSolenoid.get();
+	}
+
+
+	public IntakeState getLastState(){
+		return mPeriodicIO.lastState;
+	}
+
+
+	public double getCurrentDraw(){
+		return mRollerMotor.getOutputCurrent() + mUpperConveyorMotor.getOutputCurrent() + mLowerConveyorMotor.getOutputCurrent() + mShooterMotor.getSupplyCurrent();
+	}
+
+
+	public double getVoltage(){
+		return (mRollerMotor.getBusVoltage() + mUpperConveyorMotor.getBusVoltage() + mLowerConveyorMotor.getBusVoltage() + mShooterMotor.getBusVoltage()) / 3.0;
+	}
+	
+
+	public double getPowerConsumption(){
+		return getCurrentDraw()*getVoltage();
+	}
+
 
     public double getRollerSpeed() {
         return mPeriodicIO.rollerPercentOutput;
     }
 
+
 	public double getUpperConveyorSpeed(){
 		return mPeriodicIO.upperConveyorPercentOutput;
 	}
 
+
 	public double getLowerConveyorSpeed(){
 		return mPeriodicIO.lowerConveyorPercentOutput;
-	}
-
-    public void revForShot(double revPO) {
-		mPeriodicIO.state = IntakeState.REV_FOR_SHOT;
-		mPeriodicIO.shooterRevPO = revPO;
-    }
-
-	public void prepareForShot() {
-		mPeriodicIO.state = IntakeState.PREPARE_FOR_SHOT;
 	}
 }

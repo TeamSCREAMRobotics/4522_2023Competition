@@ -10,18 +10,19 @@ public class SwerveSpeedBuffer {
 		private final LinkedList<Twist2d> robotBufferedSpeeds = new LinkedList<Twist2d>();//there is probably something that works better for this than a linkedList
         private Twist2d mLatestTwist = new Twist2d();
 
+        
         private final int mBufferSize;
         public SwerveSpeedBuffer(int bufferSize){
             mBufferSize = bufferSize;
             for(int i = 0; i < mBufferSize; i++) robotBufferedSpeeds.add(new Twist2d());//initializes the linked list with empty twists
         }
 
-        private double previousTimestamp = 0.0;
-        private double dt = 0.0;
+
+        private double mPreviousTimestamp = 0.0;
         
         public void updateMeasurement(Twist2d twist, double timestamp){
             
-            dt = timestamp - previousTimestamp;
+            double dt = timestamp - mPreviousTimestamp;
 
 		    Twist2d speed = new Twist2d(twist.dx/dt, twist.dy/dt, twist.dtheta/dt);
 
@@ -29,11 +30,12 @@ public class SwerveSpeedBuffer {
             robotBufferedSpeeds.addLast(speed);
             robotBufferedSpeeds.removeFirst();
 
-            previousTimestamp = timestamp;
-            mLatestTwist = calculateSpeeds();
+            mPreviousTimestamp = timestamp;
+            mLatestTwist = calculateAverageSpeeds();
         }
 
-        private Twist2d calculateSpeeds(){
+
+        private Twist2d calculateAverageSpeeds(){
             double xSpeed = 0; double ySpeed = 0; double thetaSpeed = 0;
             
             for(int i = 0; i < mBufferSize; i++){
@@ -48,6 +50,7 @@ public class SwerveSpeedBuffer {
 
             return new Twist2d(xSpeed, ySpeed, thetaSpeed);
         }
+
 
         public Twist2d getBufferedSpeeds(){
             return mLatestTwist;

@@ -30,13 +30,13 @@ public class ShuffleboardTabManager {
 
     public ShuffleboardTabManager() {
         mTabs.add(matchTab);
-        if (mDebug) {
+        if(mDebug){
             mTabs.add(swerveTab);
             mTabs.add(armTab);
             mTabs.add(testTab);
             mTabs.add(intakeTab);
             mTabs.add(gripperTab);
-        } else {
+        }else {
            
         }
 
@@ -46,7 +46,7 @@ public class ShuffleboardTabManager {
     }
 
     public void update() {
-        for (ShuffleboardTabBase tab : mTabs) {
+        for(ShuffleboardTabBase tab : mTabs){
             tab.update();
         }
     }

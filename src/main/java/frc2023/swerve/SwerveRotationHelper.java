@@ -8,11 +8,12 @@ import edu.wpi.first.wpilibj.Timer;
 import frc2023.Constants;
 import frc2023.Constants.*;
 
+/**A helper class designed to make rotation with the swerve easier */
 public class SwerveRotationHelper {
 	
 	private RotationHelperMode mode = RotationHelperMode.DISABLED;
-	private final Timer openLoopTimer;
-	private final PIDController mSnapController;
+	private final Timer openLoopTimer = new Timer();
+	private final PIDController mSnapController;//We intentionally use PID controllers and not ProfiledPIDControllers because they are faster and snappier
 	private final PIDController mHoldController;
 
 	public enum RotationHelperMode {
@@ -27,34 +28,33 @@ public class SwerveRotationHelper {
 
 		mHoldController = ScreamUtil.createPIDController(SwerveConstants.holdRotationPIDConstants, Constants.kSubsystemPeriodSeconds);
 		mHoldController.enableContinuousInput(-Math.PI, Math.PI);
-
-		openLoopTimer = new Timer();
 	}
 
+	/**
+	 * Makes the swerve aggressively rotate to get to a target angle
+	 */
 	public void setSnap(Rotation2d measured, Rotation2d target){
 		mTargetAngle = target;
 		mode = RotationHelperMode.SNAP;
 	}
-
+	
+	/**
+	 * Sets the robot to try to hold a given angle with PID. The goal is not to move, or rotate the robot, but to keep it in a position while resisting outside forces
+	 */
 	public void setHold(Rotation2d measured, Rotation2d target){
 		mTargetAngle = target;
 		mode = RotationHelperMode.HOLD;
 	}
 
+	/**
+	 * Open loop control for the rotation of the swerve. This is used when the driver is using the turn joystick
+	 */
 	public void setOpenLoop(){
 		openLoopTimer.reset();
 		openLoopTimer.start();
 		mode = RotationHelperMode.OPEN_LOOP;
 	}
 	
-	public RotationHelperMode getMode(){
-		return mode;
-	}
-
-	public Rotation2d getmTargetAngle(){
-		return mTargetAngle;
-	}
-
 	public void disable(){
 		mode = RotationHelperMode.DISABLED;
 	}
@@ -79,5 +79,13 @@ public class SwerveRotationHelper {
 			case DISABLED:
 				return 0;
 		}
+	}
+
+	public RotationHelperMode getMode(){
+		return mode;
+	}
+
+	public Rotation2d getTargetAngle(){
+		return mTargetAngle;
 	}
 }

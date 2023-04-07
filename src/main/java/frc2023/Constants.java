@@ -38,9 +38,9 @@ public class Constants {
 	public static final double kUpdatePIDsFromShuffleboardPeriodSeconds = 3.00;
 	public static final int kUpdatePIDsFromShuffleboardPeriodMilliseconds = (int) (kUpdatePIDsFromShuffleboardPeriodSeconds * 1000.0);
 
+    public static final boolean includeDebugTabs = false;
 	public static final boolean updatePIDsFromShuffleboard = false;
 	public static final boolean outputTelemetry = true;
-    public static final boolean includeDebugTabs = true;
 
 	public static class ControlBoardConstants {
 		public static final double kSwerveTranslationDeadband = 0.15;
@@ -58,7 +58,14 @@ public class Constants {
         public static final Rotation2d kTweakArmSetpointAmount = Rotation2d.fromDegrees(0.7);
 	}
 
-	public static class FieldConstants {// all of the distance constants in our code are in meters. //TODO explain coordinate system
+	/** 
+	 *    Our system has 0,0 where the  white center line meets the wall on the feeder station side. 
+	 * 	  We have forwards(gyro angle) as 90 degrees on both sides, so on blue x is always positive, and on red, x is negative. negative y is on our side of the white line, 
+	 *    and positive y is on the opposing alliance's side of the whilte line. <p>
+	 * 
+	 *    All of the distance constants in our code are in meters.
+	 */
+	public static class FieldConstants {
 		public static final Translation2d fieldDimensions = new Translation2d(8.0, 16.51);
 
 		public static final double hybridLevelY = -7.0711;
@@ -576,7 +583,7 @@ public class Constants {
 		public static final PIDConstants snapRotationPIDConstants = new PIDConstants(5.0, 0.0, 0.0);
 		public static final PIDConstants holdRotationPIDConstants = new PIDConstants(0.5, 0.0, 0.0);
 
-		/** THe kinematics limits for 254's swerve setpoint generator */
+		/** The kinematics limits for 254's swerve setpoint generator */
 		public static final KinematicLimits defaultKinematicsLimits = new KinematicLimits(kMaxSpeed, kMaxAcceleration,
 				kMaxAngularSpeed);
 
@@ -642,8 +649,10 @@ public class Constants {
 		// Module specific
 		public final String name;
 		public PIDConstants steerPIDConstants;// these should be final, but they can't be for pid tuning
+		/**The percent output required for the steer motor to overcome friction */
 		public double steerKS;
 		public PIDConstants drivePIDConstants;
+		/**The percent output required for the drive motor to overcome friction */
 		public double driveKS;
 		public final Rotation2d offset;
 		public final Translation2d translation;

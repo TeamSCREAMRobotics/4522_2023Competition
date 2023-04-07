@@ -116,7 +116,7 @@ public class Devices {
         TalonFX drive = DeviceConfigurationUtil.configTalonFX(new TalonFX(id.getDeviceNumber(), id.getBus()), config, "SwerveModuleDriveMotor "  + id.getDeviceNumber() + "  ");
 
         drive.setNeutralMode(NeutralMode.Brake);
-        drive.setInverted(TalonFXInvertType.Clockwise);
+        drive.setInverted(TalonFXInvertType.Clockwise);//clockwise == true, counterclockwise == false
 		drive.setSensorPhase(true);
 
 		return drive;
@@ -138,7 +138,7 @@ public class Devices {
         TalonFX steer = DeviceConfigurationUtil.configTalonFX(new TalonFX(id.getDeviceNumber(), id.getBus()), config, "SwerveModuleSteerMotor "  + id.getDeviceNumber() + "  ");
             
         steer.setNeutralMode(NeutralMode.Brake);
-        steer.setInverted(true);//TODO make consistent with clockwise
+        steer.setInverted(TalonFXInvertType.Clockwise);
         steer.setSensorPhase(true);
 
         return steer;
@@ -177,7 +177,7 @@ public class Devices {
         
         pivotMotor.setNeutralMode(NeutralMode.Brake);
         pivotMotor.enableVoltageCompensation(true);
-        pivotMotor.setInverted(false);
+        pivotMotor.setInverted(TalonFXInvertType.CounterClockwise);
         pivotMotor.setSensorPhase(false);
 
         return pivotMotor;
@@ -196,20 +196,36 @@ public class Devices {
 
         TalonSRX telescopeMotor = DeviceConfigurationUtil.configTalonSRX(new TalonSRX(id), config, "TelescopeMotor " + id + "  ");
 
-        telescopeMotor.setInverted(false);
+        telescopeMotor.setInverted(false);//TODO make a TalonSRXInvertType, which would work the exact same as TalonFXInvertType //TalonFXInvertType.CounterClockwise.toInvertType()
         telescopeMotor.setSensorPhase(false);
         
         telescopeMotor.enableVoltageCompensation(true);
         telescopeMotor.setNeutralMode(NeutralMode.Brake);
         return telescopeMotor;
     }
-
+    
+    public static CANCoder createPivotCANCoder(CanDeviceId id){
+        CANCoderConfig config = new CANCoderConfig();
+        config.sensorDataPeriod = 10;
+        config.vBatAndFaultsPeriod = maxStatusFramePeriod;
+        config.sensorDirection = true;
+		CANCoder encoder = DeviceConfigurationUtil.configCANCoder(new CANCoder(id.getDeviceNumber(), id.getBus()), config, "PivotCANCoder " + id.getDeviceNumber() + "  ");
+        return encoder;
+    }
+    
+    public static CANSparkMax createIntakeMotor(int id){
+        CANSparkMaxConfig config = new CANSparkMaxConfig();
+        config.idleMode = IdleMode.kBrake;
+        CANSparkMax motor = DeviceConfigurationUtil.configCANSparkMax(new CANSparkMax(id, MotorType.kBrushless), config, "IntakeMotor " +  + id + "  ");
+        motor.setInverted(false);
+        return motor;
+    }
 
     public static CANSparkMax createLowerConveyorMotor(int id){
         CANSparkMaxConfig config = new CANSparkMaxConfig();
         config.idleMode = IdleMode.kBrake;
         CANSparkMax motor = DeviceConfigurationUtil.configCANSparkMax(new CANSparkMax(id, MotorType.kBrushless), config, "LowerConveyor " + id + "  ");
-        motor.setInverted(false);
+        motor.setInverted(false);//TODO create an invertType for the cansparkmax
         return motor;
     }
 
@@ -219,23 +235,6 @@ public class Devices {
         CANSparkMax motor = DeviceConfigurationUtil.configCANSparkMax(new CANSparkMax(id, MotorType.kBrushless), config, "UpperConveyor "  + id + "  ");
         motor.setInverted(true);
         return motor;
-    }
-
-    public static CANSparkMax createIntakeMotor(int id){
-        CANSparkMaxConfig config = new CANSparkMaxConfig();
-        config.idleMode = IdleMode.kBrake;
-        CANSparkMax motor = DeviceConfigurationUtil.configCANSparkMax(new CANSparkMax(id, MotorType.kBrushless), config, "IntakeMotor " +  + id + "  ");
-        motor.setInverted(false);
-        return motor;
-    }
-
-    public static CANCoder createPivotCANCoder(CanDeviceId id){
-        CANCoderConfig config = new CANCoderConfig();
-        config.sensorDataPeriod = 10;
-        config.vBatAndFaultsPeriod = maxStatusFramePeriod;
-        config.sensorDirection = true;
-		CANCoder encoder = DeviceConfigurationUtil.configCANCoder(new CANCoder(id.getDeviceNumber(), id.getBus()), config, "PivotCANCoder " + id.getDeviceNumber() + "  ");
-        return encoder;
     }
 
     public static TalonSRX createShooterMotor(int id){

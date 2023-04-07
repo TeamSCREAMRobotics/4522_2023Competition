@@ -51,8 +51,8 @@ public class SwerveDriveHelper {
     private Rotation2d mTrajectoryThetaTarget = new Rotation2d();
 
     enum DriveMode{
-        DISABLED, SNAP_POSITION, TRAJECTORY, MANUAL, MANUAL_FACE_POINT, EVASIVE_MANEUVERS, MANUAL_TARGETANGLE, VISION_SNAP, VISION_LOCK_X
-    , SNAP_POSITION_FACE_POINT}
+        DISABLED, SNAP_POSITION, TRAJECTORY, MANUAL, MANUAL_FACE_POINT, EVASIVE_MANEUVERS, MANUAL_TARGETANGLE, VISION_SNAP_TO_POSITION, VISION_LOCK_X, SNAP_POSITION_FACE_POINT
+    }
 
     private DriveMode mControlMode = DriveMode.DISABLED;
 
@@ -83,41 +83,11 @@ public class SwerveDriveHelper {
 	 	mPositionThetaController.enableContinuousInput(-Math.PI, Math.PI);
     }
 
-    public SwerveDriveKinematics getKinematics(){
-        return kinematics;
-    }
-
-
-    //Rotation Helper Methods
-    public void setSnapAngle(Rotation2d robotRotation, Rotation2d target){
-        mRotationHelper.setSnap(robotRotation, target);
-    }
-
-
-    public void setHoldAngle(Rotation2d robotRotation, Rotation2d target){
-        mRotationHelper.setHold(robotRotation, target);
-    }
-
-
-    public void temporaryDisableRotation() {
-        mRotationHelper.setOpenLoop();
-    }
-
-
-    public void disableRotation(){
-        mRotationHelper.disable();
-    }
-
-
-    public RotationHelperMode getRotationMode() {
-        return mRotationHelper.getMode();
-    }
-
 
     //Methods to repeat logic found in multiple drive modes
     private ChassisSpeeds createChassisSpeeds(Translation2d translation, double rotationSpeed, Rotation2d robotRotation, boolean robotCentric){
 		if(robotCentric){
-            translation = translation.rotateBy(Rotation2d.fromDegrees(-90));
+            translation = translation.rotateBy(Rotation2d.fromDegrees(-90));//this offset is here because our coordinate system is 90 degrees off from WPI's. For us, 90 degrees is forward because x is to the right.
 			return new ChassisSpeeds(translation.getX(), translation.getY(), rotationSpeed);
 		}else{
             ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(translation.getX(), translation.getY(), rotationSpeed, robotRotation);
@@ -132,9 +102,13 @@ public class SwerveDriveHelper {
         
 		return swerveModuleStates;
 	}
-    
 
-    private ChassisSpeeds updateDesiredStates(ChassisSpeeds targetChassisSpeeds, Translation2d centerOfRotation) {//This way of updating the chassisSpeeds based on kinematics limits is taken from team 254
+
+    /**
+     * This way of updating the chassisSpeeds based on kinematics limits is taken from team 254
+     * <p> This is not required for the swerve to function, but it makes the movement slightly more optimized
+     */
+    private ChassisSpeeds updateDesiredStates(ChassisSpeeds targetChassisSpeeds, Translation2d centerOfRotation) {
 
         // Set the des_states to account for robot traversing arc.
         Pose2d robot_pose_vel = new Pose2d(targetChassisSpeeds.vxMetersPerSecond * Constants.kSubsystemPeriodSeconds,
@@ -150,12 +124,15 @@ public class SwerveDriveHelper {
     }
 
 
+    /**
+     * takes chassisSpeeds, optimizes them with the updateDesiredStates() method, and creates SwerveModuleStates based on those chassisSpeeds
+     */
     private SwerveModuleState[] generateModuleStatesWithKinematicsLimits(ChassisSpeeds chassisSpeeds, Translation2d centerOfRotation){
         return chassisSpeedsToSwerveModuleStates(updateDesiredStates(chassisSpeeds, centerOfRotation), centerOfRotation);
     }
 
 
-    //Drive Modes 
+    ///////////////////////////////////////////Swerve Control Modes/////////////////////////////////////////////////////////////////////////////////////////////////////////
     public SwerveModuleState[] getDrive(Translation2d translationInput, double rotationInput, Pose2d robotPose, boolean robotCentric) {
         mControlMode = DriveMode.MANUAL;
 
@@ -188,6 +165,7 @@ public class SwerveDriveHelper {
     }
 
 
+
     public SwerveModuleState[] getDriveAndFacePoint(Translation2d translationInput, Pose2d robotPose, Translation2d point, boolean robotCentric, Rotation2d faceForwardDirection) {
         mControlMode = DriveMode.MANUAL_FACE_POINT;
 
@@ -211,6 +189,7 @@ public class SwerveDriveHelper {
         return generateModuleStatesWithKinematicsLimits(chassisSpeeds, defaultCenterOfRotation);
     }
 
+    
 
     public SwerveModuleState[] getSnapToPosition(Pose2d robotPose, Pose2d targetPose) {
         mControlMode = DriveMode.SNAP_POSITION;
@@ -230,11 +209,30 @@ public class SwerveDriveHelper {
     }
 
 
-    public SwerveModuleState[] getVisionSnap(Pose2d robotPose, Pose2d targetPose){
-        if(mControlMode != DriveMode.VISION_SNAP){
+    public SwerveModuleState[] getSnapPositionAndFacePoint(Translation2d targetTranslation, Translation2d point, Pose2d robotPose, Rotation2d faceForwardDirection) {
+        mControlMode = DriveMode.SNAP_POSITION_FACE_POINT;
+
+        double xError = targetTranslation.getX()-robotPose.getX();
+        double yError = targetTranslation.getY()-robotPose.getY();
+        double xFeedback = MathUtil.clamp(mPositionXController.calculate(-xError, 0), -SwerveConstants.maxSpeedDuringPostionMode, SwerveConstants.maxSpeedDuringPostionMode);
+        double yFeedback = mPositionYController.calculate(-yError, 0);
+
+        Rotation2d snapAngle = calculateAngleToFacePoint(ScreamUtil.getTangent(robotPose.getTranslation(), point), faceForwardDirection);
+        mRotationHelper.setSnap(robotPose.getRotation(), snapAngle);
+        double rotationSpeed = mRotationHelper.calculateRotation(robotPose.getRotation(), 0);
+
+        if(point.getDistance(robotPose.getTranslation()) < SwerveConstants.facePointMinimumDistance) rotationSpeed = 0;//if the robot is basically on the point we are facing, we don't want it to rotate, or it might go crazy
+
+        ChassisSpeeds chassisSpeeds = createChassisSpeeds(new Translation2d(xFeedback, yFeedback), rotationSpeed, robotPose.getRotation(), false);
+        return generateModuleStatesWithKinematicsLimits(chassisSpeeds, defaultCenterOfRotation);
+    }
+
+
+    public SwerveModuleState[] getVisionSnapToPosition(Pose2d robotPose, Pose2d targetPose){
+        if(mControlMode != DriveMode.VISION_SNAP_TO_POSITION){
             mRotationHelper.setOpenLoop();
         } 
-        mControlMode = DriveMode.VISION_SNAP;
+        mControlMode = DriveMode.VISION_SNAP_TO_POSITION;
 
         double xError = targetPose.getX()-robotPose.getX();
         double yError = targetPose.getY()-robotPose.getY();
@@ -244,7 +242,7 @@ public class SwerveDriveHelper {
         double yFeedback = mVisionYController.calculate(-yError, 0);
         double rotationCommand = mVisionThetaController.calculate(-thetaError.getRadians(), 0);
 
-        //if(Math.abs(xError) > SwerveConstants.visionThresholdBeforeMoveY) yFeedback = 0;//TODO try removing now
+        //if(Math.abs(xError) > SwerveConstants.visionThresholdBeforeMoveY) yFeedback = 0;     //Makes the robot align with the x axis before aligning with the y axis.
 
         ChassisSpeeds chassisSpeeds = createChassisSpeeds(new Translation2d(xFeedback, yFeedback), rotationCommand, robotPose.getRotation(), false);
 
@@ -268,7 +266,7 @@ public class SwerveDriveHelper {
 	}
    
     
-    //Trajectory following methods
+    ////////////////////////////////Trajectory following methods////////////////////////////////////////////////////////////////////////////////////////////////////
 	private Trajectory mCurrentTrajectory = null;
 	private Optional<Rotation2d> mTrajectoryEndAngle;
 	private Optional<Translation2d> mTrajectoryFacePoint;
@@ -276,6 +274,9 @@ public class SwerveDriveHelper {
 	private boolean mTrajectroyInProgress = false;
     private Rotation2d mTrajectoryRobotFaceForwardDirection = SwerveConstants.robotForwardAngle;
 
+    /**
+     * We have two options for our angle when following trajectories. This option makes the swerve target the endAngle variable for the whole path.
+     */
     public void setTrajectoryWithEndAngle(Trajectory trajectory, Rotation2d endAngle, double thetaKP){
 		mCurrentTrajectory = trajectory;
 		mTrajectoryEndAngle = Optional.of(endAngle);
@@ -284,6 +285,9 @@ public class SwerveDriveHelper {
 	}
     
 
+    /**
+     * We have two options for our angle when following trajectories. This option makes the swerve face a point for the whole path.
+     */
     public void setTrajectoryWithFacePoint(Trajectory trajectory, Translation2d facePoint, double thetaKP, Rotation2d robotFaceForwardDirection){
 		mCurrentTrajectory = trajectory;
 		mTrajectoryEndAngle = Optional.empty();
@@ -370,13 +374,10 @@ public class SwerveDriveHelper {
         return getTrajectoryError(robotPose.getTranslation()) < SwerveConstants.trajectoryTranslationTolerance && Math.abs(mTrajectoryThetaTarget.getRadians()-robotPose.getRotation().getRadians()) < SwerveConstants.trajectoryAngleTolerance.getRadians();
     }
 
-
-    //Dodging moves
-    private Translation2d calculatePivotPoint(Translation2d driveVector){
-        return driveVector.times(SwerveConstants.kDodgeArcLength / driveVector.getNorm());
-    }
-
-
+    
+    /**
+     * This returns an optional because some of our logic will fail if we don't have a trajectory. If we have no trajectory, we just return empty.
+     */
     public Optional<Double> getTrajectoryPercentCompletion() {
 		if(noTrajectory()) return Optional.empty();
 		return Optional.of(MathUtil.clamp(mTrajectoryTimer.get() / mCurrentTrajectory.getTotalTimeSeconds(), 0, 1.0));
@@ -388,26 +389,45 @@ public class SwerveDriveHelper {
     }
 
 
-    public SwerveModuleState[] getSnapPositionAndFacePoint(Translation2d targetTranslation, Translation2d point, Pose2d robotPose, Rotation2d faceForwardDirection) {
-        mControlMode = DriveMode.SNAP_POSITION_FACE_POINT;
+    //Rotation Helper Methods
+    public void setSnapAngle(Rotation2d robotRotation, Rotation2d target){
+        mRotationHelper.setSnap(robotRotation, target);
+    }
 
-        double xError = targetTranslation.getX()-robotPose.getX();
-        double yError = targetTranslation.getY()-robotPose.getY();
-        double xFeedback = MathUtil.clamp(mPositionXController.calculate(-xError, 0), -SwerveConstants.maxSpeedDuringPostionMode, SwerveConstants.maxSpeedDuringPostionMode);
-        double yFeedback = mPositionYController.calculate(-yError, 0);
 
-        Rotation2d snapAngle = calculateAngleToFacePoint(ScreamUtil.getTangent(robotPose.getTranslation(), point), faceForwardDirection);
-        mRotationHelper.setSnap(robotPose.getRotation(), snapAngle);
-        double rotationSpeed = mRotationHelper.calculateRotation(robotPose.getRotation(), 0);
+    public void setHoldAngle(Rotation2d robotRotation, Rotation2d target){
+        mRotationHelper.setHold(robotRotation, target);
+    }
 
-        if(point.getDistance(robotPose.getTranslation()) < SwerveConstants.facePointMinimumDistance) rotationSpeed = 0;//if the robot is basically on the point we are facing, we don't want it to rotate, or it might go crazy
 
-        ChassisSpeeds chassisSpeeds = createChassisSpeeds(new Translation2d(xFeedback, yFeedback), rotationSpeed, robotPose.getRotation(), false);
-        return generateModuleStatesWithKinematicsLimits(chassisSpeeds, defaultCenterOfRotation);
+    public void temporaryDisableRotation() {
+        mRotationHelper.setOpenLoop();
+    }
+
+
+    public void disableRotation(){
+        mRotationHelper.disable();
+    }
+
+
+    public RotationHelperMode getRotationMode() {
+        return mRotationHelper.getMode();
+    }
+
+
+    ///////////////////////////////////////////// Miscellaneous Methods ////////////////////////////////////////////////////////////////
+    /**Calculates the pivot point that the swerve needs to rotate around for dodging moves */
+    private Translation2d calculatePivotPoint(Translation2d driveVector){
+        return driveVector.times(SwerveConstants.kDodgeArcLength / driveVector.getNorm());
     }
 
 
     private Rotation2d calculateAngleToFacePoint(Rotation2d tangent, Rotation2d forwardDirection){
         return tangent.minus(SwerveConstants.robotForwardAngle).plus(forwardDirection);
+    }
+
+    
+    public SwerveDriveKinematics getKinematics(){
+        return kinematics;
     }
 }

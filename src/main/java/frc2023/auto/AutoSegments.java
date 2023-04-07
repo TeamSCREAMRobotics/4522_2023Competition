@@ -58,7 +58,7 @@ public class AutoSegments {
                         new WaitUntilTrajectoryProgressAction(.45)
                     ),
                     new ParallelAction(
-                        new RunIntakeAction(poopShootNext? IntakeState.INTAKE_FOR_POOPSHOOT : IntakeState.AUTO_INTAKE),
+                        new RunIntakeAction(poopShootNext? IntakeState.INTAKE_FOR_POOPSHOOT : IntakeState.INAKE_AUTO),
                         new RunArmAction(ArmConstants.Setpoints.kPoopShoot)
                     )
                 )
@@ -104,7 +104,7 @@ public class AutoSegments {
                         new RunArmAction(ArmConstants.Setpoints.kAutoWithoutGamepiece)
                     ),
                     new ParallelAction(
-                        new RunIntakeAction(poopShootNext? IntakeState.INTAKE_FOR_POOPSHOOT : IntakeState.AUTO_INTAKE),
+                        new RunIntakeAction(poopShootNext? IntakeState.INTAKE_FOR_POOPSHOOT : IntakeState.INAKE_AUTO),
                         new RunArmAction(ArmConstants.Setpoints.kPoopShoot)
                     )
                 )
@@ -153,7 +153,7 @@ public class AutoSegments {
                     ),
                     new ParallelAction(
                         new RunArmAction(ArmConstants.Setpoints.kPoopShoot),
-                        new RunIntakeAction(poopShootNext? IntakeState.INTAKE_FOR_POOPSHOOT : IntakeState.AUTO_INTAKE)
+                        new RunIntakeAction(poopShootNext? IntakeState.INTAKE_FOR_POOPSHOOT : IntakeState.INAKE_AUTO)
                     )
                 )
             )
@@ -228,7 +228,7 @@ public class AutoSegments {
                         new WaitUntilTrajectoryProgressAction(.55)
                     ),
                     new ParallelAction(
-                        new RunIntakeAction(poopShootNext? IntakeState.INTAKE_FOR_POOPSHOOT : IntakeState.AUTO_INTAKE),
+                        new RunIntakeAction(poopShootNext? IntakeState.INTAKE_FOR_POOPSHOOT : IntakeState.INAKE_AUTO),
                         new RunArmAction(ArmConstants.Setpoints.kPoopShoot)
                     )
                 )
