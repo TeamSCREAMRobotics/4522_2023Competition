@@ -10,8 +10,9 @@ import edu.wpi.first.math.geometry.Translation2d;
  */
 public class FieldPointCalculator {
     public static final Translation2d fieldSize = new Translation2d(8.0, 16.51);
+    
     public static void main(String[] args) {
-        System.out.println(convertPathplannerCoordsToScreamCoords(new Translation2d(5.42,  2.82)));
+        System.out.println(convertPathplannerCoordsToScreamCoords(new Translation2d(5.14, 0.66)));
     }
 
 

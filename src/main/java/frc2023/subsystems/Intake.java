@@ -17,6 +17,15 @@ import frc2023.Constants.IntakeConstants.UpperConveyorConstants;
 import frc2023.PlacementStates.Level;
 import frc2023.shuffleboard.tabs.TestTab;
 
+/** This our intake subsystem. It has a four bar intake(solenoid and roller) in the front for intaking cubes, a hopper in the middle to index the cubes(upper and lower conveyor),
+ * and a couple of flywheels on the back(the poop shooter). 
+ * 
+ * <p> We primarily shoot cubes out the front of our intake by reversing the upper and lower conveyor motors and running the
+ * roller in like normal. This pops the cube out the top of the intake, shooting the cubes.
+ * 
+ * <p> All of these different devices work together, are only for cubes, and we can only hold 1 game piece at a time. We put
+ * all of these devices one subsystem because there is no case where we want different parts of this subsystem to do independent things
+ */
 public class Intake extends Subsystem{
 
 	public final PeriodicIO mPeriodicIO = new PeriodicIO();

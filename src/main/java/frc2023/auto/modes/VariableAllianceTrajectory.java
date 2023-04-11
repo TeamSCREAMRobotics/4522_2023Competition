@@ -6,26 +6,26 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import frc2023.auto.modes.VariableKinematicsTrajectory.TrajectorySpeed;
+import frc2023.auto.modes.VariableSpeedTrajectory.TrajectorySpeed;
 
 public abstract class VariableAllianceTrajectory {
     
-    private final HashMap<Alliance, VariableKinematicsTrajectory> map = new HashMap<Alliance, VariableKinematicsTrajectory>();
+    private final HashMap<Alliance, VariableSpeedTrajectory> map = new HashMap<Alliance, VariableSpeedTrajectory>();
 
     public VariableAllianceTrajectory (){
       
-        map.put(Alliance.Blue, new VariableKinematicsTrajectory(){
+        map.put(Alliance.Blue, new VariableSpeedTrajectory(){
             @Override
-            protected Trajectory createTrajectories(TrajectoryConfig kinematicsLimit) {
-                return generateTrajectories(Alliance.Blue, kinematicsLimit);
+            protected Trajectory createTrajectories(TrajectoryConfig speedConfig) {
+                return generateTrajectories(Alliance.Blue, speedConfig);
             }
 
         });
 
-        map.put(Alliance.Red,  new VariableKinematicsTrajectory(){
+        map.put(Alliance.Red,  new VariableSpeedTrajectory(){
             @Override
-            protected Trajectory createTrajectories(TrajectoryConfig kinematicsLimit) {
-                return generateTrajectories(Alliance.Red, kinematicsLimit);
+            protected Trajectory createTrajectories(TrajectoryConfig speedConfig) {
+                return generateTrajectories(Alliance.Red, speedConfig);
             }
 
         });
@@ -34,7 +34,7 @@ public abstract class VariableAllianceTrajectory {
     /**
      * DO NOT CALL THIS OUTSIDE OF TRAJECTORIES
      */
-    protected abstract Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig kinematicsLimit);
+    protected abstract Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig speedConfig);
 
     public Trajectory getTrajectory(Alliance alliance, TrajectorySpeed trajectorySpeed) {
         if(alliance == Alliance.Invalid){

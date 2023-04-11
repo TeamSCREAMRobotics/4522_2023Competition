@@ -33,6 +33,7 @@ public class SwerveModule implements CSVWriteable {
 	/** instead of messing around with limiting the acceleration of the robot with profiledPIDControllers or slew rate limiters, we just limit the acceleration of the drive
 		motor here. There is no situation where we wouldn't want to accceleration limit the drive motor, so it makes sense to do it in the swerve module */
 	private final SlewRateLimiter mDriveAccelerationLimiter = new SlewRateLimiter(SwerveModuleConstants.kDriveSlewRate, -SwerveModuleConstants.kDriveSlewRate, 0);
+	
 	private SwerveModuleState mDesiredState = new SwerveModuleState();
 
 	public SwerveModule(TalonFX drive, TalonFX steer, CANCoder cancoder, SwerveModuleConstants moduleConstants){

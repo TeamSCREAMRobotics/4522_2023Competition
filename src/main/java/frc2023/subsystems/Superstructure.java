@@ -23,6 +23,20 @@ import frc2023.subsystems.Swerve.DodgeDirection;
 import frc2023.subsystems.Swerve.SwerveState;
 import frc2023.swerve.SwerveRotationHelper.RotationHelperMode;
 
+/** This is a useful class for the organization of our robot. It handles all of the driver/operator inputs from {@code ControlBoard}, and manages the logic for which state
+ *  our subsystems should be in, and sets the subsystems to their respective states.
+ * 
+ * <p> We alse set up this class to use our {@code AutoRoutineExecutor}. At the beginning of updateTeleopCommands, we check our joystick inputs to see if there is any
+ * auto routine that we would like to run. If there is, we set our desiredAutoRoutine to that auto, if there isn't then we set the desiredAutoRoutine to{@code Optional.empty()} and run
+ * superstructure in normal teleop driver control. 
+ * 
+ * <p> The auto routine logic is tricky because if we want to stay in our current routine without repeatedly reselecting the same action, we have to check if the {@code desiredAutoRoutine} is
+ * the same routine as {@code mSelectedRoutine}. In our {@code ActionBase} class, we force every action to implement a {@link ActionBase#getID() getID()} method and we override the {@code toString()} method to include the ID.
+ * We check if the {@code} toString()} values of the Actions are the same {@link #shouldSelectNewAutoRoutine(Optional) here}. This also means that 
+ * if we include a variable in the ID method, two of the same class that extends action can be considered different actions 
+ * 
+ * @see LimelightAutoScore#getID() example of variable in the ID
+ */
 public class Superstructure {
 
 	private final ControlBoard mControlBoard = ControlBoard.getInstance();
@@ -237,9 +251,7 @@ public class Superstructure {
 				mArm.setPercentOutput(pivotPO*multiplier, telescopePO*multiplier);
 			}
 
-
 		}
-
 
 		if(mAutoRoutineExecutor.isFinished()){
 			mSelectedRoutine = Optional.empty();
@@ -250,7 +262,7 @@ public class Superstructure {
 	private boolean shouldSelectNewAutoRoutine(Optional<ActionBase> desiredAutoRoutine) {
 		return !mSelectedRoutine.toString().equals(desiredAutoRoutine.toString());
 	}
-	
+
 	
 	private void selectNewAutoRoutine(Optional<ActionBase> newRoutine){
 		mSelectedRoutine = newRoutine;

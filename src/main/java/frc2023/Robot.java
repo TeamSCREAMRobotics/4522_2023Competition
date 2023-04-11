@@ -18,7 +18,6 @@ import frc2023.auto.Trajectories;
 import frc2023.auto.modes.AutoRoutineExecutor;
 import frc2023.controlboard.ControlBoard;
 import frc2023.shuffleboard.ShuffleboardTabManager;
-import frc2023.shuffleboard.tabs.MatchTab;
 import frc2023.subsystems.Arm;
 import frc2023.subsystems.Devices;
 import frc2023.subsystems.Gripper;
@@ -42,12 +41,15 @@ public class Robot extends TimedRobot {
   private final Limelight mBackLimelight;
   private final PowerDistribution mPDH = new PowerDistribution(Ports.pdhID, ModuleType.kRev);
   private final ShuffleboardTabManager mShuffleboardTabManager;
-  private final MatchTab mMatchTab;
 
   private final PeriodicLoop mOdometryLoop;
   private final PeriodicLoop mTelemetryLoop;
   private final PeriodicLoop mUpdatePIDsFromShuffleboard;
 
+  /**
+   * We load all of our classes in a specific order on startup because our devices must be created before we use them. At the beginning of the season, we had an
+   * issue with our swerve modules because we would sometimes zero the angle motor before the CANCoder could read properly. This setup ensures that this never happens.
+   */
   public Robot(){
     super();
     LiveWindow.disableAllTelemetry();
@@ -62,7 +64,6 @@ public class Robot extends TimedRobot {
     mSubsystemManager = SubsystemManager.getInstance();
     mAutoRoutineExecutor = AutoRoutineExecutor.getInstance();
     mShuffleboardTabManager = ShuffleboardTabManager.getInstance();
-    mMatchTab = mShuffleboardTabManager.matchTab;
     mFrontLimelight = Limelight.getFrontInstance();
     mBackLimelight = Limelight.getBackInstance();
 
@@ -107,7 +108,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    mAutoRoutineExecutor.selectRoutine(mMatchTab.getSelectedAutoRoutine());
+    mAutoRoutineExecutor.selectRoutine(mShuffleboardTabManager.matchTab.getSelectedAutoRoutine());
     mAutoRoutineExecutor.start();
   }
 

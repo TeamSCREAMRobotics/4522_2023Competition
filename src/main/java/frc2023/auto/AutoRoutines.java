@@ -12,7 +12,7 @@ import frc2023.auto.actions.autonomous.RunArmAction;
 import frc2023.auto.actions.autonomous.autoPlacement.ArmAutoPlaceAction;
 import frc2023.auto.actions.lib.ActionBase;
 import frc2023.auto.actions.lib.SeriesAction;
-import frc2023.auto.modes.VariableKinematicsTrajectory.TrajectorySpeed;
+import frc2023.auto.modes.VariableSpeedTrajectory.TrajectorySpeed;
 import frc2023.field.MirroredTranslation;
 import frc2023.field.MirroredPose;
 

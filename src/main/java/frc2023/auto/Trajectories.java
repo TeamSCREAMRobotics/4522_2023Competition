@@ -59,21 +59,21 @@ public class Trajectories {
 	
 	public static final VariableAllianceTrajectory gamePiece1ToNode2 = new VariableAllianceTrajectory() {
 		@Override
-		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig kinematicsLimit) {
+		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig speedConfig) {
 
 			Pose2d start = new MirroredPose(PlacementConstants.gamePiece1SwerveLocation, new MirroredRotation(-105)).get(alliance);
 			Pose2d end = new MirroredPose(PlacementStates.getSwervePlacementTranslationAuto(Node.NODE2), new MirroredRotation(-82)).get(alliance);
 			List<Translation2d> waypoints = Arrays.asList(
 
 			);
-			return TrajectoryGenerator.generateTrajectory(start, waypoints, end, kinematicsLimit);
+			return TrajectoryGenerator.generateTrajectory(start, waypoints, end, speedConfig);
 		}
 	};
 
 
 	public static final VariableAllianceTrajectory node2ToGamePiece2 = new VariableAllianceTrajectory() {
 		@Override
-		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig kinematicsLimit) {
+		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig speedConfig) {
 			Translation2d point1 = new MirroredTranslation(new Translation2d(3.5, -2.85)).getPoint(alliance);
 
 			Pose2d start = new MirroredPose(PlacementStates.getSwervePlacementTranslationAuto(Node.NODE2), new MirroredRotation(105)).get(alliance);
@@ -81,14 +81,14 @@ public class Trajectories {
 			List<Translation2d> waypoints = Arrays.asList(
 				point1
 			);
-			return TrajectoryGenerator.generateTrajectory(start, waypoints, end, kinematicsLimit);
+			return TrajectoryGenerator.generateTrajectory(start, waypoints, end, speedConfig);
 		}
 	};
 
 
 	public static final VariableAllianceTrajectory gamePiece4ToNode8 = new VariableAllianceTrajectory() {
 		@Override
-		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig kinematicsLimit) {
+		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig speedConfig) {
 			Translation2d point1 =  new MirroredTranslation(new Translation2d(7.30, -3.31)).getPoint(alliance);
 			Translation2d point2 =  new MirroredTranslation(new Translation2d(7.30, -5.7)).getPoint(alliance);
 			
@@ -99,14 +99,14 @@ public class Trajectories {
 				point1,
 				point2
 			);
-			return TrajectoryGenerator.generateTrajectory(start, waypoints, end, createTrajectoryConfigWithCableBumpSlowdown(kinematicsLimit));
+			return TrajectoryGenerator.generateTrajectory(start, waypoints, end, createTrajectoryConfigWithCableBumpSlowdown(speedConfig));
 		}
 	};
 
 
 	public static final VariableAllianceTrajectory node8ToGamePiece3 = new VariableAllianceTrajectory() {
 		@Override
-		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig kinematicsLimit) {
+		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig speedConfig) {
 		Translation2d point1 = new MirroredTranslation(new Translation2d(7.20, -2.9)).getPoint(alliance);
 		Pose2d start = new MirroredPose(PlacementStates.getSwervePlacementTranslationAuto(Node.NODE8), new MirroredRotation(75)).get(alliance);
 		Pose2d end = new MirroredPose(PlacementConstants.gamePiece3SwerveLocation, new MirroredRotation(130)).get(alliance);
@@ -115,14 +115,14 @@ public class Trajectories {
 			point1
 			);
 
-		return TrajectoryGenerator.generateTrajectory(start, waypoints, end, createTrajectoryConfigWithCableBumpSlowdown(kinematicsLimit));
+		return TrajectoryGenerator.generateTrajectory(start, waypoints, end, createTrajectoryConfigWithCableBumpSlowdown(speedConfig));
 		}
 	};
 
 
 	public static final VariableAllianceTrajectory gamePiece2ToNode2 = new VariableAllianceTrajectory() {
 		@Override
-		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig kinematicsLimit) {
+		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig speedConfig) {
 			Translation2d point1 = new MirroredTranslation(new Translation2d(3.55, -5.7)).getPoint(alliance);
 		
 			Pose2d start = new MirroredPose(PlacementConstants.gamePiece2SwerveLocation, new MirroredRotation(-148)).get(alliance);
@@ -130,14 +130,14 @@ public class Trajectories {
 			List<Translation2d> waypoints = Arrays.asList(
 				point1
 			);
-			return TrajectoryGenerator.generateTrajectory(start, waypoints, end, kinematicsLimit);
+			return TrajectoryGenerator.generateTrajectory(start, waypoints, end, speedConfig);
 		}
 	};
 
 
 	public static final VariableAllianceTrajectory node1ToGamePiece1 = new VariableAllianceTrajectory() {
 		@Override
-		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig kinematicsLimit) {
+		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig speedConfig) {
 			Pose2d start = new MirroredPose(PlacementStates.getSwervePlacementTranslation(Node.NODE1), new MirroredRotation(90)).get(alliance);
 			Translation2d point1 = new MirroredTranslation(3.15, -4.72).getPoint(alliance);
 			Pose2d end = new MirroredPose(PlacementConstants.gamePiece1SwerveLocation, new MirroredRotation(90)).get(alliance);
@@ -146,14 +146,14 @@ public class Trajectories {
 				point1
 			);
 
-			return TrajectoryGenerator.generateTrajectory(start, waypoints, end, kinematicsLimit);
+			return TrajectoryGenerator.generateTrajectory(start, waypoints, end, speedConfig);
 		}
 	}; 
 
 
 	public static final VariableAllianceTrajectory node9ToGamePiece4 = new VariableAllianceTrajectory() {
 		@Override
-		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig kinematicsLimit) {
+		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig speedConfig) {
 			Pose2d start = new MirroredPose(PlacementStates.getSwervePlacementTranslation(Node.NODE9), new MirroredRotation(90)).get(alliance);
 			Pose2d end = new MirroredPose(PlacementConstants.gamePiece4SwerveLocation, new MirroredRotation(90)).get(alliance);
 			
@@ -162,14 +162,14 @@ public class Trajectories {
 				end			
 			);
 
-		return TrajectoryGenerator.generateTrajectory(waypoints, createTrajectoryConfigWithCableBumpSlowdown(kinematicsLimit));
+		return TrajectoryGenerator.generateTrajectory(waypoints, createTrajectoryConfigWithCableBumpSlowdown(speedConfig));
 		}
 	}; 
 
 
 	public static final VariableAllianceTrajectory gamePiece3ToNode8 = new VariableAllianceTrajectory() {
 		@Override
-		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig kinematicsLimit) {
+		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig speedConfig) {
 
 			Pose2d start = new MirroredPose(PlacementConstants.gamePiece3SwerveLocation, new MirroredRotation(-50)).get(alliance);
 			Pose2d point1 = new MirroredPose(new MirroredTranslation(7.82, -2.51), new MirroredRotation(-90)).get(alliance);
@@ -182,14 +182,14 @@ public class Trajectories {
 				point2,
 				end
 			);
-		   return TrajectoryGenerator.generateTrajectory(waypoints, createTrajectoryConfigWithCableBumpSlowdown(kinematicsLimit));
+		   return TrajectoryGenerator.generateTrajectory(waypoints, createTrajectoryConfigWithCableBumpSlowdown(speedConfig));
 		}
 	};
 
 
 	public static final VariableAllianceTrajectory gamePiece1ToShoot3_1 = new VariableAllianceTrajectory() {
 		@Override
-		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig kinematicsLimit) {
+		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig speedConfig) {
 			Pose2d start = new MirroredPose(PlacementConstants.gamePiece1SwerveLocation, new MirroredRotation(-70)).get(alliance);
 			Pose2d end = new MirroredPose(PlacementConstants.shootLocation3, new MirroredRotation(-70)).get(alliance);
 			
@@ -198,14 +198,14 @@ public class Trajectories {
 				end			
 			);
 
-			return TrajectoryGenerator.generateTrajectory(waypoints, kinematicsLimit);
+			return TrajectoryGenerator.generateTrajectory(waypoints, speedConfig);
 		}
 	};
 
 
 	public static final VariableAllianceTrajectory shoot3ToGamePiece2_1 = new VariableAllianceTrajectory() {
 		@Override
-		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig kinematicsLimit) {
+		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig speedConfig) {
 			Pose2d start = new MirroredPose(PlacementConstants.shootLocation3, new MirroredRotation(60)).get(alliance);
 			Pose2d end = new MirroredPose(PlacementConstants.gamePiece2ShootPathLocation1, new MirroredRotation(60)).get(alliance);
 			
@@ -214,14 +214,14 @@ public class Trajectories {
 				end			
 			);
 
-			return TrajectoryGenerator.generateTrajectory(waypoints, kinematicsLimit);
+			return TrajectoryGenerator.generateTrajectory(waypoints, speedConfig);
 		}
 	};
 
 
 	public static final VariableAllianceTrajectory gamePiece2ToShoot5_1 = new VariableAllianceTrajectory() {
 		@Override
-		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig kinematicsLimit) {
+		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig speedConfig) {
 			Pose2d start = new MirroredPose(PlacementConstants.gamePiece2ShootPathLocation1, new MirroredRotation(-70)).get(alliance);
 			Pose2d end = new MirroredPose(PlacementConstants.shootLocation5, new MirroredRotation(-70)).get(alliance);
 			
@@ -230,14 +230,14 @@ public class Trajectories {
 				end			
 			);
 
-			return TrajectoryGenerator.generateTrajectory(waypoints, kinematicsLimit);
+			return TrajectoryGenerator.generateTrajectory(waypoints, speedConfig);
 		}
 	};
 
 
 	public static final VariableAllianceTrajectory shoot5ToGamePiece3_1 = new VariableAllianceTrajectory() {
 		@Override
-		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig kinematicsLimit) {
+		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig speedConfig) {
 			Pose2d start = new MirroredPose(PlacementConstants.shootLocation5, new MirroredRotation(70)).get(alliance);
 			Pose2d end = new MirroredPose(PlacementConstants.gamePiece3ShootPathLocation1, new MirroredRotation(70)).get(alliance);
 			
@@ -246,14 +246,14 @@ public class Trajectories {
 				end			
 			);
 
-		return TrajectoryGenerator.generateTrajectory(waypoints, kinematicsLimit);
+		return TrajectoryGenerator.generateTrajectory(waypoints, speedConfig);
 		}
 	};
 
 
 	public static final VariableAllianceTrajectory gamePiece3ToShoot7_1 = new VariableAllianceTrajectory() {
 		@Override
-		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig kinematicsLimit) {
+		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig speedConfig) {
 			Pose2d start = new MirroredPose(PlacementConstants.gamePiece3ShootPathLocation1, new MirroredRotation(-70)).get(alliance);
 		Pose2d end = new MirroredPose(PlacementConstants.shootLocation7, new MirroredRotation(-70)).get(alliance);
 		
@@ -262,14 +262,14 @@ public class Trajectories {
 			end			
 		);
 
-	   	return TrajectoryGenerator.generateTrajectory(waypoints, kinematicsLimit);
+	   	return TrajectoryGenerator.generateTrajectory(waypoints, speedConfig);
 		}
 	};
 
 
 	public static final VariableAllianceTrajectory shoot7ToGamePiece4_1 = new VariableAllianceTrajectory() {
 		@Override
-		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig kinematicsLimit) {
+		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig speedConfig) {
 			Pose2d start = new MirroredPose(PlacementConstants.shootLocation7, new MirroredRotation(60)).get(alliance);
 			Pose2d end = new MirroredPose(PlacementConstants.gamePiece4ShootPathLocation1, new MirroredRotation(60)).get(alliance);
 			
@@ -278,14 +278,14 @@ public class Trajectories {
 				end			
 			);
 	
-		   return TrajectoryGenerator.generateTrajectory(waypoints, kinematicsLimit);
+		   return TrajectoryGenerator.generateTrajectory(waypoints, speedConfig);
 		}
 	};
 
 
 	public static final VariableAllianceTrajectory gamePiece4ToShoot6_1 = new VariableAllianceTrajectory() {
 		@Override
-		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig kinematicsLimit) {
+		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig speedConfig) {
 			Pose2d start = new MirroredPose(PlacementConstants.gamePiece4ShootPathLocation1, new MirroredRotation(-125)).get(alliance);
 			Pose2d end = new MirroredPose(PlacementConstants.shootLocation6, new MirroredRotation(-125)).get(alliance);
 			
@@ -294,14 +294,14 @@ public class Trajectories {
 				end			
 			);
 
-		return TrajectoryGenerator.generateTrajectory(waypoints, kinematicsLimit);
+		return TrajectoryGenerator.generateTrajectory(waypoints, speedConfig);
 		}
 	};
 
 
 	public static final VariableAllianceTrajectory gamePiece4ToShoot8_9 = new VariableAllianceTrajectory() {
 		@Override
-		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig kinematicsLimit) {
+		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig speedConfig) {
 			Pose2d start = new MirroredPose(PlacementConstants.gamePiece4ShootPathLocation9, new MirroredRotation(-130)).get(alliance);
 			Pose2d end = new MirroredPose(PlacementConstants.shootLocation8, new MirroredRotation(-130)).get(alliance);
 			
@@ -310,14 +310,14 @@ public class Trajectories {
 				end
 			);
 
-		return TrajectoryGenerator.generateTrajectory(waypoints, kinematicsLimit);
+		return TrajectoryGenerator.generateTrajectory(waypoints, speedConfig);
 		}
 	};
 
 
 	public static final VariableAllianceTrajectory shoot8ToGamePiece3_9 = new VariableAllianceTrajectory() {
 		@Override
-		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig kinematicsLimit) {
+		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig speedConfig) {
 			Pose2d start = new MirroredPose(PlacementConstants.shootLocation8, new MirroredRotation(120)).get(alliance);
 			Pose2d end = new MirroredPose(PlacementConstants.gamePiece3ShootPathLocation9, new MirroredRotation(120)).get(alliance);
 			
@@ -326,14 +326,14 @@ public class Trajectories {
 				end			
 			);
 	
-		   return TrajectoryGenerator.generateTrajectory(waypoints, kinematicsLimit);
+		   return TrajectoryGenerator.generateTrajectory(waypoints, speedConfig);
 		}
 	};
 
 
 	public static final VariableAllianceTrajectory gamePiece3ToShoot5_9 = new VariableAllianceTrajectory() {
 		@Override
-		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig kinematicsLimit) {
+		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig speedConfig) {
 			Pose2d start = new MirroredPose(PlacementConstants.gamePiece3ShootPathLocation9, new MirroredRotation(-115)).get(alliance);
 			Pose2d end = new MirroredPose(PlacementConstants.shootLocation5, new MirroredRotation(-115)).get(alliance);
 			
@@ -342,14 +342,14 @@ public class Trajectories {
 				end			
 			);
 
-		return TrajectoryGenerator.generateTrajectory(waypoints, kinematicsLimit);
+		return TrajectoryGenerator.generateTrajectory(waypoints, speedConfig);
 		}
 	};
 
 
 	public static final VariableAllianceTrajectory shoot5ToGamePiece2_9 = new VariableAllianceTrajectory() {
 		@Override
-		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig kinematicsLimit) {
+		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig speedConfig) {
 			Pose2d start = new MirroredPose(PlacementConstants.shootLocation5, new MirroredRotation(115)).get(alliance);
 			Pose2d end = new MirroredPose(PlacementConstants.gamePiece2ShootPathLocation9, new MirroredRotation(115)).get(alliance);
 			
@@ -358,14 +358,14 @@ public class Trajectories {
 				end
 			);
 	
-		   return TrajectoryGenerator.generateTrajectory(waypoints, kinematicsLimit);
+		   return TrajectoryGenerator.generateTrajectory(waypoints, speedConfig);
 		}
 	};
 
 
 	public static final VariableAllianceTrajectory gamePiece2ToShoot4_9 = new VariableAllianceTrajectory() {
 		@Override
-		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig kinematicsLimit) {
+		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig speedConfig) {
 			Pose2d start = new MirroredPose(PlacementConstants.gamePiece2ShootPathLocation9, new MirroredRotation(-75)).get(alliance);
 			Pose2d end = new MirroredPose(PlacementConstants.shootLocation4, new MirroredRotation(-90)).get(alliance);
 			
@@ -374,7 +374,7 @@ public class Trajectories {
 				end			
 			);
 
-		return TrajectoryGenerator.generateTrajectory(waypoints, kinematicsLimit);
+		return TrajectoryGenerator.generateTrajectory(waypoints, speedConfig);
 		}
 	};
 }

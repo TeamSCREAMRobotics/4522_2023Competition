@@ -3,6 +3,7 @@ package com.team4522.lib;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Timer;
 
+//This was adapted from team 254's looper class
 public class PeriodicLoop {
     public final double mPeriod;
 

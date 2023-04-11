@@ -31,7 +31,7 @@ import frc2023.auto.actions.lib.RunUntilConditionAction;
 import frc2023.auto.actions.lib.SeriesAction;
 import frc2023.auto.actions.lib.WaitAction;
 import frc2023.auto.actions.lib.WaitUntilConditionAction;
-import frc2023.auto.modes.VariableKinematicsTrajectory.TrajectorySpeed;
+import frc2023.auto.modes.VariableSpeedTrajectory.TrajectorySpeed;
 import frc2023.field.MirroredTranslation;
 import frc2023.field.MirroredRotation;
 import frc2023.subsystems.Swerve;

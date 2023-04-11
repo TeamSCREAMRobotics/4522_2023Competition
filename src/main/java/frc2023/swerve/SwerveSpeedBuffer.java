@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 
+/** Measures the speed that the swerve is going at. We need to buffer the speeds because there is too much random variation from our measurements, especially because they are on a faster loop */
 public class SwerveSpeedBuffer {
 		private final LinkedList<Twist2d> robotBufferedSpeeds = new LinkedList<Twist2d>();//there is probably something that works better for this than a linkedList
         private Twist2d mLatestTwist = new Twist2d();

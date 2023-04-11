@@ -91,17 +91,18 @@ public class Devices {
         dFRSteer = createSwerveModuleSteerMotor(SwerveConstants.FRConstants.steerId);
         dFRCancoder = createSwerveModuleCANCoder(SwerveConstants.FRConstants.encoderID);
 
-        dPivotCANCoder = createPivotCANCoder(Ports.ArmPivotEncoderID);
         dArmPivot = createArmPivotMotor(Ports.ArmPivotID);
         dArmTelescope = createArmTelecopeMotor(Ports.ArmTelescopeID);
+        dPivotCANCoder = createPivotCANCoder(Ports.ArmPivotEncoderID);
 
         dUpperGripperSolenoid = new Solenoid(Ports.pneumaticsHubID, PneumaticsModuleType.REVPH, Ports.gripperUpperSolenoidID);
-
         dIntakeSolenoid = new Solenoid(Ports.pneumaticsHubID, PneumaticsModuleType.REVPH, Ports.intakeSolenoidID);
+        
         dIntakeMotor = createIntakeMotor(Ports.intakeMotorID);
         dUpperConveyorMotor = createUpperConveyorMotor(Ports.upperConveyorID);
         dLowerConveyorMotor = createLowerConveyorMotor(Ports.lowerConveyorID);
         dShooterMotor = createShooterMotor(Ports.shooterID);
+        
         dBeamBreak = new DigitalInput(Ports.beamBreakID);
     }
 
