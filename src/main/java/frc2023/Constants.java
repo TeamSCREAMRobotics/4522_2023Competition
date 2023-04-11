@@ -451,6 +451,7 @@ public class Constants {
 	public static class SwerveConstants {
 		/** this is the robot angle for forward, the side we retrive cones from and shoot from the poop shooter */
 		public static final Rotation2d robotForwardAngle = Rotation2d.fromDegrees(90);//all of these only work as rotation2ds because their cosine value is 0. If they were to change, they would need to be MirroredRotations
+		/** this is the robot angle for backward, the side we intake/shoot cubes and place cones with the arm */
 		public static final Rotation2d robotBackwardAngle = Rotation2d.fromDegrees(-90);
 	
 		// Robot

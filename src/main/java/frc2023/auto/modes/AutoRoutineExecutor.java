@@ -33,8 +33,8 @@ public class AutoRoutineExecutor {
         start1_1Cone_3PoopShoot_AutoBalance, start1_1Cone_1Cube_1PoopShoot_AutoBalance, start1_1Cone_1Cube_2Poopshoot_AutoBalance, start1_1Cone_1Cube_AutoBalance, 
         
 
-        start9_1Cone_1Cube, start9_1Cone_1Cube_Coast, start9_1Cone_3Poopshoot, start9_1Cone_1Cube_1PoopShoot, start9_1Cone_2PoopShoot, start9_1Cone_1Cube_1PoopShoot_Coast, start9_1Cone_1Cube_GrabCubeDontShoot,
-        start9_1Cone_2PoopShoot_AutoBalance, start9_1Cone_1Cube_1PoopShoot_AutoBalance, start9_1Cone_1Cube_AutoBalance, start9_1Cone_3PoopShoot_AutoBalance, start9_1Cone_1Cube_2PoopShoot_Coast, start9_1Cone_1Cube_GrabCubeDontShoot_AutoBalance
+        start9_1Cone_1Cube, start9_1Cone_1Cube_Coast, start9_1Cone_3Poopshoot, start9_1Cone_3Poopshoot_LeaveCommunity, start9_1Cone_1Cube_1PoopShoot, start9_1Cone_2PoopShoot, start9_1Cone_1Cube_1PoopShoot_Coast, start9_1Cone_1Cube_GrabCubeDontShoot,
+        start9_1Cone_2PoopShoot_AutoBalance, start9_1Cone_1Cube_1PoopShoot_AutoBalance, start9_1Cone_1Cube_AutoBalance, start9_1Cone_3PoopShoot_AutoBalance, start9_1Cone_1Cube_2PoopShoot_Coast, start9_1Cone_1Cube_GrabCubeDontShoot_AutoBalance, 
     }
 
     public void selectRoutine(ActionBase routine){

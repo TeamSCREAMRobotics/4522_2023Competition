@@ -62,7 +62,7 @@ public class LimelightAutoScore extends ActionBase{
               
         if(mNode.isCone()){
             mArm.setPlacementPosition(mLevel);
-            mIntake.forceRetract();
+            mIntake.disable();
 
             if(!(mArm.atTargetPosition(mArmTranslation) && mSwerve.atReference(mPlacementState, SwerveConstants.visionXTolerance, SwerveConstants.visionYTolerance, SwerveConstants.visionThetaTolerance))){
                 mLastTimestampNotAtTarget = Timer.getFPGATimestamp();//measures the last time that the arm wasn't at its target. Used for gripper auto place logic

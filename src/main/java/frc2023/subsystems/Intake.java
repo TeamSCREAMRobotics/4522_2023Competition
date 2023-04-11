@@ -57,7 +57,7 @@ public class Intake extends Subsystem{
 
 
 	public static enum IntakeState{//we have a lot of control states for the intake.
-		DISABLED, RETRACT, EXTEND, INTAKE, EJECT, RETRACT_AND_RUN, SHOOT_CUBE_HIGH, SHOOT_CUBE_MID, BACKWARDS_EJECT, FORCE_RETRACT, SWEEP, INTAKE_FOR_POOPSHOOT, 
+		DISABLED, RETRACT, EXTEND, INTAKE, EJECT, RETRACT_AND_RUN, SHOOT_CUBE_HIGH, SHOOT_CUBE_MID, BACKWARDS_EJECT, SWEEP, INTAKE_FOR_POOPSHOOT, 
 						EJECT_ONLY_LOWER_CONVEYOR, POOP_SHOOT_FROM_CHARGE_LINE, PREPARE_FOR_SHOT,
 			SHOOT_CUBE_HIGH_AUTO, SHOOT_CUBE_MID_AUTO, INAKE_AUTO, POOP_SHOOT_FROM_CHARGE_LINE_AUTO;
 		
@@ -162,10 +162,6 @@ public class Intake extends Subsystem{
 	public void poopShootFromChargeLine(){
 		mPeriodicIO.state = IntakeState.POOP_SHOOT_FROM_CHARGE_LINE;
 	}
-	
-	public void forceRetract() {
-		mPeriodicIO.state = IntakeState.FORCE_RETRACT;
-	}
 
 
 	public void intakeForPoopshoot(){
@@ -176,6 +172,7 @@ public class Intake extends Subsystem{
 	public void sweep(){
 		mPeriodicIO.state = IntakeState.SWEEP;
 	}
+
 
 	public void ejectOnlyLowerConveyor(){
 		mPeriodicIO.state = IntakeState.EJECT_ONLY_LOWER_CONVEYOR;
@@ -217,9 +214,6 @@ public class Intake extends Subsystem{
 				break;
 			case RETRACT:
 				retract();
-				break;
-			case FORCE_RETRACT:
-				forceRetract();
 				break;
 			case EXTEND:
 				extend();
@@ -288,7 +282,6 @@ public class Intake extends Subsystem{
 		switch(mPeriodicIO.state){
 			case DISABLED:
 			case RETRACT:
-			case FORCE_RETRACT:
 				setPeriodicOutputsToZero();
 				mPeriodicIO.isExtended = false;
 				break;

@@ -192,6 +192,8 @@ public class MatchTab extends ShuffleboardTabBase {
                 return AutoRoutines.start9_1Cone_1Cube_2PoopShoot_Coast(alliance);
             case start9_1Cone_3Poopshoot:
                 return AutoRoutines.start9_1Cone_3Poopshoot(alliance);
+            case start9_1Cone_3Poopshoot_LeaveCommunity:
+                return AutoRoutines.start9_1Cone_3Poopshoot_LeaveCommunity(alliance);
             case start9_1Cone_3PoopShoot_AutoBalance:
                 return AutoRoutines.start9_1Cone_3PoopShoot_AutoBalance(alliance);
             default:

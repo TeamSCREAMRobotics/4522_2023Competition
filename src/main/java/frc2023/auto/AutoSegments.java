@@ -78,7 +78,7 @@ public class AutoSegments {
                             new WaitAction(0.50)
                         ),
                         new RaceAction(
-                            new RunIntakeAction(IntakeState.FORCE_RETRACT),
+                            new RunIntakeAction(IntakeState.DISABLED),
                             new WaitUntilTrajectoryProgressAction(.85)
                         )
                     ),
@@ -89,7 +89,7 @@ public class AutoSegments {
                 new RunIntakeAction(IntakeState.SHOOT_CUBE_HIGH_AUTO),
                 new WaitAction(.6)
             ),
-            new SetIntakeAction(IntakeState.FORCE_RETRACT)
+            new SetIntakeAction(IntakeState.DISABLED)
         );
     }
 
@@ -125,7 +125,7 @@ public class AutoSegments {
                             new WaitAction(0.50)
                         ),
                         new RaceAction(
-                            new RunIntakeAction(IntakeState.FORCE_RETRACT),
+                            new RunIntakeAction(IntakeState.DISABLED),
                             new WaitUntilTrajectoryProgressAction(.7)
                         )
                     ),
@@ -136,7 +136,7 @@ public class AutoSegments {
                 new RunIntakeAction(IntakeState.SHOOT_CUBE_MID_AUTO),
                 new WaitAction(0.6)
             ),
-            new SetIntakeAction(IntakeState.FORCE_RETRACT)
+            new SetIntakeAction(IntakeState.DISABLED)
         );
     }
 
@@ -174,7 +174,7 @@ public class AutoSegments {
                             new WaitAction(0.20)
                         ),
                         new RaceAction(
-                            new RunIntakeAction(IntakeState.FORCE_RETRACT),
+                            new RunIntakeAction(IntakeState.DISABLED),
                             new WaitUntilTrajectoryProgressAction(0.85)
                         )
                     ),
@@ -185,7 +185,7 @@ public class AutoSegments {
                 new RunIntakeAction(IntakeState.SHOOT_CUBE_HIGH_AUTO),
                 new WaitAction(.7)
             ),
-            new SetIntakeAction(IntakeState.FORCE_RETRACT)
+            new SetIntakeAction(IntakeState.DISABLED)
         );
     }
 
@@ -202,7 +202,7 @@ public class AutoSegments {
                             new WaitAction(0.20)
                         ),
                         new RaceAction(
-                            new RunIntakeAction(IntakeState.FORCE_RETRACT),
+                            new RunIntakeAction(IntakeState.DISABLED),
                             new WaitUntilTrajectoryProgressAction(0.75)//TODO instead of waiting for a percentage, this should be waiting until a specific amount of time is left in the trajectory because the intake speed is constant regardless of the trajectory speed, so it will require different times for different speeds
                         )
                     ),
@@ -213,7 +213,7 @@ public class AutoSegments {
                 new RunIntakeAction(IntakeState.SHOOT_CUBE_HIGH_AUTO),
                 new WaitAction(.5)
             ),
-            new SetIntakeAction(IntakeState.FORCE_RETRACT)
+            new SetIntakeAction(IntakeState.DISABLED)
         );
     }
 
@@ -245,7 +245,7 @@ public class AutoSegments {
                 new RunArmAction(ArmConstants.Setpoints.kAutoWithGamePiece),
                 new SeriesAction(
                     new RaceAction(
-                        new RunIntakeAction(IntakeState.FORCE_RETRACT),
+                        new RunIntakeAction(IntakeState.DISABLED),
                         new WaitUntilTrajectoryProgressAction(.70)                        
                     ),
                     new RunIntakeAction(IntakeState.SHOOT_CUBE_MID_AUTO)
@@ -255,63 +255,76 @@ public class AutoSegments {
                 new RunIntakeAction(IntakeState.SHOOT_CUBE_MID_AUTO),
                 new WaitAction(1)
             ),
-            new SetIntakeAction(IntakeState.FORCE_RETRACT)
+            new SetIntakeAction(IntakeState.DISABLED)
         );
     }
 
 
     public static ActionBase gamePiece1ToShoot3_1(Alliance alliance){
         return new SeriesAction(
-            new PoopShootPositionAction(PlacementConstants.shootLocation3.getPoint(alliance),  ShooterConstants.kDefaultAutoShootDuration),
-            new SetIntakeAction(IntakeState.FORCE_RETRACT)
+            new PoopShootPositionAction(PlacementConstants.shootLocation3.getPoint(alliance))
         );
     }
 
 
     public static ActionBase gamePiece2ToShoot5_1(Alliance alliance){
         return new SeriesAction(
-            new PoopShootPositionAction(PlacementConstants.shootLocation5.getPoint(alliance),  ShooterConstants.kDefaultAutoShootDuration),
-            new SetIntakeAction(IntakeState.FORCE_RETRACT)
+            new PoopShootPositionAction(PlacementConstants.shootLocation5.getPoint(alliance))
         );
     }
 
 
     public static ActionBase gamePiece3ToShoot7_1(Alliance alliance){
         return new SeriesAction(
-            new PoopShootPositionAction(PlacementConstants.shootLocation7.getPoint(alliance), ShooterConstants.kDefaultAutoShootDuration),
-            new SetIntakeAction(IntakeState.FORCE_RETRACT)
+            new PoopShootPositionAction(PlacementConstants.shootLocation7.getPoint(alliance))
+        );
+    }
+
+    
+    public static ActionBase gamePiece3ToShoot9_9(Alliance alliance) {
+        return new SeriesAction(
+            new PoopShootPositionAction(PlacementConstants.shootLocation9.getPoint(alliance))
         );
     }
 
 
+    public static ActionBase gamePiece2ToShoot8_9(Alliance alliance) {
+        return new SeriesAction(
+            new PoopShootPositionAction(PlacementConstants.shootLocation8.getPoint(alliance))
+        );
+    }
+
     public static ActionBase gamePiece4ToShoot6_1(Alliance alliance){
         return new SeriesAction(
-            new PoopShootPositionAction(PlacementConstants.shootLocation6.getPoint(alliance), ShooterConstants.kDefaultAutoShootDuration),
-            new SetIntakeAction(IntakeState.FORCE_RETRACT)
+            new PoopShootPositionAction(PlacementConstants.shootLocation6.getPoint(alliance))
         );
     }
 
     
     public static ActionBase gamePiece4ToShoot8_9(Alliance alliance){
         return new SeriesAction(
-            new PoopShootPositionAction(PlacementConstants.shootLocation8.getPoint(alliance),  ShooterConstants.kDefaultAutoShootDuration),
-            new SetIntakeAction(IntakeState.FORCE_RETRACT)
+            new PoopShootPositionAction(PlacementConstants.shootLocation8.getPoint(alliance))
         );
     }
 
  
     public static ActionBase gamePiece3ToShoot5_9(Alliance alliance){
         return new SeriesAction(
-            new PoopShootPositionAction(PlacementConstants.shootLocation5.getPoint(alliance), 0.55),
-            new SetIntakeAction(IntakeState.FORCE_RETRACT)
+            new PoopShootPositionAction(PlacementConstants.shootLocation5.getPoint(alliance))
+        );
+    } 
+
+ 
+    public static ActionBase gamePiece3ToShoot8_9(Alliance alliance){
+        return new SeriesAction(
+            new PoopShootPositionAction(PlacementConstants.shootLocation8.getPoint(alliance))
         );
     } 
 
 
     public static ActionBase gamePiece2ToShoot4_9(Alliance alliance){
         return new SeriesAction(
-            new PoopShootPositionAction(PlacementConstants.shootLocation4.getPoint(alliance), ShooterConstants.kDefaultAutoShootDuration),
-            new SetIntakeAction(IntakeState.FORCE_RETRACT)
+            new PoopShootPositionAction(PlacementConstants.shootLocation4.getPoint(alliance))
         );
     }
 
@@ -320,6 +333,20 @@ public class AutoSegments {
         return new SeriesAction(
             new RaceAction(
                 new FollowTrajectoryAction(Trajectories.shoot3ToGamePiece2_1.getTrajectory(alliance, TrajectorySpeed.FAST), MirroredRotation.get(60-180, alliance), 2.8),
+                new RunArmAction(ArmConstants.Setpoints.kAutoWithGamePiece),
+                new SeriesAction(
+                    new WaitUntilTrajectoryProgressAction(0.00),
+                    new RunIntakeAction(IntakeState.INTAKE_FOR_POOPSHOOT)
+                )
+            )
+        );
+    }
+
+    
+    public static ActionBase shoot9ToGamePiece2_9(Alliance alliance){
+        return new SeriesAction(
+            new RaceAction(
+                new FollowTrajectoryAction(Trajectories.shoot9ToGamePiece2_9.getTrajectory(alliance, TrajectorySpeed.FAST), MirroredRotation.get(135-180, alliance), 2.8),
                 new RunArmAction(ArmConstants.Setpoints.kAutoWithGamePiece),
                 new SeriesAction(
                     new WaitUntilTrajectoryProgressAction(0.00),
@@ -415,7 +442,7 @@ public class AutoSegments {
     public static ActionBase optionalBringInSubsystemsAction(boolean bringArmIn, boolean bringIntakeIn){
         return new ParallelAction(
             (bringArmIn? new RunArmAction(ArmConstants.Setpoints.kConeRetrieval) : new EmptyAction()),
-            (bringIntakeIn? new RunIntakeAction(IntakeState.FORCE_RETRACT) : new EmptyAction())
+            (bringIntakeIn? new RunIntakeAction(IntakeState.DISABLED) : new EmptyAction())
         );
     }
 
@@ -528,4 +555,11 @@ public class AutoSegments {
             AutoSegments.autoBalanceFromGamePieceSide(chargeStationTarget, alliance, false, true, false)
         );
     }
+
+    public static ActionBase shoot8ToLeaveCommunity(Alliance alliance) {
+        return new SeriesAction(
+            new FollowTrajectoryAction(Trajectories.shoot8ToLeaveCommunity.getTrajectory(alliance, TrajectorySpeed.FAST), MirroredRotation.get(SwerveConstants.robotBackwardAngle, alliance), 2.8)
+        );
+    }
+
 }

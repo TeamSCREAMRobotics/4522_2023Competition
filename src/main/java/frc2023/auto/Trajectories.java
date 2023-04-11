@@ -346,6 +346,22 @@ public class Trajectories {
 		}
 	};
 
+	
+	public static final VariableAllianceTrajectory gamePiece3ToShoot8_9 = new VariableAllianceTrajectory() {
+		@Override
+		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig speedConfig) {
+			Pose2d start = new MirroredPose(PlacementConstants.gamePiece3ShootPathLocation9, new MirroredRotation(-65)).get(alliance);
+			Pose2d end = new MirroredPose(PlacementConstants.shootLocation8, new MirroredRotation(-65)).get(alliance);
+			
+			List<Pose2d> waypoints = Arrays.asList(
+				start,
+				end			
+			);
+
+		return TrajectoryGenerator.generateTrajectory(waypoints, speedConfig);
+		}
+	};
+
 
 	public static final VariableAllianceTrajectory shoot5ToGamePiece2_9 = new VariableAllianceTrajectory() {
 		@Override
@@ -377,4 +393,37 @@ public class Trajectories {
 		return TrajectoryGenerator.generateTrajectory(waypoints, speedConfig);
 		}
 	};
+
+
+	public static final VariableAllianceTrajectory shoot9ToGamePiece2_9 = new VariableAllianceTrajectory() {
+		@Override
+		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig speedConfig) {
+			Pose2d start = new MirroredPose(PlacementConstants.shootLocation9, new MirroredRotation(135)).get(alliance);
+			Pose2d end = new MirroredPose(PlacementConstants.gamePiece2ShootPathLocation9, new MirroredRotation(135)).get(alliance);
+			
+			List<Pose2d> waypoints = Arrays.asList(
+				start,
+				end			
+			);
+	
+		   return TrajectoryGenerator.generateTrajectory(waypoints, speedConfig);
+		}
+	};
+
+
+    public static final VariableAllianceTrajectory shoot8ToLeaveCommunity = new VariableAllianceTrajectory() {
+		@Override
+		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig speedConfig) {
+			Pose2d start = new MirroredPose(PlacementConstants.shootLocation8, new MirroredRotation(135)).get(alliance);
+			Pose2d end = new MirroredPose(PlacementConstants.gamePiece3SwerveLocation, new MirroredRotation(135)).get(alliance);
+			
+			List<Pose2d> waypoints = Arrays.asList(
+				start,
+				end			
+			);
+	
+		   return TrajectoryGenerator.generateTrajectory(waypoints, speedConfig);
+		}
+	};
+
 }

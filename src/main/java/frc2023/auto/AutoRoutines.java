@@ -270,7 +270,7 @@ public class AutoRoutines {
             AutoSegments.node9ToGamePiece4(alliance, TrajectorySpeed.MEDIUM, false),
             AutoSegments.gamePiece4ToScoreNode8SLOW(alliance),
             AutoSegments.node8ToGamePiece3(alliance, true),
-            AutoSegments.gamePiece3ToShoot5_9(alliance)
+            AutoSegments.gamePiece3ToShoot8_9(alliance)
         );
     }
 
@@ -358,9 +358,24 @@ public class AutoRoutines {
             AutoSegments.node9ToGamePiece4(alliance, TrajectorySpeed.MEDIUM, true),
             AutoSegments.gamePiece4ToShoot8_9(alliance),
             AutoSegments.shoot8ToGamePiece3_9(alliance),
-            AutoSegments.gamePiece3ToShoot5_9(alliance),
-            AutoSegments.shoot5ToGamePiece2_9(alliance),
-            AutoSegments.gamePiece2ToShoot4_9(alliance)
+            AutoSegments.gamePiece3ToShoot9_9(alliance),
+            AutoSegments.shoot9ToGamePiece2_9(alliance),
+            AutoSegments.gamePiece2ToShoot8_9(alliance)
+        );
+    }
+
+
+    public static ActionBase start9_1Cone_3Poopshoot_LeaveCommunity(Alliance alliance){
+        return new SeriesAction(
+            new ResetRobotPoseAction(PlacementStates.getSwervePlacementPose(Node.NODE9, alliance)),
+            new ArmAutoPlaceAction(PlacementStates.getArmPlacementStateForAuto(Level.TOP)),
+            AutoSegments.node9ToGamePiece4(alliance, TrajectorySpeed.MEDIUM, true),
+            AutoSegments.gamePiece4ToShoot8_9(alliance),
+            AutoSegments.shoot8ToGamePiece3_9(alliance),
+            AutoSegments.gamePiece3ToShoot9_9(alliance),
+            AutoSegments.shoot9ToGamePiece2_9(alliance),
+            AutoSegments.gamePiece2ToShoot8_9(alliance),
+            AutoSegments.shoot8ToLeaveCommunity(alliance)
         );
     }
 
