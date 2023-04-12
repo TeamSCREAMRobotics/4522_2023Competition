@@ -330,4 +330,8 @@ public class ControlBoard {
 	public boolean getFullAutoPlace() {
 		return false;
 	}
+
+	public boolean getAutoAlignWithSingleSubstation(){
+		return false;
+	}
 }

@@ -15,7 +15,8 @@ import frc2023.auto.modes.AutoRoutineExecutor.AutoRoutine;
 import frc2023.battery.BatteryManager;
 import frc2023.controlboard.ControlBoard;
 import frc2023.shuffleboard.ShuffleboardTabBase;
-import frc2023.subsystems.Limelight;
+import frc2023.subsystems.BackLimelight;
+import frc2023.subsystems.FrontLimelight;
 
 public class MatchTab extends ShuffleboardTabBase {
 
@@ -37,8 +38,8 @@ public class MatchTab extends ShuffleboardTabBase {
 
 
     private SendableChooser<AutoRoutine> mAutoChooser = new SendableChooser<>();
-    private final Limelight mFrontLimelight = Limelight.getFrontInstance();
-    private final Limelight mBackLimelight = Limelight.getBackInstance();
+    private final FrontLimelight mFrontLimelight = FrontLimelight.getInstance();
+    private final BackLimelight mBackLimelight = BackLimelight.getInstance();
 
     private static MatchTab mInstance = null;
 	public static MatchTab getInstance(){

@@ -12,7 +12,6 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTable.TableEventListener;
-import edu.wpi.first.util.InterpolatingTreeMap;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -21,6 +20,7 @@ import frc2023.Ports;
 import frc2023.Constants.FieldConstants;
 import frc2023.Constants.SwerveConstants;
 import frc2023.Constants.VisionConstants;
+import frc2023.Constants.VisionConstants.FrontLimelightConstants;
 import frc2023.PlacementStates.Node;
 
 import java.util.EnumSet;
@@ -28,37 +28,22 @@ import java.util.Optional;
 
 import com.team6328.PoseEstimator.TimestampedVisionUpdate;
 
-public class Limelight extends Subsystem{
-    
-    private static final InterpolatingTreeMap<Double, Double> kEmptyTreeMap = new InterpolatingTreeMap<>();
-            static { kEmptyTreeMap.put(0.0, 0.0); }
-
+public class FrontLimelight extends Subsystem{
 
     private final NetworkTable mNetworkTable;
     public final PeriodicIO mPeriodicIO = new PeriodicIO();
 
-    private static Limelight mFrontInstance;
-    private static Limelight mBackInstance;
+    private static FrontLimelight mInstance;
     private final Swerve mSwerve = Swerve.getInstance();//this is really bad organization. The swerve should not be referenced in the limelight
 
-    public static Limelight getFrontInstance() {
-        if (mFrontInstance == null) {
-            mFrontInstance = new Limelight(Ports.frontLimelightName, VisionConstants.distanceFromConeVisionTargetXFrontLimelight, VisionConstants.distanceFromConeVisionTargetYFrontLimelight, 
-                                           VisionConstants.frontAprilTagTAToSTDDevs, VisionConstants.kFrontMaxSpeedForVisionUpdateTeleop, VisionConstants.kFrontMaxSpeedForVisionUpdateAuto);
+    public static FrontLimelight getInstance() {
+        if (mInstance == null) {
+            mInstance = new FrontLimelight();
         }
-        return mFrontInstance;
+        return mInstance;
     }
 
-
-    public static Limelight getBackInstance() {
-        if (mBackInstance == null) {
-            mBackInstance = new Limelight(Ports.backLimelightName, kEmptyTreeMap, kEmptyTreeMap, VisionConstants.backAprilTagTAToSTDDevs, VisionConstants.kBackMaxSpeedForVisionUpdateTeleop, 
-                                          VisionConstants.kBackMaxSpeedForVisionUpdateAuto);
-        }
-        return mBackInstance;
-    }
-
-
+    
     public class LimelightListener implements TableEventListener{
         @Override
         public void accept(NetworkTable table, String key, NetworkTableEvent event) {
@@ -111,23 +96,11 @@ public class Limelight extends Subsystem{
     }
 
 
-    private final InterpolatingTreeMap<Double, Double> txToMetersMap;
-    private final InterpolatingTreeMap<Double, Double> tyToMetersMap;
-    private final InterpolatingTreeMap<Double, Double> mAprilTagTAToSTDDevs;
-    private final String mName;
-    private final double mMaxSpeedForVisionUpdateTeleop;
-    private final double mMaxSpeedForVisionUpdateAuto;
+    private final String mName = Ports.frontLimelightName;
 
-    private Limelight(String key, InterpolatingTreeMap<Double, Double> txToMetersMap, InterpolatingTreeMap<Double, Double> tyToMetersMap, 
-                        InterpolatingTreeMap<Double, Double> aprilTagTAToSTDDevs, double maxSpeedForVisionUpdateTeleop, double maxSpeedForVisionUpdateAuto) {
-        mNetworkTable = NetworkTableInstance.getDefault().getTable(key);
-        this.txToMetersMap = txToMetersMap;
-        this.tyToMetersMap = tyToMetersMap;
+    private FrontLimelight() {
+        mNetworkTable = NetworkTableInstance.getDefault().getTable(mName);
         mNetworkTable.addListener("tl", EnumSet.of(NetworkTableEvent.Kind.kValueAll), new LimelightListener());
-        mAprilTagTAToSTDDevs = aprilTagTAToSTDDevs;
-        mName = key;
-        mMaxSpeedForVisionUpdateTeleop = maxSpeedForVisionUpdateTeleop;
-        mMaxSpeedForVisionUpdateAuto = maxSpeedForVisionUpdateAuto;
     }
 
 
@@ -146,7 +119,7 @@ public class Limelight extends Subsystem{
         boolean switchingPipelines = (Timer.getFPGATimestamp()-mPeriodicIO.lastPipelineChangeTimestamp  < VisionConstants.limelightSwitchPipelineDelay);
 
         //we read the different network table values
-        if(mPeriodicIO.currentPipeline == VisionConstants.kAprilTagPipeline) mPeriodicIO.targetType = VisionTargetType.APRILTAG;
+        if(mPeriodicIO.currentPipeline == FrontLimelightConstants.kAprilTagPipeline) mPeriodicIO.targetType = VisionTargetType.APRILTAG;
         else mPeriodicIO.targetType = VisionTargetType.RETROREFLECTIVE;
 
         mPeriodicIO.targetValid = mNetworkTable.getEntry("tv").getDouble(0) == 1.0;
@@ -199,11 +172,11 @@ public class Limelight extends Subsystem{
 
     private boolean shouldDiscardApriltagPoseEstimate(Pose2d poseEstimate){
         
-        if(!mSwerve.atReference(poseEstimate, VisionConstants.swervePoseErrorToDiscardApriltagMeasurement, Rotation2d.fromDegrees(Double.MAX_VALUE))) return true;// if the vision update is a certain distance from our current pose estimate, we assume it is wrong and filter it out.
+        if(!mSwerve.atReference(poseEstimate, FrontLimelightConstants.swervePoseErrorToDiscardApriltagMeasurement, Rotation2d.fromDegrees(Double.MAX_VALUE))) return true;// if the vision update is a certain distance from our current pose estimate, we assume it is wrong and filter it out.
 
-        if(mSwerve.getTranslationalSpeed() > mMaxSpeedForVisionUpdateAuto && Timer.getFPGATimestamp() <= 15.0) return true;// auto filtering  //we filter the measuremnt based on the robot speed. If the robot is moving too fast, we don't trust the 
+        if(mSwerve.getTranslationalSpeed() > FrontLimelightConstants.kMaxSpeedForVisionUpdateAuto && Timer.getFPGATimestamp() <= 15.0) return true;// auto filtering  //we filter the measuremnt based on the robot speed. If the robot is moving too fast, we don't trust the 
                                                                                                                                                 //measurement enough to use it. We have different max speeds for auto and teleop because we trust our swerve odometry more during auto
-        else if(mSwerve.getTranslationalSpeed() > mMaxSpeedForVisionUpdateTeleop) return true;// teleop filtering
+        else if(mSwerve.getTranslationalSpeed() > FrontLimelightConstants.kMaxSpeedForVisionUpdateTeleop) return true;// teleop filtering
         
         if(Math.abs(mSwerve.getRotationalSpeed().getRadians()) > 0.4 ) return true;// we also filter based on rotational speed
 
@@ -211,7 +184,7 @@ public class Limelight extends Subsystem{
     }
 
     public Matrix<N3, N1> getApriltagSTD_Devs(Pose2d visionPose){//we change the std devs based on the distance from the tag, measured by the limelight "ta" value.
-        double stdDevs = mAprilTagTAToSTDDevs.get(mPeriodicIO.targetArea);
+        double stdDevs = FrontLimelightConstants.aprilTagTAToSTDDevs.get(mPeriodicIO.targetArea);
         var output = VecBuilder.fill(stdDevs, stdDevs, Double.MAX_VALUE);
         return output;
     }
@@ -225,7 +198,7 @@ public class Limelight extends Subsystem{
      */
     public Optional<TimestampedVisionUpdate> getPredictedTranslationFromRetroReflectiveTape(Node targetNode){
         if(!mPeriodicIO.targetValid || mPeriodicIO.targetType != VisionTargetType.RETROREFLECTIVE) return Optional.empty();
-        if(Math.abs(mSwerve.getRobotPose().getRotation().minus(SwerveConstants.robotForwardAngle).getDegrees()) > VisionConstants.angleThresholdToCountRetroReflectiveMeasurement.getDegrees()) return Optional.empty();
+        if(Math.abs(mSwerve.getRobotPose().getRotation().minus(SwerveConstants.robotForwardAngle).getDegrees()) > FrontLimelightConstants.angleThresholdToCountRetroReflectiveMeasurement.getDegrees()) return Optional.empty();
 
         //checks the target pose, and xOffset and yOffset from target, returns a translation2d for the robot and the stdDevs for the angle are infinite becasue we can't measure angle.
         Pose2d referencePose = PlacementStates.getSwervePlacementPose(targetNode, DriverStation.getAlliance());
@@ -237,7 +210,7 @@ public class Limelight extends Subsystem{
 
 
     public Matrix<N3, N1> getRetroreflectiveSTD_Devs(){
-        return VisionConstants.retroReflectiveMeasurementStandardDeviations;
+        return FrontLimelightConstants.retroReflectiveMeasurementStandardDeviations;
     }
 
 
@@ -287,7 +260,7 @@ public class Limelight extends Subsystem{
      * @return robotcentric x offset
      */
     public double getXOffsetMetersRetroReflective(){
-        return txToMetersMap.get(mPeriodicIO.targetX);
+        return FrontLimelightConstants.distanceFromConeVisionTargetXMap.get(mPeriodicIO.targetX);
     }
 
     
@@ -295,7 +268,7 @@ public class Limelight extends Subsystem{
      * @return robotcentric y offset
      */
     public double getYOffsetMetersRetroReflective(){
-        return tyToMetersMap.get(mPeriodicIO.targetY);
+        return FrontLimelightConstants.distanceFromConeVisionTargetYMap.get(mPeriodicIO.targetY);
     }
 
 

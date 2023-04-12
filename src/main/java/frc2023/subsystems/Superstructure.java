@@ -13,6 +13,7 @@ import frc2023.Constants.ControlBoardConstants;
 import frc2023.Constants.SwerveConstants;
 import frc2023.PlacementStates.Level;
 import frc2023.PlacementStates.Node;
+import frc2023.auto.actions.autonomous.AutoAlignWithSingleSubstationAction;
 import frc2023.auto.actions.autonomous.MoveToPoseAction;
 import frc2023.auto.actions.autonomous.autoPlacement.LimelightAutoScore;
 import frc2023.auto.actions.lib.ActionBase;
@@ -45,8 +46,8 @@ public class Superstructure {
 	private final Intake mIntake = Intake.getInstance();
 	private final Gripper mGripper = Gripper.getInstance();
 	private final Arm mArm = Arm.getInstance();
-	private final Limelight mFrontLimelight = Limelight.getFrontInstance();
-	private final Limelight mBackLimelight = Limelight.getBackInstance();
+	private final FrontLimelight mFrontLimelight = FrontLimelight.getInstance();
+	private final BackLimelight mBackLimelight = BackLimelight.getInstance();
 	private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
 
 
@@ -88,7 +89,9 @@ public class Superstructure {
 			));
 		} else if(mControlBoard.getAutoPlaceWithoutPosition()){
 			desiredAutoRoutine = Optional.of(new LimelightAutoScore(selectedNode, selectedLevel, true));
-		} 
+		} else if(mControlBoard.getAutoAlignWithSingleSubstation()){
+			desiredAutoRoutine = Optional.of(new AutoAlignWithSingleSubstationAction(alliance, true));
+		}
 		
 		if(shouldSelectNewAutoRoutine(desiredAutoRoutine)) selectNewAutoRoutine(desiredAutoRoutine);
 

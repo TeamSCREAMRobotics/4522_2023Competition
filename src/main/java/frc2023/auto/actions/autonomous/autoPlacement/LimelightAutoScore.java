@@ -14,7 +14,7 @@ import frc2023.controlboard.ControlBoard;
 import frc2023.subsystems.Arm;
 import frc2023.subsystems.Gripper;
 import frc2023.subsystems.Intake;
-import frc2023.subsystems.Limelight;
+import frc2023.subsystems.FrontLimelight;
 import frc2023.subsystems.Swerve;
 
 public class LimelightAutoScore extends ActionBase{
@@ -22,7 +22,7 @@ public class LimelightAutoScore extends ActionBase{
     private final Arm mArm = Arm.getInstance();
     private final Swerve mSwerve = Swerve.getInstance();
     private final Gripper mGripper = Gripper.getInstance();
-    private final Limelight mFrontLimelight = Limelight.getFrontInstance();
+    private final FrontLimelight mFrontLimelight = FrontLimelight.getInstance();
     private final ControlBoard mControlBoard = ControlBoard.getInstance();
     private final Intake mIntake = Intake.getInstance();
 

@@ -24,6 +24,7 @@ import frc2023.Constants;
 import frc2023.Ports;
 import frc2023.Constants.ArmConstants;
 import frc2023.Constants.SwerveConstants;
+import frc2023.Constants.IntakeConstants.RodConstants;
 
 /** This class stores every device that the robot uses. The purpose of this class is to initialize everything on startup and run our device checking system to make sure
  *  that everything is created properly. This class is referenced in every subsystem to dependency inject our devices. Because of this, this class must be called before any of the
@@ -70,6 +71,7 @@ public class Devices {
     public final DigitalInput dBeamBreak;
     public final edu.wpi.first.wpilibj.Compressor dCompressor;
     public final TalonSRX dShooterMotor;
+    public final TalonSRX dRodMotor;
 
     private Devices(){
         dGyro = createGyro(Ports.pigeonID);
@@ -102,11 +104,12 @@ public class Devices {
         dUpperConveyorMotor = createUpperConveyorMotor(Ports.upperConveyorID);
         dLowerConveyorMotor = createLowerConveyorMotor(Ports.lowerConveyorID);
         dShooterMotor = createShooterMotor(Ports.shooterID);
+        dRodMotor = createRodMotor(Ports.rodID);
         
         dBeamBreak = new DigitalInput(Ports.beamBreakID);
     }
 
-	public static final int maxStatusFramePeriod = 255;
+    public static final int maxStatusFramePeriod = 255;
 
     private static TalonFX createSwerveModuleDriveMotor(CanDeviceId id){
         TalonFXConfig config = new TalonFXConfig();
@@ -244,6 +247,20 @@ public class Devices {
         TalonSRX motor = DeviceConfigurationUtil.configTalonSRX(new TalonSRX(id), config, "Shooter" + id + "   ");
         motor.setInverted(true);
         motor.setNeutralMode(NeutralMode.Brake);
+        return motor;
+    }
+
+    
+	private TalonSRX createRodMotor(int id) {
+        TalonSRXConfig config = new TalonSRXConfig();
+        config.voltageCompSaturation = 9.0;
+        config.enableVoltageCompensation = true;
+        TalonSRX motor = DeviceConfigurationUtil.configTalonSRX(new TalonSRX(id), config, "Rod " + id + "   ");
+        motor.setInverted(false);
+        motor.setNeutralMode(NeutralMode.Brake);
+        motor.configForwardSoftLimitThreshold(RodConstants.targetInPosition);
+        motor.configReverseSoftLimitThreshold(RodConstants.targetOutPosition);
+
         return motor;
     }
 }

@@ -1,10 +1,13 @@
 package frc2023.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.CANSparkMax;
+import com.team4522.lib.deviceConfiguration.DeviceUtil;
 import com.team4522.lib.util.TimeBoundIncrementor;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Solenoid;
@@ -12,6 +15,7 @@ import edu.wpi.first.wpilibj.Timer;
 import frc2023.Constants.*;
 import frc2023.Constants.IntakeConstants.ConveyorConstants;
 import frc2023.Constants.IntakeConstants.LowerConveyorConstants;
+import frc2023.Constants.IntakeConstants.RodConstants;
 import frc2023.Constants.IntakeConstants.ShooterConstants;
 import frc2023.Constants.IntakeConstants.UpperConveyorConstants;
 import frc2023.PlacementStates.Level;
@@ -35,6 +39,7 @@ public class Intake extends Subsystem{
 	private final CANSparkMax mUpperConveyorMotor;
 	private final CANSparkMax mLowerConveyorMotor;
 	private final TalonSRX mShooterMotor;
+	private final TalonSRX mRodMotor;
 	private final DigitalInput mBeamBreak;
 	
 	private Intake(){
@@ -43,7 +48,16 @@ public class Intake extends Subsystem{
 		mUpperConveyorMotor = mDevices.dUpperConveyorMotor;
 		mLowerConveyorMotor = mDevices.dLowerConveyorMotor;
         mShooterMotor = mDevices.dShooterMotor;
+		mRodMotor = mDevices.dRodMotor;
 		mBeamBreak = mDevices.dBeamBreak;
+
+		
+
+        DeviceUtil.configTalonSRXPID(mRodMotor, RodConstants.kRodPID, true);
+        DeviceUtil.configTalonSRXMotionMagic(mRodMotor, RodConstants.motionMagicConstants, true);
+
+		mRodMotor.configForwardSoftLimitEnable(true);
+		mRodMotor.configReverseSoftLimitEnable(true);
 	}
 
 	
@@ -59,10 +73,10 @@ public class Intake extends Subsystem{
 	public static enum IntakeState{//we have a lot of control states for the intake.
 		DISABLED, RETRACT, EXTEND, INTAKE, EJECT, RETRACT_AND_RUN, SHOOT_CUBE_HIGH, SHOOT_CUBE_MID, BACKWARDS_EJECT, SWEEP, INTAKE_FOR_POOPSHOOT, 
 						EJECT_ONLY_LOWER_CONVEYOR, POOP_SHOOT_FROM_CHARGE_LINE, PREPARE_FOR_SHOT,
-			SHOOT_CUBE_HIGH_AUTO, SHOOT_CUBE_MID_AUTO, INAKE_AUTO, POOP_SHOOT_FROM_CHARGE_LINE_AUTO;
+			SHOOT_CUBE_HIGH_AUTO, SHOOT_CUBE_MID_AUTO, INAKE_AUTO, POOP_SHOOT_FROM_CHARGE_LINE_AUTO, POOP_SHOOT_FROM_CHARGE_LINE_AUTO_WITHOUT_ROD, EXTEND_ROD;
 		
 		public boolean isPoopShootState(){
-			return this == BACKWARDS_EJECT || this == POOP_SHOOT_FROM_CHARGE_LINE || this == POOP_SHOOT_FROM_CHARGE_LINE_AUTO;
+			return this == BACKWARDS_EJECT || this == POOP_SHOOT_FROM_CHARGE_LINE || this == POOP_SHOOT_FROM_CHARGE_LINE_AUTO || this == POOP_SHOOT_FROM_CHARGE_LINE_AUTO_WITHOUT_ROD;
 		}
 	}
 
@@ -80,6 +94,7 @@ public class Intake extends Subsystem{
 		public double upperConveyorPercentOutput = 0.0;
 		public double lowerConveyorPercentOutput = 0.0;
 		public double shooterPercentOutput = 0.0;
+		public boolean rodExtended = false;
 	}
 
 //////////////////////////// Methods that set the intake state ////////////////////////////////////////////////////////////////////////
@@ -193,6 +208,15 @@ public class Intake extends Subsystem{
 		mPeriodicIO.state = IntakeState.POOP_SHOOT_FROM_CHARGE_LINE_AUTO;
 	}
 
+	
+	public void poopShootFromChargeLineAutoWithoutRod(){
+		mPeriodicIO.state = IntakeState.POOP_SHOOT_FROM_CHARGE_LINE_AUTO_WITHOUT_ROD;
+	}
+
+	public void extendRod(){
+		mPeriodicIO.state = IntakeState.EXTEND_ROD;
+	}
+
 
 	@Override
 	public void stop() {
@@ -201,6 +225,7 @@ public class Intake extends Subsystem{
 		mUpperConveyorMotor.stopMotor();
 		mLowerConveyorMotor.stopMotor();
 	}
+
 
 	public void prepareForShot() {
 		mPeriodicIO.state = IntakeState.PREPARE_FOR_SHOT;
@@ -257,6 +282,10 @@ public class Intake extends Subsystem{
 			case POOP_SHOOT_FROM_CHARGE_LINE_AUTO:
 				poopShootFromChargeLineAuto();
 				break;
+			case POOP_SHOOT_FROM_CHARGE_LINE_AUTO_WITHOUT_ROD:
+				poopShootFromChargeLineAutoWithoutRod();
+			case EXTEND_ROD:
+				extendRod();
 			default:
 			DriverStation.reportError("Wrong/Unimplemented IntakeState Chosen in setDesiredState()", false);
 		}
@@ -284,13 +313,16 @@ public class Intake extends Subsystem{
 			case RETRACT:
 				setPeriodicOutputsToZero();
 				mPeriodicIO.isExtended = false;
+				mPeriodicIO.rodExtended = false;
 				break;
 			case EXTEND:
 				setPeriodicOutputsToZero();
 				mPeriodicIO.isExtended = true;
+				mPeriodicIO.rodExtended = false;
 				break;
 			case INTAKE_FOR_POOPSHOOT://when we intake for poopshoot, we run everything at max because the cube needs to go all the ways in the robot. We also ignore the beam break.
 				mPeriodicIO.isExtended = true;
+				mPeriodicIO.rodExtended = false;
 				mPeriodicIO.shooterPercentOutput = 0.0;
 				mPeriodicIO.rollerPercentOutput = 1.0;
 				mPeriodicIO.upperConveyorPercentOutput = 1.0;
@@ -298,6 +330,7 @@ public class Intake extends Subsystem{
 				break;
 			case INTAKE:
 				mPeriodicIO.isExtended = true;
+				mPeriodicIO.rodExtended = false;
 				if(wheelsCanRun){
 					if(beamBroken() && !beamBrokenTimestampRegistered){
 						intakeModeBeamBrokenTimeStamp = Timer.getFPGATimestamp();
@@ -322,6 +355,7 @@ public class Intake extends Subsystem{
 				break;
 			case EJECT:
 				mPeriodicIO.isExtended = true;
+				mPeriodicIO.rodExtended = false;
 				if(wheelsCanRun){
 					mPeriodicIO.rollerPercentOutput = IntakeConstants.kEjectPO;
 					mPeriodicIO.upperConveyorPercentOutput = UpperConveyorConstants.kEjectPO;
@@ -332,16 +366,17 @@ public class Intake extends Subsystem{
 				} 
 				break;
 			case RETRACT_AND_RUN:
-			
+				mPeriodicIO.isExtended = false;
+				mPeriodicIO.rodExtended = false;
+
 				mPeriodicIO.rollerPercentOutput = IntakeConstants.kRetractAndRunPO;
 				mPeriodicIO.upperConveyorPercentOutput = UpperConveyorConstants.kRetractAndRunPO;
 				mPeriodicIO.lowerConveyorPercentOutput = LowerConveyorConstants.kRetractAndRunPO;
 				mPeriodicIO.shooterPercentOutput = 0.0;
-
-				mPeriodicIO.isExtended = false;
 				break;
 			case SHOOT_CUBE_HIGH:
 				mPeriodicIO.isExtended = true;
+				mPeriodicIO.rodExtended = false;
 
 				if(wheelsCanRun){
 					// mPeriodicIO.rollerPercentOutput = TestTab.getInstance().shootingSpeedRoller.getDouble(0);//we use these instead if we want to tune values from shuffleboard. In future years, we should have a better tuning setup.
@@ -359,6 +394,7 @@ public class Intake extends Subsystem{
 				break;
 			case SHOOT_CUBE_MID:
 				mPeriodicIO.isExtended = true;
+				mPeriodicIO.rodExtended = false;
 
 				if(wheelsCanRun){
 					mPeriodicIO.rollerPercentOutput = IntakeConstants.kShootMidPO;
@@ -371,6 +407,7 @@ public class Intake extends Subsystem{
 				break;
 			case SHOOT_CUBE_HIGH_AUTO:
 				mPeriodicIO.isExtended = true;
+				mPeriodicIO.rodExtended = false;
 
 				if(wheelsCanRun){
 					mPeriodicIO.rollerPercentOutput = IntakeConstants.kShootHighAutoPO;
@@ -383,6 +420,7 @@ public class Intake extends Subsystem{
 				break;
 			case SHOOT_CUBE_MID_AUTO:
 				mPeriodicIO.isExtended = true;
+				mPeriodicIO.rodExtended = false;
 				if(wheelsCanRun){
 					mPeriodicIO.rollerPercentOutput = IntakeConstants.kShootMidAutoPO;
 					mPeriodicIO.upperConveyorPercentOutput = UpperConveyorConstants.kShootMidAutoPO;
@@ -395,6 +433,7 @@ public class Intake extends Subsystem{
 				break;
 			case BACKWARDS_EJECT:
 				mPeriodicIO.isExtended = false;
+				mPeriodicIO.rodExtended = false;
 				mPeriodicIO.rollerPercentOutput = 0.0;
 				mPeriodicIO.upperConveyorPercentOutput = UpperConveyorConstants.kBackwardsEjectPO;
 				mPeriodicIO.shooterPercentOutput = ShooterConstants.kBackwardsEjectPO;
@@ -406,15 +445,17 @@ public class Intake extends Subsystem{
 				break;
 			case SWEEP:
 				mPeriodicIO.isExtended = true;
+				mPeriodicIO.rodExtended = false;
 				mPeriodicIO.rollerPercentOutput = IntakeConstants.kSweepPO;
 				mPeriodicIO.lowerConveyorPercentOutput = 0.0;
 				mPeriodicIO.upperConveyorPercentOutput = 0.0;
 				mPeriodicIO.shooterPercentOutput = 0.0;
 				break;
 			case POOP_SHOOT_FROM_CHARGE_LINE:
-				mPeriodicIO.isExtended = true;
-				mPeriodicIO.rollerPercentOutput = 1.0;
-				mPeriodicIO.upperConveyorPercentOutput = 1.0;
+				mPeriodicIO.isExtended = false;
+				mPeriodicIO.rodExtended = true;
+				mPeriodicIO.rollerPercentOutput = 0.0;
+				mPeriodicIO.upperConveyorPercentOutput = 0.0;
 				if(canShoot){
 					mPeriodicIO.lowerConveyorPercentOutput = LowerConveyorConstants.kPoopShootFromChargeLinePO;
 				} else{
@@ -424,6 +465,19 @@ public class Intake extends Subsystem{
 				break;
 			case POOP_SHOOT_FROM_CHARGE_LINE_AUTO:
 				mPeriodicIO.isExtended = false;
+				mPeriodicIO.rodExtended = true;
+				mPeriodicIO.rollerPercentOutput = 0.0;
+				mPeriodicIO.upperConveyorPercentOutput = 0.0;
+				if(canShoot){
+					mPeriodicIO.lowerConveyorPercentOutput = LowerConveyorConstants.kPoopShootFromChargeLineAutoPO;
+				} else{
+					mPeriodicIO.lowerConveyorPercentOutput = LowerConveyorConstants.kPreparePoopShoot;
+				}
+				mPeriodicIO.shooterPercentOutput = ShooterConstants.kPoopShootFromChargeLineAutoPO;
+				break;
+			case POOP_SHOOT_FROM_CHARGE_LINE_AUTO_WITHOUT_ROD:
+				mPeriodicIO.isExtended = false;
+				mPeriodicIO.rodExtended = false;
 				mPeriodicIO.rollerPercentOutput = 0.0;
 				mPeriodicIO.upperConveyorPercentOutput = 0.0;
 				if(canShoot){
@@ -435,6 +489,7 @@ public class Intake extends Subsystem{
 				break;
 			case EJECT_ONLY_LOWER_CONVEYOR:
 				mPeriodicIO.isExtended = false;
+				mPeriodicIO.rodExtended = false;
 				mPeriodicIO.rollerPercentOutput = 0.0;
 				mPeriodicIO. upperConveyorPercentOutput = 0.0;
 				mPeriodicIO.lowerConveyorPercentOutput = LowerConveyorConstants.kEjectOnlyLowerConveyorPO;
@@ -442,6 +497,7 @@ public class Intake extends Subsystem{
 				break;
 			case INAKE_AUTO:
 				mPeriodicIO.isExtended = true;
+				mPeriodicIO.rodExtended = false;
 				if(wheelsCanRun){
 					mPeriodicIO.isExtended = true;
 					mPeriodicIO.rollerPercentOutput = IntakeConstants.kAutoIntakePO;
@@ -454,11 +510,19 @@ public class Intake extends Subsystem{
 				break;
 			case PREPARE_FOR_SHOT:
 				mPeriodicIO.isExtended = true;
+				mPeriodicIO.rodExtended = false;
 				mPeriodicIO.rollerPercentOutput = 0.0;
 				mPeriodicIO.upperConveyorPercentOutput = 0.0;
 				mPeriodicIO.lowerConveyorPercentOutput = LowerConveyorConstants.kPrepareForShot;
 				mPeriodicIO.shooterPercentOutput = 0.0;
 				break;
+			case EXTEND_ROD:
+				mPeriodicIO.isExtended = false;
+				mPeriodicIO.rodExtended = true;
+				mPeriodicIO.rollerPercentOutput = 0.0;
+				mPeriodicIO.upperConveyorPercentOutput = 0.0;
+				mPeriodicIO.lowerConveyorPercentOutput = 0.0;
+				mPeriodicIO.shooterPercentOutput = 0.0;
 		}
 
 		mSolenoid.set(mPeriodicIO.isExtended);
@@ -467,6 +531,7 @@ public class Intake extends Subsystem{
 		mUpperConveyorMotor.set(mPeriodicIO.upperConveyorPercentOutput);
 		mLowerConveyorMotor.set(mPeriodicIO.lowerConveyorPercentOutput);
 		mShooterMotor.set(ControlMode.PercentOutput, mPeriodicIO.shooterPercentOutput);
+		setRodExtended(mPeriodicIO.rodExtended);
 
 		if(mPeriodicIO.isExtended){
 			mPeriodicIO.timeBeforeWheelsCanRun.increment(-dt);
@@ -484,7 +549,17 @@ public class Intake extends Subsystem{
 		lastTimeStamp = timeStamp;
 	}
 
+	private void setRodExtended(boolean extended){
+		mRodMotor.set(ControlMode.MotionMagic, (extended? RodConstants.targetOutPosition : RodConstants.targetInPosition), DemandType.ArbitraryFeedForward, RodConstants.kRodGravityFeedforward*getRodAngle().getSin());
+	}
 
+	private double rodAngleToSensorPosition(Rotation2d angle){
+		return angle.getDegrees()/RodConstants.gearRatio;
+	}
+
+	public Rotation2d getRodAngle(){
+		return Rotation2d.fromDegrees(mRodMotor.getSelectedSensorPosition()*RodConstants.gearRatio);
+	}
 	public void setPeriodicOutputsToZero(){
 		mPeriodicIO.rollerPercentOutput = 0.0;
 		mPeriodicIO.upperConveyorPercentOutput = 0.0;
@@ -541,5 +616,9 @@ public class Intake extends Subsystem{
 
 	public double getLowerConveyorSpeed(){
 		return mPeriodicIO.lowerConveyorPercentOutput;
+	}
+
+	public void zeroRodMotor(){
+		mRodMotor.setSelectedSensorPosition(RodConstants.startSensorPosition);
 	}
 }

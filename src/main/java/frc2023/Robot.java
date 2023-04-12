@@ -1,5 +1,6 @@
 package frc2023;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.team4522.lib.PeriodicLoop;
 
@@ -14,15 +15,17 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 
 import frc2023.Constants.ArmConstants;
 import frc2023.Constants.VisionConstants;
+import frc2023.Constants.VisionConstants.BackLimelightConstants;
 import frc2023.auto.Trajectories;
 import frc2023.auto.modes.AutoRoutineExecutor;
 import frc2023.controlboard.ControlBoard;
 import frc2023.shuffleboard.ShuffleboardTabManager;
 import frc2023.subsystems.Arm;
+import frc2023.subsystems.BackLimelight;
 import frc2023.subsystems.Devices;
 import frc2023.subsystems.Gripper;
 import frc2023.subsystems.Intake;
-import frc2023.subsystems.Limelight;
+import frc2023.subsystems.FrontLimelight;
 import frc2023.subsystems.SubsystemManager;
 import frc2023.subsystems.Superstructure;
 import frc2023.subsystems.Swerve;
@@ -37,8 +40,8 @@ public class Robot extends TimedRobot {
   private final Arm mArm;
   private final Intake mIntake;
   private final Gripper mGripper;
-  private final Limelight mFrontLimelight;
-  private final Limelight mBackLimelight;
+  private final FrontLimelight mFrontLimelight;
+  private final BackLimelight mBackLimelight;
   private final PowerDistribution mPDH = new PowerDistribution(Ports.pdhID, ModuleType.kRev);
   private final ShuffleboardTabManager mShuffleboardTabManager;
 
@@ -64,8 +67,8 @@ public class Robot extends TimedRobot {
     mSubsystemManager = SubsystemManager.getInstance();
     mAutoRoutineExecutor = AutoRoutineExecutor.getInstance();
     mShuffleboardTabManager = ShuffleboardTabManager.getInstance();
-    mFrontLimelight = Limelight.getFrontInstance();
-    mBackLimelight = Limelight.getBackInstance();
+    mFrontLimelight = FrontLimelight.getInstance();
+    mBackLimelight = BackLimelight.getInstance();
 
     mOdometryLoop = new PeriodicLoop(() -> mSwerve.updateOdometry(), Constants.kOdometryPeriodSeconds);
     mTelemetryLoop = new PeriodicLoop(() -> mSubsystemManager.outputTelemetry(), Constants.kTelemetryPeriodSeconds);
@@ -93,7 +96,8 @@ public class Robot extends TimedRobot {
     //This is how we zero the arm for every match. The pivot and telescope zero on startup, and we turn on the back limelight LEDs as a status indicator to show when the bootup is complete
     mArm.zeroTelescope();
     mArm.resetPivotToAngle(Rotation2d.fromDegrees(-90));
-    mBackLimelight.setPipeline(VisionConstants.kRobotBootedUpPipeline);
+    mIntake.zeroRodMotor();
+    mBackLimelight.setPipeline(BackLimelightConstants.kRobotBootedUpPipeline);
     mBackLimelight.writeOutputs();
 
     DriverStation.reportWarning("Robot Initialized", false);
@@ -179,16 +183,24 @@ public class Robot extends TimedRobot {
   @Override
   public void testPeriodic() {
     if(mControlBoard.getArmManualOverride()){      
-				double pivotPO = mControlBoard.getPivotPO();
-				double telescopePO = mControlBoard.getTelescopePO();
-				double multiplier = (mControlBoard.getArmManualSlowMode()? 0.5 : 1);
-				mArm.setPercentOutput(pivotPO*multiplier, telescopePO*multiplier);
+				// double pivotPO = mControlBoard.getPivotPO();
+				// double telescopePO = mControlBoard.getTelescopePO();
+				// double multiplier = (mControlBoard.getArmManualSlowMode()? 0.5 : 1);
+				// mArm.setPercentOutput(pivotPO*multiplier, telescopePO*multiplier);
     } else mArm.setPosition(new Translation2d(ArmConstants.kMinTelescopeLength+0.03, Rotation2d.fromDegrees(-90)), true);
 
     if(mControlBoard.getZeroTelescope()){
       mArm.zeroTelescope();
     }
-  
+    if(mControlBoard.getSlowMode()){
+      mIntake.extendRod();
+    } else{
+      mIntake.disable();//TODO disable shouldnt move rod
+    }
+    // Devices.getInstance().dRodMotor.set(ControlMode.PercentOutput, mControlBoard.getPivotPO()/2.0);
+    
+    System.out.println("  PO: " +mControlBoard.getPivotPO()/5.0 + "  pos: " + Devices.getInstance().dRodMotor.getSelectedSensorPosition());
+    System.out.print("    RODANGLE: " + mIntake.getRodAngle().getDegrees());
     mSubsystemManager.writeOutputs();
   }
 }

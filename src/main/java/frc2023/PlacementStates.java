@@ -9,6 +9,7 @@ import frc2023.Constants.ArmConstants;
 import frc2023.Constants.FieldConstants;
 import frc2023.Constants.PlacementConstants;
 import frc2023.Constants.VisionConstants;
+import frc2023.Constants.VisionConstants.FrontLimelightConstants;
 import frc2023.field.MirroredTranslation;
 import frc2023.field.MirroredPose;
 
@@ -93,11 +94,11 @@ public class PlacementStates {
      * bias towards the left and right sides to help filter which target the robot goes towards.
      */
     public static int getVisionPipeline(Node node, Alliance alliance){
-        if(node.isCube()) return VisionConstants.kAprilTagPipeline;
+        if(node.isCube()) return FrontLimelightConstants.kAprilTagPipeline;
         
         boolean leftPipeline = ((node == Node.NODE1 || node == Node.NODE3 || node == Node.NODE6) && alliance == Alliance.Red) || ((node == Node.NODE9 || node == Node.NODE7 || node == Node.NODE4) && alliance == Alliance.Blue);
         //logic for right pipeline: boolean rightPipeline = ((node == Node.NODE1 || node == Node.NODE3 || node == Node.NODE6) && alliance == Alliance.Blue) || ((node == Node.NODE9 || node == Node.NODE7 || node == Node.NODE4) && alliance == Alliance.Red)
-        return (leftPipeline? VisionConstants.kConeLeftPipeline : VisionConstants.kConeRightPipeline);
+        return (leftPipeline? FrontLimelightConstants.kConeLeftPipeline : FrontLimelightConstants.kConeRightPipeline);
     }
 ////////////////////////////////////////  enums related field elements  ////////////////////////////////////
     public enum GamePieceType{

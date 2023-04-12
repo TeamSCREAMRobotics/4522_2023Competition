@@ -19,6 +19,7 @@ public class Ports {
     public static final int upperConveyorID = 3;
     public static final int lowerConveyorID = 1;
     public static final int shooterID = 7;
+    public static final int rodID = 8;
 
     //Arm Motor Ports
     public static final CanDeviceId ArmPivotID = new CanDeviceId(4);
@@ -46,14 +47,14 @@ public class Ports {
     public static final ModuleIDs module8IDs = new ModuleIDs(25, 26, 9, canivoreBusName);
 
     //Limelight network table names
-    public static String frontLimelightName = "limelight-front";
-    public static String backLimelightName = "limelight-back";
+    public static final String frontLimelightName = "limelight-front";
+    public static final String backLimelightName = "limelight-back";
 
     public static class ModuleIDs{
-        public CanDeviceId driveID;
-        public CanDeviceId steerID;
-        public CanDeviceId cancoderID;
-        public String busName;
+        public final CanDeviceId driveID;
+        public final CanDeviceId steerID;
+        public final CanDeviceId cancoderID;
+        public final String busName;
         public ModuleIDs(int driveID, int steerID, int cancoderID, String busName){
             this.driveID = new CanDeviceId(driveID, busName);
             this.steerID = new CanDeviceId(steerID, busName);

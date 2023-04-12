@@ -38,7 +38,7 @@ public class Constants {
 	public static final double kUpdatePIDsFromShuffleboardPeriodSeconds = 3.00;
 	public static final int kUpdatePIDsFromShuffleboardPeriodMilliseconds = (int) (kUpdatePIDsFromShuffleboardPeriodSeconds * 1000.0);
 
-    public static final boolean includeDebugTabs = false;
+    public static final boolean includeDebugTabs = true;
 	public static final boolean updatePIDsFromShuffleboard = false;
 	public static final boolean outputTelemetry = true;
 
@@ -108,7 +108,7 @@ public class Constants {
 		public static final double node9X = 7.575;
 
 		public static final double SwerveZeroBeforeAutoPlaceY = -6.32;
-		public static final double shootY = -3.23;
+		public static final double shootY = -3.23+1;
 		public static final double coneSwervePlacementY = -6.5657;
 		public static final double cubeSwervePlacementY = -6.5657;
 		
@@ -178,6 +178,9 @@ public class Constants {
 		public static final MirroredTranslation gamePiece2ShootPathLocation9 = FieldConstants.stagingMark2.plus(new Translation2d(distanceForCubeAutoIntake, Rotation2d.fromDegrees(-70)));
 		public static final MirroredTranslation gamePiece3ShootPathLocation9 = FieldConstants.stagingMark3.plus(new Translation2d(distanceForCubeAutoIntake, Rotation2d.fromDegrees(-70)));
 		public static final MirroredTranslation gamePiece4ShootPathLocation9 = FieldConstants.stagingMark4.plus(new Translation2d(distanceForCubeAutoIntake, Rotation2d.fromDegrees(-70)));
+		
+		public static final MirroredPose singleSubstationConeRetrievalPoint = new MirroredPose(0.35, 5.575, Rotation2d.fromDegrees(180));
+		public static final MirroredTranslation swerveZeroBeforeSubstationPoint = new MirroredTranslation(0.8, 5.575);
 
 		static MirroredPose[] swervePlacementStates = new MirroredPose[]{
 			new MirroredPose(FieldConstants.node1X, FieldConstants.coneSwervePlacementY, SwerveConstants.robotForwardAngle),
@@ -218,74 +221,104 @@ public class Constants {
 	}
 
 	public static class VisionConstants {
-		public static final Matrix<N3, N1> retroReflectiveMeasurementStandardDeviations = VecBuilder.fill(0.15, 0.02,
-		Integer.MAX_VALUE);// x, y, theta... We aren't using theta in the vision measurements, so put really high stddevs for it as a workaround
+
+
+		public static class FrontLimelightConstants{
+			public static final Matrix<N3, N1> retroReflectiveMeasurementStandardDeviations = VecBuilder.fill(0.15, 0.02, Integer.MAX_VALUE);// x, y, theta... We aren't using theta in the vision measurements, so put really high stddevs for it as a workaround
+			public static final int kAprilTagPipeline = 0;
+			public static final int kConeLeftPipeline = 1;
+			public static final int kConeRightPipeline = 2;
+
+			//the highest TA values for the limelight; These were the measured TA values with the limelight as close to the targets as possible.
+			public static final double maxFrontApriltagTA = 2.146;
+			public static final double maxFrontRetroReflectiveTA = 0.694;
+
+
+			//Limelight mounting constants, offsets from center of robot
+			public static final double kForwardOffsetMeters = 0.3048;
+			public static final double kRightOffsetMeters = 0.2286;
+
+			
+			//Constants for filtering out possibly bad limelight measurements
+			public static final Rotation2d angleThresholdToCountRetroReflectiveMeasurement = Rotation2d.fromDegrees(5);
+			public static final double kMaxSpeedForVisionUpdateTeleop = 3.5;
+			public static final double kMaxSpeedForVisionUpdateAuto = 0.45;
+			public static final double swervePoseErrorToDiscardApriltagMeasurement = 3.0;
+
+				
+			//These are the maps we use to get vision measurements from the retroreflective vision tape. We put the robot in its ideal placement location and measure the tx and ty values. At this point,
+			//the offset from the placement state is (0, 0). We then change the x and y position of the robot and measure how far off the robot its(using the odometry, because it is easier to use than a tape measure).
+			//These maps hold all of the offset values, so we can measure how far the robot is off by looking up the offset from the limelight's given tx and ty values
+			public static final InterpolatingTreeMap<Double, Double> distanceFromConeVisionTargetYMap = new InterpolatingTreeMap<Double, Double>();
+			/** robotCentric x offsets. Robot will move right if x is positive, regardless of driverstations		 */
+			public static final InterpolatingTreeMap<Double, Double> distanceFromConeVisionTargetXMap = new InterpolatingTreeMap<Double, Double>();
+			static {
+				distanceFromConeVisionTargetXMap.put(-30.00, 0.206108345037028);
+				distanceFromConeVisionTargetXMap.put(-27.19, 0.148211326040494);
+				distanceFromConeVisionTargetXMap.put(-18.06, 0.0);
+				distanceFromConeVisionTargetXMap.put(-9.84, -0.10620859873514);
+				distanceFromConeVisionTargetXMap.put(-1.6, -0.203501697162219);
+				distanceFromConeVisionTargetXMap.put(12.9, -0.390186872789435);
+				distanceFromConeVisionTargetXMap.put(20.73, -0.498079751654977);
+				distanceFromConeVisionTargetXMap.put(31.21, -0.658726720972104);
+
+				distanceFromConeVisionTargetYMap.put(-15.83, 0.00);
+				distanceFromConeVisionTargetYMap.put(-14.66, 0.097252418838486);
+				distanceFromConeVisionTargetYMap.put(-13.17, 0.235899708266877);
+				distanceFromConeVisionTargetYMap.put(-12.13, 0.359712206170641);
+				distanceFromConeVisionTargetYMap.put(-11.35, 0.504180902428665);
+				distanceFromConeVisionTargetYMap.put(-10.58, 0.64266281057651);
+				distanceFromConeVisionTargetYMap.put(-10.25, 0.736428348453972);
+			}
+		
+			//TreeMaps for TA to standard deviations. The lower the TA value, the less confident we are in our measurements, so the higher the standard deviations must be.
+			public static final InterpolatingTreeMap<Double, Double> aprilTagTAToSTDDevs = new InterpolatingTreeMap<Double, Double>();
+
+			static{
+				aprilTagTAToSTDDevs.put(maxFrontApriltagTA, 0.05);//TODO figure out how to actually measure stdDevs. These are mostly guesses to make it work.
+				aprilTagTAToSTDDevs.put(1.0, 0.1);
+				aprilTagTAToSTDDevs.put(0.1, 1.0);
+				aprilTagTAToSTDDevs.put(0.05, 5.0);
+				aprilTagTAToSTDDevs.put(0.0, Double.MAX_VALUE);
+
+			}
+		}
+
+		public static class BackLimelightConstants{
+			public static final int kSubstationTagPipeline = 4;
+			public static final int kRobotBootedUpPipeline = 9;
+
+			public static final Matrix<N3, N1> substationTagMeasurementStandardDeviations = VecBuilder.fill(0.15, 0.02, Integer.MAX_VALUE);
+
+
+			public static final double kMaxAprilTagTA = 2.027;//TODO maybe remove since we don't use apriltags with back limelight anymore
+
+			//Constants for filtering out possibly bad limelight measurements
+			public static final Rotation2d angleThresholdToCountSubstationTagMeasurement = Rotation2d.fromDegrees(5);
+			public static final double kMaxSpeedForVisionUpdateTeleop = 3.5;
+			public static final double kMaxSpeedForVisionUpdateAuto = 0.3;
+
+			public static final InterpolatingTreeMap<Double, Double> aprilTagTAToSTDDevs = new InterpolatingTreeMap<Double, Double>();//TODO maybe remove since we don't use apriltags with back limelight anymore
+			static{
+				aprilTagTAToSTDDevs.put(kMaxAprilTagTA, 0.05);
+				aprilTagTAToSTDDevs.put(1.0, 0.1);
+				aprilTagTAToSTDDevs.put(0.1, 1.0);
+				aprilTagTAToSTDDevs.put(0.05, 5.0);
+				aprilTagTAToSTDDevs.put(0.0, Double.MAX_VALUE);
+			}
+			
+			public static final InterpolatingTreeMap<Double, Double> txToMetersSubstationTagMap = new InterpolatingTreeMap<Double, Double>();
+			public static final InterpolatingTreeMap<Double, Double> tyToMetersSubstationTagMap = new InterpolatingTreeMap<Double, Double>();
+			
+			static{
+				txToMetersSubstationTagMap.put(0.0, 0.0);
+
+				tyToMetersSubstationTagMap.put(0.0, 0.0);
+			}
+		}
+
 		public static final double kLimelightLatency = 0.02;// TODO measure
-		public static final int kAprilTagPipeline = 0;
-		public static final int kConeLeftPipeline = 1;
-		public static final int kConeRightPipeline = 2;
-		public static final int kRobotBootedUpPipeline = 9;
-
-		//These are the maps we use to get vision measurements from the retroreflective vision tape. We put the robot in its ideal placement location and measure the tx and ty values. At this point,
-		  //the offset from the placement state is (0, 0). We then change the x and y position of the robot and measure how far off the robot its(using the odometry, because it is easier to use than a tape measure).
-		  //These maps hold all of the offset values, so we can measure how far the robot is off by looking up the offset from the limelight's given tx and ty values
-		public static final InterpolatingTreeMap<Double, Double> distanceFromConeVisionTargetYFrontLimelight = new InterpolatingTreeMap<Double, Double>();
-		/** robotCentric x offsets. Robot will move right if x is positive, regardless of driverstations		 */
-		public static final InterpolatingTreeMap<Double, Double> distanceFromConeVisionTargetXFrontLimelight = new InterpolatingTreeMap<Double, Double>();
-		static {
-			distanceFromConeVisionTargetXFrontLimelight.put(-30.00, 0.206108345037028);
-			distanceFromConeVisionTargetXFrontLimelight.put(-27.19, 0.148211326040494);
-			distanceFromConeVisionTargetXFrontLimelight.put(-18.06, 0.0);
-			distanceFromConeVisionTargetXFrontLimelight.put(-9.84, -0.10620859873514);
-			distanceFromConeVisionTargetXFrontLimelight.put(-1.6, -0.203501697162219);
-			distanceFromConeVisionTargetXFrontLimelight.put(12.9, -0.390186872789435);
-			distanceFromConeVisionTargetXFrontLimelight.put(20.73, -0.498079751654977);
-			distanceFromConeVisionTargetXFrontLimelight.put(31.21, -0.658726720972104);
-
-			distanceFromConeVisionTargetYFrontLimelight.put(-15.83, 0.00);
-			distanceFromConeVisionTargetYFrontLimelight.put(-14.66, 0.097252418838486);
-			distanceFromConeVisionTargetYFrontLimelight.put(-13.17, 0.235899708266877);
-			distanceFromConeVisionTargetYFrontLimelight.put(-12.13, 0.359712206170641);
-			distanceFromConeVisionTargetYFrontLimelight.put(-11.35, 0.504180902428665);
-			distanceFromConeVisionTargetYFrontLimelight.put(-10.58, 0.64266281057651);
-			distanceFromConeVisionTargetYFrontLimelight.put(-10.25, 0.736428348453972);
-		}
-		
-		//the highest TA values for the limelights; These were the measured TA values with the limelight as close to the targets as possible.
-		public static final double maxFrontApriltagTA = 2.146;
-		public static final double maxBackAprilTagTA = 2.027;
-		public static final double maxFrontRetroReflectiveTA = 0.694;
-
-		//Limelight mounting constants
-        public static final double kFrontLimelightForward = 0.3048;
-        public static final double kFrontLimelightRight = 0.2286;
-
         public static final double limelightSwitchPipelineDelay = 0.07;
-
-		//Constants for filtering out possibly bad limelight measurements
-        public static final Rotation2d angleThresholdToCountRetroReflectiveMeasurement = Rotation2d.fromDegrees(5);
-		public static final double kFrontMaxSpeedForVisionUpdateTeleop = 3.5;
-        public static final double kFrontMaxSpeedForVisionUpdateAuto = 0.45;
-		public static final double kBackMaxSpeedForVisionUpdateTeleop = 3.5;
-		public static final double kBackMaxSpeedForVisionUpdateAuto = 0.3;
-		public static final double swervePoseErrorToDiscardApriltagMeasurement = 3.0;
-		
-		//TreeMaps for TA to standard deviations. The lower the TA value, the less confident we are in our measurements, so the higher the standard deviations must be.
-		public static final InterpolatingTreeMap<Double, Double> frontAprilTagTAToSTDDevs = new InterpolatingTreeMap<Double, Double>();
-		public static final InterpolatingTreeMap<Double, Double> backAprilTagTAToSTDDevs = new InterpolatingTreeMap<Double, Double>();
-		static{
-			frontAprilTagTAToSTDDevs.put(maxFrontApriltagTA, 0.05);//TODO figure out how to actually measure stdDevs. These are mostly guesses to make it work.
-			frontAprilTagTAToSTDDevs.put(1.0, 0.1);
-			frontAprilTagTAToSTDDevs.put(0.1, 1.0);
-			frontAprilTagTAToSTDDevs.put(0.05, 5.0);
-			frontAprilTagTAToSTDDevs.put(0.0, Double.MAX_VALUE);
-
-			backAprilTagTAToSTDDevs.put(maxBackAprilTagTA, 0.05);
-			backAprilTagTAToSTDDevs.put(1.0, 0.1);
-			backAprilTagTAToSTDDevs.put(0.1, 1.0);
-			backAprilTagTAToSTDDevs.put(0.05, 5.0);
-			backAprilTagTAToSTDDevs.put(0.0, Double.MAX_VALUE);
-		}
 	}
 	
 	public static class ArmConstants {
@@ -431,6 +464,22 @@ public class Constants {
             public static final double kPoopShootFromChargeLinePO = 0.42;
             public static final double kPoopShootFromChargeLineAutoPO = 0.38;
 			public static final double kDefaultAutoShootDuration = 0.85;
+		}
+
+		public static class RodConstants{
+			public static final int startSensorPosition = 0+354;
+			public static final int verticalSensorPosition = -354+354;
+			public static final int horizonalSensorPosition = -1360+354;
+
+			public static final int sensorDistanceFromSoftLimit = 75;
+			public static final int targetOutPosition = horizonalSensorPosition+sensorDistanceFromSoftLimit;
+			public static final int targetInPosition = startSensorPosition-sensorDistanceFromSoftLimit;
+
+			public static final double gearRatio =  90.0/horizonalSensorPosition;
+
+			public static final PIDConstants kRodPID = new PIDConstants(6, 0, 0);
+			public static final MotionMagicConstants motionMagicConstants = new MotionMagicConstants(500, 400, 0);
+			public static final double kRodGravityFeedforward = 0.02;
 		}
 	}
 

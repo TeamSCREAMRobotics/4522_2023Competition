@@ -22,6 +22,7 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import frc2023.Constants.*;
+import frc2023.Constants.VisionConstants.FrontLimelightConstants;
 import frc2023.swerve.SwerveDriveHelper;
 import frc2023.swerve.SwerveModule;
 import frc2023.swerve.SwerveRotationHelper;
@@ -529,7 +530,7 @@ public class Swerve extends Subsystem{//this is the wrapper for a facade design 
 
     public Pose2d getLimelightFieldCentricPose() {
         Pose2d robotPose = getRobotPose();
-        return new Pose2d(robotPose.getTranslation(), robotPose.getRotation().rotateBy(Rotation2d.fromDegrees(180))).transformBy(new Transform2d(new Translation2d(VisionConstants.kFrontLimelightForward, -VisionConstants.kFrontLimelightRight), Rotation2d.fromDegrees(0)));
+        return new Pose2d(robotPose.getTranslation(), robotPose.getRotation().rotateBy(Rotation2d.fromDegrees(180))).transformBy(new Transform2d(new Translation2d(FrontLimelightConstants.kForwardOffsetMeters, -FrontLimelightConstants.kRightOffsetMeters), Rotation2d.fromDegrees(0)));
     }
 
 
