@@ -2,6 +2,7 @@ package frc2023.subsystems;
 
 import java.util.Optional;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -116,7 +117,7 @@ public class Superstructure {
 				mArm.setPlacementPosition(selectedLevel);
 			} else if(mControlBoard.getPreparePlacement()){//pulls the arm up to be closer to the placement state. We don't use this because the pivot is fast enough that it works fine from all the ways in the robot
 				mArm.preparePlacement(selectedNode.isCone());
-			} else if(intake || eject || shoot || sweep || snapAndShoot || autoShoot){//if we stick the intake out, we have to pull the arm up, because otherwise it sticks slightly out of the frame perimeter
+			} else if(intake || eject || shoot || sweep || snapAndShoot || autoShoot || prepareShooterForShot){//if we stick the intake out, we have to pull the arm up, because otherwise it sticks slightly out of the frame perimeter
 				mArm.setPoopShootPosition();
 			} else if(mControlBoard.getArmHoldSetpoint()){//sticks the arm to the side so that the cone can be indexed with the gripper properly
 				mArm.setConeHold();
@@ -185,7 +186,7 @@ public class Superstructure {
 
 			//Swerve
 			if(mControlBoard.getZeroGyro()) mSwerve.resetRotation(SwerveConstants.robotForwardAngle);
-			if(mControlBoard.getZeroPose()) mSwerve.resetPose(PlacementStates.getSwervePlacementPose(selectedNode, alliance));
+			if(mControlBoard.getZeroPose()) mSwerve.resetPose(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
 
 			Optional<Rotation2d> targetAngle = mControlBoard.getSwerveTargetAngle();
 			if(targetAngle.isPresent()){

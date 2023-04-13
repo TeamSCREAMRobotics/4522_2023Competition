@@ -27,7 +27,7 @@ import frc2023.swerve.SwerveRotationHelper.RotationHelperMode;
 
 public class SwerveDriveHelper {
     
-    private SwerveRotationHelper mRotationHelper;
+    public SwerveRotationHelper mRotationHelper;
 	private final SwerveDriveKinematics kinematics;
     private final Translation2d defaultCenterOfRotation = new Translation2d();
     private Translation2d dodgePivotCenter = new Translation2d();
@@ -140,7 +140,7 @@ public class SwerveDriveHelper {
         
         double rotationSpeed = mRotationHelper.calculateRotation(robotPose.getRotation(), rotationInput);
         ChassisSpeeds chassisSpeeds = createChassisSpeeds(translationInput, rotationSpeed, robotPose.getRotation(), robotCentric);
-        
+        // System.out.print("   CHASSISPEEDS: " + chassisSpeeds);
         return generateModuleStatesWithKinematicsLimits(chassisSpeeds, defaultCenterOfRotation);
     }
 

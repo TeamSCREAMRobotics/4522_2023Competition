@@ -1,5 +1,6 @@
 package frc2023.swerve;
 
+import com.team4522.lib.pid.PIDConstants;
 import com.team4522.lib.util.ScreamUtil;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -13,7 +14,7 @@ public class SwerveRotationHelper {
 	
 	private RotationHelperMode mode = RotationHelperMode.DISABLED;
 	private final Timer openLoopTimer = new Timer();
-	private final PIDController mSnapController;//We intentionally use PID controllers and not ProfiledPIDControllers because they are faster and snappier
+	private PIDController mSnapController;//We intentionally use PID controllers and not ProfiledPIDControllers because they are faster and snappier
 	private final PIDController mHoldController;
 
 	public enum RotationHelperMode {
@@ -87,5 +88,10 @@ public class SwerveRotationHelper {
 
 	public Rotation2d getTargetAngle(){
 		return mTargetAngle;
+	}
+
+	public void setSnapPID(PIDConstants pidConstants){
+		mSnapController = ScreamUtil.createPIDController(pidConstants, Constants.kSubsystemPeriodSeconds);
+		mSnapController.enableContinuousInput(-Math.PI, Math.PI);
 	}
 }

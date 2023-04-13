@@ -464,6 +464,8 @@ public class AutoSegments {
         return  new SeriesAction(
                 
             new RunUntilConditionAction(
+                        new DriveAction(new Translation2d(0, SwerveConstants.kRunOntoChargeStationSpeed), 0, false, 3.0),
+                        new DriveAction(new Translation2d(0, -SwerveConstants.kBackUpChargeStationJammedSpeed), 0, false, 0.4),//The last 2 actions are timeouts. If the charging  station gets stuck, we back up and try again.
                         new DriveAction(new Translation2d(0, SwerveConstants.kRunOntoChargeStationSpeed), 0, false, 3.0)
                             ) {
                 @Override
@@ -488,7 +490,7 @@ public class AutoSegments {
                     new SeriesAction(
                         new DriveAction(new Translation2d(0, -SwerveConstants.kRunOntoChargeStationSpeed), 0, false, 3.0),
                         new DriveAction(new Translation2d(0, SwerveConstants.kBackUpChargeStationJammedSpeed), 0, false, 0.5),//The last 2 actions are timeouts. If the charging  station gets stuck, we back up and try again.
-                        new DriveAction(new Translation2d(0, -SwerveConstants.kRunOntoChargeStationSpeed-1.0), 0, false, 3.0)
+                        new DriveAction(new Translation2d(0, -SwerveConstants.kRunOntoChargeStationSpeed), 0, false, 3.0)
                     )
                     ) {
 

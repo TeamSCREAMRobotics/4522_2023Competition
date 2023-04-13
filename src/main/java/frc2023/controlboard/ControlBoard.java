@@ -227,14 +227,9 @@ public class ControlBoard {
 
 
 	public boolean getArmManualOverride(){
-		return getManualOverrideSwtich();
-	}
-
-
-	private boolean getManualOverrideSwtich(){
 		return mButtonboard.getRawSwitch(3);
 	}
-
+	
 
 	public double getPivotPO(){
 		double input = mManualController.getAxis(Side.LEFT, Axis.Y);
@@ -263,7 +258,7 @@ public class ControlBoard {
 
 
 	public boolean getSweep(){
-		return mController.getButton(Button.L_JOYSTICK);
+		return false;
 	}
 
 
@@ -332,6 +327,10 @@ public class ControlBoard {
 	}
 
 	public boolean getAutoAlignWithSingleSubstation(){
-		return false;
+		return mController.getButton(Button.L_JOYSTICK);
+	}
+
+	public boolean getOverrideAutoPlaceGripper(){
+		return mButtonboard.getRawSwitch(4);
 	}
 }

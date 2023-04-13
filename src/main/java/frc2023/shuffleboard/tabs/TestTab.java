@@ -1,5 +1,7 @@
 package frc2023.shuffleboard.tabs;
 
+import com.team4522.lib.pid.PIDConstants;
+
 import edu.wpi.first.networktables.GenericSubscriber;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import frc2023.Constants.IntakeConstants;
@@ -7,6 +9,7 @@ import frc2023.Constants.SwerveConstants;
 import frc2023.Constants.IntakeConstants.LowerConveyorConstants;
 import frc2023.Constants.IntakeConstants.UpperConveyorConstants;
 import frc2023.shuffleboard.ShuffleboardTabBase;
+import frc2023.subsystems.Swerve;
 
 public class TestTab extends ShuffleboardTabBase{
 
@@ -14,6 +17,12 @@ public class TestTab extends ShuffleboardTabBase{
     public GenericSubscriber shootingSpeedBottom;
     public GenericSubscriber shootingSpeedRoller;
     public GenericSubscriber shootingSpeedPoopShooter;
+
+    
+    public GenericSubscriber rotationHelperKP;
+    public GenericSubscriber rotationHelperKI;
+    public GenericSubscriber rotationHelperIZone;
+    public GenericSubscriber rotationHelperKD;
 
     public GenericSubscriber autoBalancekP;
 
@@ -39,6 +48,12 @@ public class TestTab extends ShuffleboardTabBase{
         shootingSpeedPoopShooter = createNumberEntry("Shooter PO", 0.0);
 
         autoBalancekP = createEntry("Auto Balance kP", SwerveConstants.autoBalancePIDConstants.kP());
+
+        
+        rotationHelperKP = createNumberEntry("rotationHelperKP", SwerveConstants.snapRotationPIDConstants.kP());
+        rotationHelperKI = createNumberEntry("rotationHelperKI", SwerveConstants.snapRotationPIDConstants.kI());
+        rotationHelperIZone = createNumberEntry("rotationHelperIZone", SwerveConstants.snapRotationPIDConstants.integralZone());
+        rotationHelperKD = createNumberEntry("rotationHelperKD", SwerveConstants.snapRotationPIDConstants.kD());
     }
 
     @Override
@@ -48,5 +63,10 @@ public class TestTab extends ShuffleboardTabBase{
 
     public void updateAutoBalancePIDConstants() {
         SwerveConstants.autoBalancePIDConstants.setkP(autoBalancekP.getDouble(SwerveConstants.autoBalancePIDConstants.kP()));
+    }
+    public void updateRotationHelperPIDConstants(){
+        PIDConstants constants = new PIDConstants(rotationHelperKP.getDouble(0), rotationHelperKI.getDouble(0), rotationHelperKD.getDouble(0));
+        constants.setIntegralZone(rotationHelperIZone.getDouble(0));
+        Swerve.getInstance().mSwerveDriveHelper.mRotationHelper.setSnapPID(constants);
     }
 }

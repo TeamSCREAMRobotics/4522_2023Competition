@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc2023.Constants.PlacementConstants;
 import frc2023.auto.actions.lib.ActionBase;
+import frc2023.controlboard.ControlBoard;
 import frc2023.subsystems.Arm;
 import frc2023.subsystems.Gripper;
 import frc2023.subsystems.Swerve;
@@ -14,6 +15,7 @@ public class AutoAlignWithSingleSubstationAction extends ActionBase{
     private final Arm mArm = Arm.getInstance();
     private final Gripper mGripper = Gripper.getInstance();
     private final Swerve mSwerve = Swerve.getInstance();
+    private final ControlBoard mControlBoard = ControlBoard.getInstance();
     private final Alliance mAlliance;
     private final boolean mZeroOnStart;
 
@@ -31,9 +33,15 @@ public class AutoAlignWithSingleSubstationAction extends ActionBase{
 
     @Override
     public void run() {
-        mArm.retrieveCone();  
+        
+        if(mControlBoard.getArmManualOverride()){
+            mArm.setPercentOutput(mControlBoard.getPivotPO(), mControlBoard.getTelescopePO());
+        } else{
+            mArm.retrieveCone();  
+
+        }
         mGripper.open();
-        mSwerve.snapToPose(PlacementConstants.singleSubstationConeRetrievalPoint.get(mAlliance));
+        mSwerve.setVisionSnap(PlacementConstants.singleSubstationConeRetrievalPoint.get(mAlliance));
     }
 
     @Override

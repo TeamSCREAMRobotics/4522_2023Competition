@@ -2,6 +2,7 @@ package frc2023.subsystems;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -11,13 +12,15 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTable.TableEventListener;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc2023.PlacementStates;
 import frc2023.Ports;
+import frc2023.Constants.PlacementConstants;
 import frc2023.Constants.SwerveConstants;
 import frc2023.Constants.VisionConstants;
 import frc2023.Constants.VisionConstants.BackLimelightConstants;
 import frc2023.PlacementStates.Node;
+import frc2023.field.MirroredRotation;
 
 import java.util.EnumSet;
 import java.util.Optional;
@@ -67,10 +70,11 @@ public class BackLimelight extends Subsystem{
         public int currentLEDMode;
         public double targetX;
         public double targetY;
+        public double yOffsetMeters;
+        public double xOffsetMeters;
         public double targetArea;
         public boolean targetValid;
-        public Optional<TimestampedVisionUpdate> robotPoseFromApriltag = Optional.empty();
-        public Optional<TimestampedVisionUpdate> robotPoseFromRetroReflective = Optional.empty();
+        public Optional<TimestampedVisionUpdate> robotPoseFromSubstationTag = Optional.empty();
 
         // OUTPUTS
         public int ledMode = 0; // 0 - use pipeline mode, 1 - off, 2 - blink, 3 - on
@@ -116,8 +120,18 @@ public class BackLimelight extends Subsystem{
         mPeriodicIO.targetArea = mNetworkTable.getEntry("ta").getDouble(0.0);
         mPeriodicIO.currentLEDMode = (int) mNetworkTable.getEntry("ledMode").getDouble(1.0);
 
+        updateOffsetsFromVisionTape();
+
         mPeriodicIO.visionTimestamp = Timer.getFPGATimestamp() - mPeriodicIO.latency;//the time that the vision measurement was taken on the camera
         mPeriodicIO.lastUpdatedTimestamp = Timer.getFPGATimestamp();
+
+        mPeriodicIO.robotPoseFromSubstationTag = getPredictedTranslationFromSubstationTag(DriverStation.getAlliance());
+
+        if(!switchingPipelines && mPeriodicIO.robotPoseFromSubstationTag.isPresent()){
+            mSwerve.addVisionMeasurement(mPeriodicIO.robotPoseFromSubstationTag.get());//vision update from apriltag
+        }
+
+        // System.out.println(mPeriodicIO.xOffsetMeters + "  TY: " + mPeriodicIO.yOffsetMeters);
     }
 
     @Override
@@ -139,37 +153,42 @@ public class BackLimelight extends Subsystem{
      * stored in an InterpolatingTreeMap and when we see the vision tape, we plug in the limelight's tx and ty values to get the offset from the placement state. We use these vision
      * measurements for our cone auto placement.
      */
-    public Optional<TimestampedVisionUpdate> getPredictedTranslationFromSubstationTag(Node targetNode){
+    public Optional<TimestampedVisionUpdate> getPredictedTranslationFromSubstationTag(Alliance alliance){
         if(!mPeriodicIO.targetValid) return Optional.empty();
-        if(Math.abs(mSwerve.getRobotPose().getRotation().minus(SwerveConstants.robotForwardAngle).getDegrees()) > BackLimelightConstants.angleThresholdToCountSubstationTagMeasurement.getDegrees()) return Optional.empty();
+        if(Math.abs(mSwerve.getRobotPose().getRotation().minus(MirroredRotation.get(180, alliance)).getDegrees()) > BackLimelightConstants.angleThresholdToCountSubstationTagMeasurement.getDegrees()) return Optional.empty();
 
         //checks the target pose, and xOffset and yOffset from target, returns a translation2d for the robot and the stdDevs for the angle are infinite becasue we can't measure angle.
-        Pose2d referencePose = PlacementStates.getSwervePlacementPose(targetNode, DriverStation.getAlliance());
-        Translation2d offset = new Translation2d(-getXOffsetMetersSubstationTag(), getYOffsetMetersSubstationTag());
-        Pose2d pose = new Pose2d(referencePose.getTranslation().plus(offset), referencePose.getRotation());
+        Pose2d referencePose = PlacementConstants.singleSubstationConeRetrievalPoint.get(alliance);
+        Translation2d offset = new Translation2d(-mPeriodicIO.yOffsetMeters, mPeriodicIO.xOffsetMeters);
+        Pose2d pose = new Pose2d(referencePose.getTranslation().plus(offset), mSwerve.getRobotRotation());
 
         return Optional.of(new TimestampedVisionUpdate(mPeriodicIO.visionTimestamp, pose, getSubstationTagSTD_Devs()));
     }
 
-
+ 
     public Matrix<N3, N1> getSubstationTagSTD_Devs(){
         return BackLimelightConstants.substationTagMeasurementStandardDeviations;
     }
 
-    
-    /**
-     * @return robotcentric x offset
-     */
-    public double getXOffsetMetersSubstationTag(){
-        return BackLimelightConstants.txToMetersSubstationTagMap.get(mPeriodicIO.targetX);
-    }
 
-    
-    /**
-     * @return robotcentric y offset
-     */
-    public double getYOffsetMetersSubstationTag(){
-        return BackLimelightConstants.tyToMetersSubstationTagMap.get(mPeriodicIO.targetY);
+    public void updateOffsetsFromVisionTape(){
+        if(!mPeriodicIO.targetValid) return;
+
+        final double limelightUp = 0.770;
+        final double substationUp = 1.359;
+        final Rotation2d limelightPitch = Rotation2d.fromDegrees(30);
+        final double limelightDistanceFromBumper = 0.587637970798052;
+        final double limelightRightOffset = 0.17217;
+
+
+        double angleToGoalDegrees = limelightPitch.getDegrees() + mPeriodicIO.targetY;
+        double angleToGoalRadians = Math.toRadians(angleToGoalDegrees);
+
+        //calculate distance
+        double distanceFromLimelightToGoalMeters = (substationUp - limelightUp)/Math.tan(angleToGoalRadians);
+        // System.out.println(distanceFromLimelightToGoalMeters);
+        mPeriodicIO.yOffsetMeters = distanceFromLimelightToGoalMeters - limelightDistanceFromBumper;
+        mPeriodicIO.xOffsetMeters = (Math.tan(Math.toRadians(mPeriodicIO.targetX))*distanceFromLimelightToGoalMeters)-limelightRightOffset;
     }
 
 

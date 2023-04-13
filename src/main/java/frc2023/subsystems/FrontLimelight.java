@@ -72,6 +72,8 @@ public class FrontLimelight extends Subsystem{
         public int currentLEDMode;
         public double targetX;
         public double targetY;
+        public double yOffsetMeters;
+        public double xOffsetMeters;
         public double targetArea;
         public boolean targetValid;
         public Optional<TimestampedVisionUpdate> robotPoseFromApriltag = Optional.empty();
@@ -127,6 +129,7 @@ public class FrontLimelight extends Subsystem{
         mPeriodicIO.targetX = mNetworkTable.getEntry("tx").getDouble(0.0);
         mPeriodicIO.targetY = mNetworkTable.getEntry("ty").getDouble(0.0);
         mPeriodicIO.targetArea = mNetworkTable.getEntry("ta").getDouble(0.0);
+        updateOffsetsFromVisionTape();
         mPeriodicIO.currentLEDMode = (int) mNetworkTable.getEntry("ledMode").getDouble(1.0);
         mPeriodicIO.robotPoseFromApriltag = getRobotPoseFromApriltag();
         mPeriodicIO.robotPoseFromRetroReflective = getPredictedTranslationFromRetroReflectiveTape(mPeriodicIO.visionTargetNode);
@@ -135,11 +138,13 @@ public class FrontLimelight extends Subsystem{
         mPeriodicIO.lastUpdatedTimestamp = Timer.getFPGATimestamp();
 
         //If we are not switching pipelines, and we have a valid vision measurement from the apriltag or retroreflective tape, we add vision measurements to the list in swerve.
-        if(!switchingPipelines && mPeriodicIO.robotPoseFromApriltag.isPresent()){
+         if(!switchingPipelines && mPeriodicIO.robotPoseFromApriltag.isPresent()){
             mSwerve.addVisionMeasurement(mPeriodicIO.robotPoseFromApriltag.get());//vision update from apriltag
         } else if(!switchingPipelines && mPeriodicIO.robotPoseFromRetroReflective.isPresent()){// vision update from retroreflective vision tape. Only used on the front limelight
             mSwerve.addVisionMeasurement(mPeriodicIO.robotPoseFromRetroReflective.get());
-        } 
+        }  
+
+        System.out.println("  x: " + mPeriodicIO.xOffsetMeters + "  y : " + mPeriodicIO.yOffsetMeters);
     }
 
 
@@ -164,9 +169,9 @@ public class FrontLimelight extends Subsystem{
 
     private Pose2d convertLimelightPoseToScreamCoordinates(double[] limelightPose){
         if(DriverStation.getAlliance() == Alliance.Blue){// we convert from the limelight coordinate system to our coordinate system.
-            return new Pose2d(new Translation2d(-limelightPose[1] + FieldConstants.fieldDimensions.getX()/2, limelightPose[0]), Rotation2d.fromDegrees(limelightPose[2]));
+            return new Pose2d(new Translation2d(-limelightPose[1] + FieldConstants.fieldDimensions.getX()/2, limelightPose[0]), mSwerve.getRobotRotation());
         } else{
-            return new Pose2d(new Translation2d(limelightPose[1] - FieldConstants.fieldDimensions.getX()/2, -limelightPose[0]), Rotation2d.fromDegrees(limelightPose[2]));
+            return new Pose2d(new Translation2d(limelightPose[1] - FieldConstants.fieldDimensions.getX()/2, -limelightPose[0]), mSwerve.getRobotRotation());
         } 
     }
 
@@ -202,7 +207,7 @@ public class FrontLimelight extends Subsystem{
 
         //checks the target pose, and xOffset and yOffset from target, returns a translation2d for the robot and the stdDevs for the angle are infinite becasue we can't measure angle.
         Pose2d referencePose = PlacementStates.getSwervePlacementPose(targetNode, DriverStation.getAlliance());
-        Translation2d offset = new Translation2d(-getXOffsetMetersRetroReflective(), getYOffsetMetersRetroReflective());
+        Translation2d offset = new Translation2d(mPeriodicIO.xOffsetMeters, mPeriodicIO.yOffsetMeters);
         Pose2d pose = new Pose2d(referencePose.getTranslation().plus(offset), referencePose.getRotation());
 
         return Optional.of(new TimestampedVisionUpdate(mPeriodicIO.visionTimestamp, pose, getRetroreflectiveSTD_Devs()));
@@ -210,7 +215,8 @@ public class FrontLimelight extends Subsystem{
 
 
     public Matrix<N3, N1> getRetroreflectiveSTD_Devs(){
-        return FrontLimelightConstants.retroReflectiveMeasurementStandardDeviations;
+        double stdDevScalar = FrontLimelightConstants.retroReflectiveTAToSTDDevScalarMap.get(mPeriodicIO.targetArea);
+        return FrontLimelightConstants.retroReflectiveMeasurementStandardDeviations.times(stdDevScalar);
     }
 
 
@@ -240,6 +246,26 @@ public class FrontLimelight extends Subsystem{
         return mNetworkTable.getEntry("tl").getDouble(0.0);
     }
 
+    
+    public void updateOffsetsFromVisionTape(){
+    if(!mPeriodicIO.targetValid) return;
+        final double limelightUp = 0.770;//TODO extract to constants
+        final double visionTapeUp = 0.6096;
+        final Rotation2d limelightPitch = Rotation2d.fromDegrees(0.0000001);//TODO clean up jank NaN fix
+        final double limelightDistanceFromBumper = 0.102+0.4315734464756843;
+        final double limelightRightOffset = 0.17217-0.3-0.0535;
+
+
+        double angleToGoalDegrees = limelightPitch.getDegrees() + mPeriodicIO.targetY;
+        double angleToGoalRadians = Math.toRadians(angleToGoalDegrees);
+
+        //calculate distance
+        double distanceFromLimelightToGoalMeters = (visionTapeUp - limelightUp)/Math.tan(angleToGoalRadians);
+        // System.out.println(distanceFromLimelightToGoalMeters);
+        mPeriodicIO.yOffsetMeters = distanceFromLimelightToGoalMeters - limelightDistanceFromBumper;
+        mPeriodicIO.xOffsetMeters = (Math.tan(Math.toRadians(mPeriodicIO.targetX))*distanceFromLimelightToGoalMeters)-limelightRightOffset;
+    }
+
 
     @Override
     public void disable(){}
@@ -256,20 +282,20 @@ public class FrontLimelight extends Subsystem{
     }
     
 
-    /**
-     * @return robotcentric x offset
-     */
-    public double getXOffsetMetersRetroReflective(){
-        return FrontLimelightConstants.distanceFromConeVisionTargetXMap.get(mPeriodicIO.targetX);
-    }
+    // /**
+    //  * @return robotcentric x offset
+    //  */
+    // public double getXOffsetMetersRetroReflective(){
+    //     return FrontLimelightConstants.distanceFromConeVisionTargetXMap.get(mPeriodicIO.targetX);
+    // }
 
     
-    /**
-     * @return robotcentric y offset
-     */
-    public double getYOffsetMetersRetroReflective(){
-        return FrontLimelightConstants.distanceFromConeVisionTargetYMap.get(mPeriodicIO.targetY);
-    }
+    // /**
+    //  * @return robotcentric y offset
+    //  */
+    // public double getYOffsetMetersRetroReflective(){
+    //     return FrontLimelightConstants.distanceFromConeVisionTargetYMap.get(mPeriodicIO.targetY);
+    // }
 
 
     @Override

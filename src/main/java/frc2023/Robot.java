@@ -51,7 +51,7 @@ public class Robot extends TimedRobot {
 
   /**
    * We load all of our classes in a specific order on startup because our devices must be created before we use them. At the beginning of the season, we had an
-   * issue with our swerve modules because we would sometimes zero the angle motor before the CANCoder could read properly. This setup ensures that this never happens.
+   * issue with our swerve modules because we would sometimes zero the angle motor before the CANCoder could read properly. This DI setup ensures that this never happens.
    */
   public Robot(){
     super();
@@ -79,6 +79,7 @@ public class Robot extends TimedRobot {
       // mShuffleboardTabManager.mArmTab.updatePivotPIDConstants();
       // mShuffleboardTabManager.mArmTab.updateTelescopePIDConstants();
       mShuffleboardTabManager.testTab.updateAutoBalancePIDConstants();
+      mShuffleboardTabManager.testTab.updateRotationHelperPIDConstants();
 
     }, Constants.kUpdatePIDsFromShuffleboardPeriodSeconds);
     mSubsystemManager.setSubsystems(mSwerve, mIntake, mGripper, mArm, mFrontLimelight, mBackLimelight);
@@ -121,7 +122,7 @@ public class Robot extends TimedRobot {
   public void autonomousPeriodic() {
     mAutoRoutineExecutor.execute();
 
-    if(mControlBoard.getArmManualOverride()) mArm.disable();
+    if(mControlBoard.getArmManualOverride()) mArm.disable();//TODO there may be a cleaner way of disabling the arm
 
     mSubsystemManager.writeOutputs();
   }
@@ -169,7 +170,7 @@ public class Robot extends TimedRobot {
     mArm.configPivotSoftLimitsEnabled(true);
     mArm.setNeutralMode(NeutralMode.Brake, NeutralMode.Brake);
     mSwerve.setNeutralMode(NeutralMode.Brake, NeutralMode.Brake);
-    mBackLimelight.setPipeline(0);
+    mBackLimelight.setPipeline(BackLimelightConstants.kSubstationTagPipeline);
   }
   
 
@@ -192,11 +193,11 @@ public class Robot extends TimedRobot {
     if(mControlBoard.getZeroTelescope()){
       mArm.zeroTelescope();
     }
-    if(mControlBoard.getSlowMode()){
-      mIntake.extendRod();
-    } else{
-      mIntake.disable();//TODO disable shouldnt move rod
-    }
+    // if(mControlBoard.getSlowMode()){
+    //   mIntake.extendRod();
+    // } else{
+    //   mIntake.disable();//TODO disable shouldnt move rod
+    // }
     // Devices.getInstance().dRodMotor.set(ControlMode.PercentOutput, mControlBoard.getPivotPO()/2.0);
     
     System.out.println("  PO: " +mControlBoard.getPivotPO()/5.0 + "  pos: " + Devices.getInstance().dRodMotor.getSelectedSensorPosition());

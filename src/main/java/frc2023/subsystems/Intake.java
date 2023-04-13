@@ -550,7 +550,7 @@ public class Intake extends Subsystem{
 	}
 
 	private void setRodExtended(boolean extended){
-		mRodMotor.set(ControlMode.MotionMagic, (extended? RodConstants.targetOutPosition : RodConstants.targetInPosition), DemandType.ArbitraryFeedForward, RodConstants.kRodGravityFeedforward*getRodAngle().getSin());
+		// mRodMotor.set(ControlMode.MotionMagic, (extended? RodConstants.targetOutPosition : RodConstants.targetInPosition), DemandType.ArbitraryFeedForward, RodConstants.kRodGravityFeedforward*getRodAngle().getSin());
 	}
 
 	private double rodAngleToSensorPosition(Rotation2d angle){

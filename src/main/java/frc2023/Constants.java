@@ -39,7 +39,7 @@ public class Constants {
 	public static final int kUpdatePIDsFromShuffleboardPeriodMilliseconds = (int) (kUpdatePIDsFromShuffleboardPeriodSeconds * 1000.0);
 
     public static final boolean includeDebugTabs = true;
-	public static final boolean updatePIDsFromShuffleboard = false;
+	public static final boolean updatePIDsFromShuffleboard = true;
 	public static final boolean outputTelemetry = true;
 
 	public static class ControlBoardConstants {
@@ -175,7 +175,7 @@ public class Constants {
 		public static final MirroredTranslation gamePiece3ShootPathLocation1 = FieldConstants.stagingMark3.plus(new Translation2d(distanceForCubeAutoIntake, Rotation2d.fromDegrees(-115)).plus(new Translation2d(0.0, 0.0)));
 		public static final MirroredTranslation gamePiece4ShootPathLocation1 = FieldConstants.stagingMark4.plus(new Translation2d(distanceForCubeAutoIntake, Rotation2d.fromDegrees(-115)).plus(new Translation2d(0.0, 0.0)));
 
-		public static final MirroredTranslation gamePiece2ShootPathLocation9 = FieldConstants.stagingMark2.plus(new Translation2d(distanceForCubeAutoIntake, Rotation2d.fromDegrees(-70)));
+		public static final MirroredTranslation gamePiece2ShootPathLocation9 = FieldConstants.stagingMark2.plus(new Translation2d(distanceForCubeAutoIntake, Rotation2d.fromDegrees(-70)).plus(new Translation2d(0.3, 0)));
 		public static final MirroredTranslation gamePiece3ShootPathLocation9 = FieldConstants.stagingMark3.plus(new Translation2d(distanceForCubeAutoIntake, Rotation2d.fromDegrees(-70)));
 		public static final MirroredTranslation gamePiece4ShootPathLocation9 = FieldConstants.stagingMark4.plus(new Translation2d(distanceForCubeAutoIntake, Rotation2d.fromDegrees(-70)));
 		
@@ -224,14 +224,14 @@ public class Constants {
 
 
 		public static class FrontLimelightConstants{
-			public static final Matrix<N3, N1> retroReflectiveMeasurementStandardDeviations = VecBuilder.fill(0.15, 0.02, Integer.MAX_VALUE);// x, y, theta... We aren't using theta in the vision measurements, so put really high stddevs for it as a workaround
+			public static final Matrix<N3, N1> retroReflectiveMeasurementStandardDeviations = VecBuilder.fill(0.0004, 0.0004, Integer.MAX_VALUE);// x, y, theta... We aren't using theta in the vision measurements, so put really high stddevs for it as a workaround
 			public static final int kAprilTagPipeline = 0;
 			public static final int kConeLeftPipeline = 1;
 			public static final int kConeRightPipeline = 2;
 
 			//the highest TA values for the limelight; These were the measured TA values with the limelight as close to the targets as possible.
-			public static final double maxFrontApriltagTA = 2.146;
-			public static final double maxFrontRetroReflectiveTA = 0.694;
+			public static final double maxApriltagTA = 2.146;
+			public static final double maxRetroReflectiveTA = 0.694;
 
 
 			//Limelight mounting constants, offsets from center of robot
@@ -273,22 +273,24 @@ public class Constants {
 		
 			//TreeMaps for TA to standard deviations. The lower the TA value, the less confident we are in our measurements, so the higher the standard deviations must be.
 			public static final InterpolatingTreeMap<Double, Double> aprilTagTAToSTDDevs = new InterpolatingTreeMap<Double, Double>();
+			public static final InterpolatingTreeMap<Double, Double> retroReflectiveTAToSTDDevScalarMap = new InterpolatingTreeMap<Double, Double>();
 
 			static{
-				aprilTagTAToSTDDevs.put(maxFrontApriltagTA, 0.05);//TODO figure out how to actually measure stdDevs. These are mostly guesses to make it work.
+				aprilTagTAToSTDDevs.put(maxApriltagTA, 0.05);//TODO figure out how to actually measure stdDevs. These are mostly guesses to make it work.
 				aprilTagTAToSTDDevs.put(1.0, 0.1);
 				aprilTagTAToSTDDevs.put(0.1, 1.0);
 				aprilTagTAToSTDDevs.put(0.05, 5.0);
 				aprilTagTAToSTDDevs.put(0.0, Double.MAX_VALUE);
 
+				retroReflectiveTAToSTDDevScalarMap.put(maxRetroReflectiveTA, 1.0);//we default the scaling to be 1 for now
 			}
 		}
 
 		public static class BackLimelightConstants{
-			public static final int kSubstationTagPipeline = 4;
+			public static final int kSubstationTagPipeline = 7;
 			public static final int kRobotBootedUpPipeline = 9;
 
-			public static final Matrix<N3, N1> substationTagMeasurementStandardDeviations = VecBuilder.fill(0.15, 0.02, Integer.MAX_VALUE);
+			public static final Matrix<N3, N1> substationTagMeasurementStandardDeviations = VecBuilder.fill(0.0004, 0.0004, Integer.MAX_VALUE);
 
 
 			public static final double kMaxAprilTagTA = 2.027;//TODO maybe remove since we don't use apriltags with back limelight anymore
@@ -311,14 +313,30 @@ public class Constants {
 			public static final InterpolatingTreeMap<Double, Double> tyToMetersSubstationTagMap = new InterpolatingTreeMap<Double, Double>();
 			
 			static{
-				txToMetersSubstationTagMap.put(0.0, 0.0);
+				txToMetersSubstationTagMap.put(25.66, -2.007);
+				txToMetersSubstationTagMap.put(18.68, -0.063);
+				txToMetersSubstationTagMap.put(13.5, 0.0);
+				txToMetersSubstationTagMap.put(5.62, 0.135);
+				txToMetersSubstationTagMap.put(-4.86, 0.344);
+				txToMetersSubstationTagMap.put(-16.76, 0.545);
+				txToMetersSubstationTagMap.put(-25.35, 0.705);
 
-				tyToMetersSubstationTagMap.put(0.0, 0.0);
+				tyToMetersSubstationTagMap.put(15.10, 0.0);
+				tyToMetersSubstationTagMap.put(7.07, 0.262);
+				tyToMetersSubstationTagMap.put(2.9, 0.452);
+				tyToMetersSubstationTagMap.put(-0.66, 0.667);
+				tyToMetersSubstationTagMap.put(-4.30, 0.953);
+				tyToMetersSubstationTagMap.put(-7.56, 1.317);
+				tyToMetersSubstationTagMap.put(-10.84, 1.846);
+				tyToMetersSubstationTagMap.put(-12.67, 2.300);
+				tyToMetersSubstationTagMap.put(-14.36, 2.881);
+				tyToMetersSubstationTagMap.put(-15.93, 3.571);
+
 			}
 		}
 
 		public static final double kLimelightLatency = 0.02;// TODO measure
-        public static final double limelightSwitchPipelineDelay = 0.07;
+        public static final double limelightSwitchPipelineDelay = 0.014;
 	}
 	
 	public static class ArmConstants {
@@ -345,7 +363,7 @@ public class Constants {
 		public static final MotionMagicConstants telescopeMotionMagicConstants = new MotionMagicConstants(
 				kTelescopeCruiseVelocity, kTelescopeAcceleration, 1);
 
-		public static final PIDConstants pivotPIDConstants = new PIDConstants(0.08, 0.000, 0);
+		public static final PIDConstants pivotPIDConstants = new PIDConstants(0.15, 0.000, 0);
 		static {
 			pivotPIDConstants.setIntegralZone(2000);
 		}
@@ -353,8 +371,8 @@ public class Constants {
 		static {
 			telescopePIDConstants.setIntegralZone(700);
 		}
-		public static final Rotation2d kPivotAngleOnTargetThreshold = Rotation2d.fromDegrees(2);
-		public static final double kTelescopeAtTargetThreshold = 0.01;// meters
+		public static final Rotation2d kPivotAngleOnTargetThreshold = Rotation2d.fromDegrees(3.0);
+		public static final double kTelescopeAtTargetThreshold = 0.05;// meters
 		public static final double kSuckInLength = kMinTelescopeLength + .01;	
 
 
@@ -533,7 +551,7 @@ public class Constants {
 		public static final double kMaxSpeed = 5.7349; // m/s //theoretical calculation. Equal to the module max
 														// velocity * kDriveVelocityCoefficient. 22000 / 2048 / 6.12 *
 														// 10 * 2*pi*0.052
-		public static final double kMaxDriveSpeed = 5.0;
+		public static final double kMaxDriveSpeed = kMaxSpeed;//TODO was limited to 5.0;
 		public static final double kMaxDriveAngularSpeed = 8.0;
 
 		public static final double kMinSpeed = kMaxSpeed * 0.0005; // m/s
@@ -593,30 +611,14 @@ public class Constants {
 				SwerveConstants.slowSpeedConfig.kAutoMaxSpeed, SwerveConstants.slowSpeedConfig.kAutoMaxAcceleration)
 				.addConstraint(slowSpeedConstraint);
 
-		public static final double kAutoSlowdownForGamePieceRadius = 1.5;// meters
-		public static final double kAutoSlowdownForCableBumpRadius = 1.5;// meters
-
-		public static final TrajectoryConstraint nearGamePieceConstraint = new TrajectoryConstraint() {
-
-			@Override
-			public double getMaxVelocityMetersPerSecond(Pose2d poseMeters, double curvatureRadPerMeter,
-					double velocityMetersPerSecond) {
-				return 2.5;
-			}
-
-			@Override
-			public MinMax getMinMaxAccelerationMetersPerSecondSq(Pose2d poseMeters, double curvatureRadPerMeter,
-					double velocityMetersPerSecond) {
-				return new MinMax(-1.5, 1.75);
-			}
-		};
+		public static final double kAutoSlowdownForCableBumpRadius = 0.5;// meters
 
 		public static final TrajectoryConstraint nearCableBumpConstraint = new TrajectoryConstraint() {
 
 			@Override
 			public double getMaxVelocityMetersPerSecond(Pose2d poseMeters, double curvatureRadPerMeter,
 					double velocityMetersPerSecond) {
-				return 1.8;
+				return 1.5;
 			}
 
 			@Override
@@ -632,7 +634,11 @@ public class Constants {
 		// Rotation Helper
 		public static final double kRotationOpenLoopDuration = 0.2; // s
 		public static final PIDConstants snapRotationPIDConstants = new PIDConstants(5.0, 0.0, 0.0);
-		public static final PIDConstants holdRotationPIDConstants = new PIDConstants(0.5, 0.0, 0.0);
+		public static final PIDConstants holdRotationPIDConstants = new PIDConstants(0.5, 0, 0.0);
+		static{
+			snapRotationPIDConstants.setIntegralZone(0.2);
+			holdRotationPIDConstants.setIntegralZone(0.2);
+		}
 
 		/** The kinematics limits for 254's swerve setpoint generator */
 		public static final KinematicLimits defaultKinematicsLimits = new KinematicLimits(kMaxSpeed, kMaxAcceleration,
@@ -641,13 +647,14 @@ public class Constants {
 		//PID constants for different swerve modes
 		public static final PIDConstants positionXPIDConstants = new PIDConstants(2.5, 0.0, 0.0);
 		public static final PIDConstants positionYPIDConstants = new PIDConstants(2.5, 0.0, 0.0);
-		public static final PIDConstants positionThetaPIDConstants = new PIDConstants(3.5, 0, 0);
-		public static final Constraints positionThetaConstraints = new TrapezoidProfile.Constraints(kMaxAngularSpeed, kMaxAngularAcceleration * 3.5);
+		public static final PIDConstants positionThetaPIDConstants = snapRotationPIDConstants;//new PIDConstants(3.5, 1.5, 0);
 		public static final PIDConstants trajectoryTranslationPIDConstants = new PIDConstants(0.7, 0, 0);
-		public static final PIDConstants visionXPIDConstants = new PIDConstants(2.0, 0.0, 0.0);
-		public static final PIDConstants visionYPIDConstants = new PIDConstants(2.5, 0.0, 0.0);
+		public static final PIDConstants visionXPIDConstants = new PIDConstants(4.0, 0.0, 0.0);
+		public static final PIDConstants visionYPIDConstants = new PIDConstants(4.5, 0.0, 0.0);
 		public static final PIDConstants visionThetaPIDConstants = positionThetaPIDConstants;
-		public static final Constraints visionThetaPIDConstraints = positionThetaConstraints;
+		static{
+			// positionThetaPIDConstants.setIntegralZone(0.2);
+		}
 
 		//Tolerances for different swerve modes
 		public static final double trajectoryTranslationTolerance = 0.3;
@@ -656,8 +663,8 @@ public class Constants {
 		public static final Rotation2d positionPreciseAngleTolerance = Rotation2d.fromDegrees(6);
 		public static final double positionWideTranslationTolerance = 0.32;
 		public static final Rotation2d positionWideAngleTolerance = Rotation2d.fromDegrees(10);
-		public static final double visionXTolerance = 0.05;
-		public static final double visionYTolerance = 0.05;
+		public static final double visionXTolerance = 0.1;
+		public static final double visionYTolerance = 0.1;
 		public static final Rotation2d visionThetaTolerance = positionPreciseAngleTolerance;
 
 		// The position and angle thresholds that the swerve must reach before switching to retroreflective vision measurements for fully automatic placement */
@@ -673,7 +680,7 @@ public class Constants {
         public static final double defaultTrajectoryTimeoutSeconds = 3.0;
 		public static final double kRunOntoChargeStationSpeed = 2.5;
         public static final double kDriveAfterPitchThresholdMetAutoBalance = 0.70;
-		public static final double kBackUpChargeStationJammedSpeed = 1.5;
+		public static final double kBackUpChargeStationJammedSpeed = 3.5;
 		public static final double kPitchToStopSwerveDuringBalance = 5.25;
         public static final int swerveSpeedBufferSize = 10;
 	}
@@ -691,7 +698,7 @@ public class Constants {
 		public final MotionMagicConstants steerMotionMagicConstants = new MotionMagicConstants(kMaxDriveVelocity * 0.8,
 				kMaxDriveVelocity / 0.3, 1);
 		public final Rotation2d kAngleOnTargetThreshold = Rotation2d.fromDegrees(0.5);
-		public static final double kDriveSlewRate = 25.0;
+		public static final double kDriveSlewRate = 18.0;
 
 		public enum ModuleLocation {
 			FL, BL, BR, FR

@@ -3,6 +3,7 @@ package frc2023.auto.actions.autonomous.autoPlacement;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
 import frc2023.auto.actions.lib.ActionBase;
+import frc2023.controlboard.ControlBoard;
 import frc2023.subsystems.Arm;
 import frc2023.subsystems.Gripper;
 import frc2023.subsystems.Gripper.GripperState;
@@ -12,6 +13,7 @@ public class ArmAutoPlaceAction extends ActionBase{
     private final Translation2d mPlaceLocation;
     private final Arm mArm = Arm.getInstance();
     private final Gripper mGripper = Gripper.getInstance();
+    private final ControlBoard mControlBoard = ControlBoard.getInstance();
     private final Timer mTimerWaitAfterPlace = new Timer();
     public static final double timeAfterPlaceToFinish = 0.6;
     public static final double timeoutSeconds = 2.0;
@@ -58,11 +60,10 @@ public class ArmAutoPlaceAction extends ActionBase{
     @Override
     public boolean isFinished() {
         if(mGripper.getLastState() == GripperState.OPEN){
-            mTimerWaitAfterPlace.reset();
             mTimerWaitAfterPlace.start();
         }
         
-        return mTimerWaitAfterPlace.get() >= timeAfterPlaceToFinish || mTimerSinceStart.get() > timeoutSeconds + timeAfterPlaceToFinish;
+        return mTimerWaitAfterPlace.get() >= timeAfterPlaceToFinish || mTimerSinceStart.get() > timeoutSeconds + timeAfterPlaceToFinish || mControlBoard.getArmManualOverride();
     }
 
     @Override

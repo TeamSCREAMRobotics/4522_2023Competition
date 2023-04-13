@@ -84,7 +84,9 @@ public class ScreamUtil {
 	}
 
 	public static PIDController createPIDController(PIDConstants pidConstants, double updatePeriod){
-		return new PIDController(pidConstants.kP(), pidConstants.kI(), pidConstants.kD(), updatePeriod);
+		PIDController controller =  new PIDController(pidConstants.kP(), pidConstants.kI(), pidConstants.kD(), updatePeriod);
+		controller.setIntegratorRange(-pidConstants.integralZone(), pidConstants.integralZone());
+		return controller;
 	}
 
 	public static double getCircularBufferAverage(CircularBuffer buffer){

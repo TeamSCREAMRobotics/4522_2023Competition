@@ -129,7 +129,7 @@ public class Swerve extends Subsystem{//this is the wrapper for a facade design 
 
 
     public synchronized void addVisionMeasurement(TimestampedVisionUpdate measurement){//this adds a vision measurement to a list, but does not actually use the vision measurements to update the pose
-        mPeriodicIO.storedVisionMeasurements.add(measurement);
+		mPeriodicIO.storedVisionMeasurements.add(measurement);
     }  
 	
 
@@ -412,7 +412,6 @@ public class Swerve extends Subsystem{//this is the wrapper for a facade design 
 		mPeriodicIO.lastTimeStamp = mPeriodicIO.timeStamp;
 		mPeriodicIO.timeStamp = Timer.getFPGATimestamp();
 		mPeriodicIO.dt = mPeriodicIO.timeStamp - mPeriodicIO.lastTimeStamp;
-		System.out.println(getTranslationalSpeed() + "   rot: " + getRotationalSpeed().getDegrees());
 	}
 
 
