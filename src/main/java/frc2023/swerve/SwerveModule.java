@@ -87,7 +87,6 @@ public class SwerveModule implements CSVWriteable {
 	 */
 	public void setDesiredState(SwerveModuleState moduleState, boolean closedLoop, boolean deadbandWithMinSpeed){
 		mDesiredState = desiredStateToNativeState(moduleState, Rotation2d.fromDegrees(getUnboundedAngle()));
-		// if(mModuleConstants.name == "FL") System.out.println(moduleState.speedMetersPerSecond +"  DES:" + mDesiredState.speedMetersPerSecond +" test "  + closedLoop + "   " + deadbandWithMinSpeed);
 
 		if(Math.abs(mDesiredState.speedMetersPerSecond) < SwerveConstants.kMinSpeed && deadbandWithMinSpeed){
 			mSteer.neutralOutput();
@@ -95,7 +94,6 @@ public class SwerveModule implements CSVWriteable {
 		} else{
 			setSteerMotor(mDesiredState.angle);
 			setDriveMotor(closedLoop, mDesiredState.speedMetersPerSecond);
-			// System.out.print("    ***: " + mDesiredState.speedMetersPerSecond + " ____");
 		}
 	}
 	

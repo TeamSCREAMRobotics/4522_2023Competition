@@ -66,7 +66,7 @@ public class Swerve extends Subsystem{//this is the wrapper for a facade design 
 
 
 	public static enum SwerveState{
-		DISABLED, FOLLOW_TRAJECTORY, POSITION, VISION, VISION_LOCK_X, DRIVE, DRIVE_WITH_DODGE, DRIVE_FACE_POINT, DRIVE_FACE_ANGLE, LOCK_WHEELS, SNAP_TRANSLATION_AND_FACE_POINT
+		DISABLED, FOLLOW_TRAJECTORY, POSITION, AUTO_PLACE, VISION_LOCK_X, DRIVE, DRIVE_WITH_DODGE, DRIVE_FACE_POINT, DRIVE_FACE_ANGLE, LOCK_WHEELS, SNAP_TRANSLATION_AND_FACE_POINT, ALIGN_SINGLE_SUBSTATION
 	}
 
 
@@ -126,7 +126,7 @@ public class Swerve extends Subsystem{//this is the wrapper for a facade design 
 		mPoseEstimator.addDriveData(Timer.getFPGATimestamp(), twistAccountingForChargeStation);
 		mPeriodicIO.lastGyroYaw = getGyroYaw();		
 	}
-
+static final double test = -1084.0264892578125 % 360;//TODO remove
 
     public synchronized void addVisionMeasurement(TimestampedVisionUpdate measurement){//this adds a vision measurement to a list, but does not actually use the vision measurements to update the pose
 		mPeriodicIO.storedVisionMeasurements.add(measurement);
@@ -137,7 +137,6 @@ public class Swerve extends Subsystem{//this is the wrapper for a facade design 
         mPoseEstimator.addVisionData(mPeriodicIO.storedVisionMeasurements);
         mPeriodicIO.storedVisionMeasurements.clear();
     }
-
 
 	public synchronized void resetPose(Pose2d newPose){
 		mPoseEstimator.resetPose(newPose);
@@ -209,8 +208,14 @@ public class Swerve extends Subsystem{//this is the wrapper for a facade design 
 	}
 
 
-	public void setVisionSnap(Pose2d targetPose){
-		mPeriodicIO.state = SwerveState.VISION;
+	public void setAutoPlace(Pose2d targetPose){
+		mPeriodicIO.state = SwerveState.AUTO_PLACE;
+		mPeriodicIO.targetPose = targetPose;
+	}
+
+	
+	public void setAlignWithSingleSubstation(Pose2d targetPose){
+		mPeriodicIO.state = SwerveState.ALIGN_SINGLE_SUBSTATION;
 		mPeriodicIO.targetPose = targetPose;
 	}
 
@@ -381,10 +386,13 @@ public class Swerve extends Subsystem{//this is the wrapper for a facade design 
 				moduleStates = mSwerveDriveHelper.getDriveAndFaceAngle(mPeriodicIO.translationInput, getRobotPose(), mPeriodicIO.targetAngle, mPeriodicIO.robotCentric);
 				runClosedLoop(moduleStates);
 				break;
-			case VISION:
-				moduleStates = mSwerveDriveHelper.getVisionSnapToPosition(getRobotPose(), mPeriodicIO.targetPose);
+			case AUTO_PLACE:
+				moduleStates = mSwerveDriveHelper.getAutoPlacePosition(getRobotPose(), mPeriodicIO.targetPose);
 				runClosedLoop(moduleStates);
 				break;
+			case ALIGN_SINGLE_SUBSTATION:
+				moduleStates = mSwerveDriveHelper.getAlignWithSingleSubstation(getRobotPose(), mPeriodicIO.targetPose);
+				runClosedLoop(moduleStates);
 			case POSITION:
 				moduleStates = mSwerveDriveHelper.getSnapToPosition(getRobotPose(), mPeriodicIO.targetPose);
 				runClosedLoop(moduleStates);
@@ -441,7 +449,7 @@ public class Swerve extends Subsystem{//this is the wrapper for a facade design 
 	}
 
 
-	private Rotation2d getGyroYaw(){
+	public Rotation2d getGyroYaw(){
 		return Rotation2d.fromDegrees(mGyro.getYaw());
 	}
 
@@ -516,8 +524,6 @@ public class Swerve extends Subsystem{//this is the wrapper for a facade design 
 
     public double getTranslationalSpeed() {
 		return mPeriodicIO.bufferedSpeed.getBufferedTranslationalSpeed().getNorm();
-		// Pose2d robotPose = mPeriodicIO.currentPose;
-        // return Math.hypot(robotPose.getX()-mPeriodicIO.lastPose.getX(), robotPose.getY()-mPeriodicIO.lastPose.getY()) / (mPeriodicIO.dt);
     }	
 
 	
@@ -536,6 +542,6 @@ public class Swerve extends Subsystem{//this is the wrapper for a facade design 
 ///////////////////  Telemetry and Logging  //////////////////////////////////////////////////////
 	@Override
 	public void outputTelemetry() {
-		// System.out.println(" Robot pose: " + getRobotPose());
+
 	}
 }

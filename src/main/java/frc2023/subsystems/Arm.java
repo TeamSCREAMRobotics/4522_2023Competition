@@ -371,7 +371,6 @@ public class Arm extends Subsystem{
 
 
     public boolean atTargetPosition(Rotation2d pivotTarget, double telescopeTarget){
-        System.out.println("PIVOT: " +  pivotOnTarget(pivotTarget) + "  telescope: "+ telescopeOnTarget(telescopeTarget));
         return pivotOnTarget(pivotTarget) && telescopeOnTarget(telescopeTarget);
     }   
 

@@ -33,7 +33,7 @@ public class Constants {
 	public static final int kSubsystemPeriodMilliseconds = (int) (kSubsystemPeriodSeconds * 1000.0);
 	public static final double kOdometryPeriodSeconds = 0.01;
 	public static final int kOdometryPeriodMilliseconds = (int) (kOdometryPeriodSeconds * 1000.0);
-	public static final double kTelemetryPeriodSeconds = 1.00;
+	public static final double kTelemetryPeriodSeconds = 0.40;
 	public static final int kTelemetryPeriodMilliseconds = (int) (kTelemetryPeriodSeconds * 1000.0);
 	public static final double kUpdatePIDsFromShuffleboardPeriodSeconds = 3.00;
 	public static final int kUpdatePIDsFromShuffleboardPeriodMilliseconds = (int) (kUpdatePIDsFromShuffleboardPeriodSeconds * 1000.0);
@@ -272,15 +272,21 @@ public class Constants {
 			}
 		
 			//TreeMaps for TA to standard deviations. The lower the TA value, the less confident we are in our measurements, so the higher the standard deviations must be.
-			public static final InterpolatingTreeMap<Double, Double> aprilTagTAToSTDDevs = new InterpolatingTreeMap<Double, Double>();
+			public static final InterpolatingTreeMap<Double, Double> aprilTagTAToTranslationSTDDevs = new InterpolatingTreeMap<Double, Double>();
+			public static final InterpolatingTreeMap<Double, Double> aprilTagTAToAngleSTDDevs = new InterpolatingTreeMap<Double, Double>();
+
+
 			public static final InterpolatingTreeMap<Double, Double> retroReflectiveTAToSTDDevScalarMap = new InterpolatingTreeMap<Double, Double>();
 
 			static{
-				aprilTagTAToSTDDevs.put(maxApriltagTA, 0.05);//TODO figure out how to actually measure stdDevs. These are mostly guesses to make it work.
-				aprilTagTAToSTDDevs.put(1.0, 0.1);
-				aprilTagTAToSTDDevs.put(0.1, 1.0);
-				aprilTagTAToSTDDevs.put(0.05, 5.0);
-				aprilTagTAToSTDDevs.put(0.0, Double.MAX_VALUE);
+				aprilTagTAToTranslationSTDDevs.put(maxApriltagTA, 0.05);//TODO figure out how to actually measure stdDevs. These are mostly guesses to make it work.
+				aprilTagTAToTranslationSTDDevs.put(1.0, 0.1);
+				aprilTagTAToTranslationSTDDevs.put(0.1, 1.0);
+				aprilTagTAToTranslationSTDDevs.put(0.05, 5.0);
+				aprilTagTAToTranslationSTDDevs.put(0.0, Double.MAX_VALUE);
+
+				aprilTagTAToAngleSTDDevs.put(maxApriltagTA, 0.01);
+
 
 				retroReflectiveTAToSTDDevScalarMap.put(maxRetroReflectiveTA, 1.0);//we default the scaling to be 1 for now
 			}
@@ -349,9 +355,9 @@ public class Constants {
 		public static final Rotation2d PivotAngleOffset = Rotation2d.fromDegrees(119.057552083);// adding makes it more negative
 
 		public static final double kMinTelescopeLength = 0.47;//meters
-		public static final double kMaxTelescopeLength = 1.143;//meters  //measured from pivot center to end of telescope, does not include end effector
+		public static final double kMaxTelescopeLength = 1.138;//meters  //measured from pivot center to right past the cap that holds the end effector on the end of the telescope, does not include end effector
 		public static final double kPotentiometerMin = 0;//potentiometer reading at minimum arm extension
-		public static final double kPotentiometerMax = 7230;//potentiometer reading at maximum arm extension
+		public static final double kPotentiometerMax = 7135;//potentiometer reading at maximum arm extension
 		public static final double kDistanceForSoftLimit = 150;// native potentiometer units
 
 		public static final double kPivotCruiseVelocity = 21742 / 0.7;// measured 21742.0
@@ -649,12 +655,16 @@ public class Constants {
 		public static final PIDConstants positionYPIDConstants = new PIDConstants(2.5, 0.0, 0.0);
 		public static final PIDConstants positionThetaPIDConstants = snapRotationPIDConstants;//new PIDConstants(3.5, 1.5, 0);
 		public static final PIDConstants trajectoryTranslationPIDConstants = new PIDConstants(0.7, 0, 0);
-		public static final PIDConstants visionXPIDConstants = new PIDConstants(4.0, 0.0, 0.0);
-		public static final PIDConstants visionYPIDConstants = new PIDConstants(4.5, 0.0, 0.0);
-		public static final PIDConstants visionThetaPIDConstants = positionThetaPIDConstants;
+		public static final PIDConstants autoPlaceXPIDConstants = new PIDConstants(4.0, 0.0, 0.0);
+		public static final PIDConstants autoPlaceYPIDConstants = new PIDConstants(4.5, 0.0, 0.0);
+		public static final PIDConstants autoPlaceThetaPIDConstants = positionThetaPIDConstants;
 		static{
 			// positionThetaPIDConstants.setIntegralZone(0.2);
 		}
+        public static final PIDConstants alignSingleSubstationXPIDConstants = new PIDConstants(4.0, 0.0, 0.0);
+        public static final PIDConstants alignSingleSubstationThetaPIDConstants = new PIDConstants(4.5, 0.0, 0.0);
+        public static final PIDConstants alignSingleSubstationYPIDConstants = positionThetaPIDConstants;
+	
 
 		//Tolerances for different swerve modes
 		public static final double trajectoryTranslationTolerance = 0.3;

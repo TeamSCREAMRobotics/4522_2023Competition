@@ -144,7 +144,6 @@ public class FrontLimelight extends Subsystem{
             mSwerve.addVisionMeasurement(mPeriodicIO.robotPoseFromRetroReflective.get());
         }  
 
-        System.out.println("  x: " + mPeriodicIO.xOffsetMeters + "  y : " + mPeriodicIO.yOffsetMeters);
     }
 
 
@@ -169,9 +168,9 @@ public class FrontLimelight extends Subsystem{
 
     private Pose2d convertLimelightPoseToScreamCoordinates(double[] limelightPose){
         if(DriverStation.getAlliance() == Alliance.Blue){// we convert from the limelight coordinate system to our coordinate system.
-            return new Pose2d(new Translation2d(-limelightPose[1] + FieldConstants.fieldDimensions.getX()/2, limelightPose[0]), mSwerve.getRobotRotation());
+            return new Pose2d(new Translation2d(-limelightPose[1] + FieldConstants.fieldDimensions.getX()/2, limelightPose[0]), Rotation2d.fromDegrees(limelightPose[5]-90));
         } else{
-            return new Pose2d(new Translation2d(limelightPose[1] - FieldConstants.fieldDimensions.getX()/2, -limelightPose[0]), mSwerve.getRobotRotation());
+            return new Pose2d(new Translation2d(limelightPose[1] - FieldConstants.fieldDimensions.getX()/2, -limelightPose[0]), Rotation2d.fromDegrees(limelightPose[5]+90));
         } 
     }
 
@@ -183,14 +182,15 @@ public class FrontLimelight extends Subsystem{
                                                                                                                                                 //measurement enough to use it. We have different max speeds for auto and teleop because we trust our swerve odometry more during auto
         else if(mSwerve.getTranslationalSpeed() > FrontLimelightConstants.kMaxSpeedForVisionUpdateTeleop) return true;// teleop filtering
         
-        if(Math.abs(mSwerve.getRotationalSpeed().getRadians()) > 0.4 ) return true;// we also filter based on rotational speed
+        if(Math.abs(mSwerve.getRotationalSpeed().getRadians()) > 0.4 ) return true;// we also filter based on rotational speed //TODO extract to constant
 
         return false;
     }
 
     public Matrix<N3, N1> getApriltagSTD_Devs(Pose2d visionPose){//we change the std devs based on the distance from the tag, measured by the limelight "ta" value.
-        double stdDevs = FrontLimelightConstants.aprilTagTAToSTDDevs.get(mPeriodicIO.targetArea);
-        var output = VecBuilder.fill(stdDevs, stdDevs, Double.MAX_VALUE);
+        double translationSTDDevs = FrontLimelightConstants.aprilTagTAToTranslationSTDDevs.get(mPeriodicIO.targetArea);
+        double angleStdDevs = FrontLimelightConstants.aprilTagTAToAngleSTDDevs.get(mPeriodicIO.targetArea);
+        var output = VecBuilder.fill(translationSTDDevs, translationSTDDevs, angleStdDevs);
         return output;
     }
 
@@ -278,7 +278,7 @@ public class FrontLimelight extends Subsystem{
 
     @Override
     public void outputTelemetry() {
-        // if(mPeriodicIO.robotPoseFromApriltag.isPresent()) System.out.println("apriltag : " + mPeriodicIO.robotPoseFromApriltag.get().pose) ;
+
     }
     
 

@@ -2,7 +2,9 @@ package frc2023.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.sensors.PigeonIMU;
 import com.revrobotics.CANSparkMax;
 import com.team4522.lib.deviceConfiguration.DeviceUtil;
 import com.team4522.lib.util.TimeBoundIncrementor;
@@ -50,8 +52,6 @@ public class Intake extends Subsystem{
         mShooterMotor = mDevices.dShooterMotor;
 		mRodMotor = mDevices.dRodMotor;
 		mBeamBreak = mDevices.dBeamBreak;
-
-		
 
         DeviceUtil.configTalonSRXPID(mRodMotor, RodConstants.kRodPID, true);
         DeviceUtil.configTalonSRXMotionMagic(mRodMotor, RodConstants.motionMagicConstants, true);
@@ -570,7 +570,7 @@ public class Intake extends Subsystem{
 /////////////////////////////////////////////////// Misc Methods ///////////////////////////////////////////////////////////////////////////////////////////////////////
 	@Override
 	public void outputTelemetry() {
-		
+
 	}
 
 

@@ -31,6 +31,7 @@ public class SwerveTab extends ShuffleboardTabBase {
 	private GenericPublisher mSwerveX;
 	private GenericPublisher mSwerveY;
 	private GenericPublisher mSwerveTheta;
+	private GenericPublisher mSwerveRawGyro;
 
     private GenericEntry mSteerKP;
     private GenericEntry mSteerKD;
@@ -72,6 +73,7 @@ public class SwerveTab extends ShuffleboardTabBase {
 		mSwerveX = createNumberEntry("X", 0);
 		mSwerveY = createNumberEntry("Y", 0);
 		mSwerveTheta = createNumberEntry("Theta", 0);
+		mSwerveRawGyro = createNumberEntry("RawGyro", 0);
 
 		if(Constants.updatePIDsFromShuffleboard){
 			mSteerKP = createNumberEntry("Steer kP", SwerveModuleConstants.DefaultConfig.steerConstants.kP());
@@ -105,6 +107,7 @@ public class SwerveTab extends ShuffleboardTabBase {
 		mSwerveX.setDouble(swervePose.getX());
 		mSwerveY.setDouble(swervePose.getY());
 		mSwerveTheta.setDouble(swervePose.getRotation().getDegrees());
+		mSwerveRawGyro.setDouble(mSwerve.getGyroYaw().getDegrees());
 
 		mFLEncoder.setDouble(mSwerve.getModules()[0].getRawEncoder().getDegrees());
 		mBLEncoder.setDouble(mSwerve.getModules()[1].getRawEncoder().getDegrees());

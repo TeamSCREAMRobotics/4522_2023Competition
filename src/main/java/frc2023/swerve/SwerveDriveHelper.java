@@ -42,16 +42,20 @@ public class SwerveDriveHelper {
     private final PIDController mPositionYController;
     private final PIDController mPositionThetaController;
 
-    private final PIDController mVisionXController;
-    private final PIDController mVisionYController;
-    private final PIDController mVisionThetaController;
+    private final PIDController mAutoPlaceXController;
+    private final PIDController mAutoPlaceYController;
+    private final PIDController mAutoPlaceThetaController;
+
+    private final PIDController mAlignSingleSubstationYController;
+    private final PIDController mAlignSingleSubstationXController;
+    private final PIDController mAlignSingleSubstationThetaController;
 
     private double mTrajectoryXTarget = 0;
     private double mTrajectoryYTarget = 0;
     private Rotation2d mTrajectoryThetaTarget = new Rotation2d();
 
     enum DriveMode{
-        DISABLED, SNAP_POSITION, TRAJECTORY, MANUAL, MANUAL_FACE_POINT, EVASIVE_MANEUVERS, MANUAL_TARGETANGLE, VISION_SNAP_TO_POSITION, VISION_LOCK_X, SNAP_POSITION_FACE_POINT
+        DISABLED, SNAP_POSITION, TRAJECTORY, MANUAL, MANUAL_FACE_POINT, EVASIVE_MANEUVERS, MANUAL_TARGETANGLE, AUTO_PLACE_POSITION, VISION_LOCK_X, SNAP_POSITION_FACE_POINT, SNAP_TO_SINGLE_SUBSTATION
     }
 
     private DriveMode mControlMode = DriveMode.DISABLED;
@@ -74,11 +78,17 @@ public class SwerveDriveHelper {
         mTrajectoryYController.disableContinuousInput();
         mTrajectoryThetaController = ScreamUtil.createPIDController(new PIDConstants(), Constants.kSubsystemPeriodSeconds);
 
-        mVisionXController = ScreamUtil.createPIDController(SwerveConstants.visionXPIDConstants, Constants.kSubsystemPeriodSeconds);
-        mVisionXController.disableContinuousInput();
-        mVisionYController = ScreamUtil.createPIDController(SwerveConstants.visionYPIDConstants,Constants.kSubsystemPeriodSeconds);
-        mVisionYController.disableContinuousInput();
-        mVisionThetaController = ScreamUtil.createPIDController(SwerveConstants.visionThetaPIDConstants, Constants.kSubsystemPeriodSeconds);
+        mAutoPlaceXController = ScreamUtil.createPIDController(SwerveConstants.autoPlaceXPIDConstants, Constants.kSubsystemPeriodSeconds);
+        mAutoPlaceXController.disableContinuousInput();
+        mAutoPlaceYController = ScreamUtil.createPIDController(SwerveConstants.autoPlaceYPIDConstants,Constants.kSubsystemPeriodSeconds);
+        mAutoPlaceYController.disableContinuousInput();
+        mAutoPlaceThetaController = ScreamUtil.createPIDController(SwerveConstants.autoPlaceThetaPIDConstants, Constants.kSubsystemPeriodSeconds);
+        
+        mAlignSingleSubstationXController = ScreamUtil.createPIDController(SwerveConstants.alignSingleSubstationXPIDConstants, Constants.kSubsystemPeriodSeconds);
+        mAlignSingleSubstationXController.disableContinuousInput();
+        mAlignSingleSubstationYController = ScreamUtil.createPIDController(SwerveConstants.alignSingleSubstationYPIDConstants,Constants.kSubsystemPeriodSeconds);
+        mAlignSingleSubstationYController.disableContinuousInput();
+        mAlignSingleSubstationThetaController = ScreamUtil.createPIDController(SwerveConstants.alignSingleSubstationThetaPIDConstants, Constants.kSubsystemPeriodSeconds);
         
 	 	mPositionThetaController.enableContinuousInput(-Math.PI, Math.PI);
     }
@@ -228,22 +238,52 @@ public class SwerveDriveHelper {
     }
 
 
-    public SwerveModuleState[] getVisionSnapToPosition(Pose2d robotPose, Pose2d targetPose){
-        if(mControlMode != DriveMode.VISION_SNAP_TO_POSITION){
+    public SwerveModuleState[] getAutoPlacePosition(Pose2d robotPose, Pose2d targetPose){
+        if(mControlMode != DriveMode.AUTO_PLACE_POSITION){
             mRotationHelper.setOpenLoop();
         } 
-        mControlMode = DriveMode.VISION_SNAP_TO_POSITION;
+        mControlMode = DriveMode.AUTO_PLACE_POSITION;
 
         double xError = targetPose.getX()-robotPose.getX();
         double yError = targetPose.getY()-robotPose.getY();
         Rotation2d thetaError = targetPose.getRotation().minus(robotPose.getRotation());
 
-        double xFeedback = mVisionXController.calculate(-xError, 0);
-        double yFeedback = mVisionYController.calculate(-yError, 0);
-        double rotationCommand = mVisionThetaController.calculate(-thetaError.getRadians(), 0);
+        double xFeedback = mAutoPlaceXController.calculate(-xError, 0);
+        double yFeedback = mAutoPlaceYController.calculate(-yError, 0);
+        double rotationCommand = mAutoPlaceThetaController.calculate(-thetaError.getRadians(), 0);
+// todo create filter based on angle, if angle is too far off, don't move y axis.... Also make seperate modes for align with substation and place
+
+
+        //if(Math.abs(xError) > SwerveConstants.visionThresholdBeforeMoveY) yFeedback = 0; //TODO clean up vision naming convention    //Makes the robot align with the x axis before aligning with the y axis.
+        if(Math.abs(thetaError.getDegrees()) > 8){//TODO extract to constant
+            yFeedback = 0;
+            xFeedback = 0;
+        }
+        ChassisSpeeds chassisSpeeds = createChassisSpeeds(new Translation2d(xFeedback, yFeedback), rotationCommand, robotPose.getRotation(), false);
+
+        return generateModuleStatesWithKinematicsLimits(chassisSpeeds, defaultCenterOfRotation);
+    }
+
+    public SwerveModuleState[] getAlignWithSingleSubstation(Pose2d robotPose, Pose2d targetPose){
+        if(mControlMode != DriveMode.SNAP_TO_SINGLE_SUBSTATION){
+            mRotationHelper.setOpenLoop();
+        } 
+        mControlMode = DriveMode.SNAP_TO_SINGLE_SUBSTATION;
+
+        double xError = targetPose.getX()-robotPose.getX();
+        double yError = targetPose.getY()-robotPose.getY();
+        Rotation2d thetaError = targetPose.getRotation().minus(robotPose.getRotation());
+
+        double xFeedback = mAlignSingleSubstationXController.calculate(-xError, 0);
+        double yFeedback = mAlignSingleSubstationYController.calculate(-yError, 0);
+        double rotationCommand = mAlignSingleSubstationThetaController.calculate(-thetaError.getRadians(), 0);
+
 
         //if(Math.abs(xError) > SwerveConstants.visionThresholdBeforeMoveY) yFeedback = 0;     //Makes the robot align with the x axis before aligning with the y axis.
-
+        if(Math.abs(thetaError.getDegrees()) > 8){
+            yFeedback = 0;
+            xFeedback = 0;
+        }
         ChassisSpeeds chassisSpeeds = createChassisSpeeds(new Translation2d(xFeedback, yFeedback), rotationCommand, robotPose.getRotation(), false);
 
         return generateModuleStatesWithKinematicsLimits(chassisSpeeds, defaultCenterOfRotation);
@@ -257,8 +297,8 @@ public class SwerveDriveHelper {
         double xError = targetPose.getX()-robotPose.getX();
         Rotation2d rotationError = targetPose.getRotation().minus(robotPose.getRotation());
         
-        double xFeedback = mVisionXController.calculate(-xError, 0);
-        double rotationCommand = mVisionThetaController.calculate(-rotationError.getRadians(), 0);
+        double xFeedback = mAutoPlaceXController.calculate(-xError, 0);
+        double rotationCommand = mAutoPlaceThetaController.calculate(-rotationError.getRadians(), 0);
 
         ChassisSpeeds chassisSpeeds = createChassisSpeeds(new Translation2d(xFeedback, yChassisSpeed), rotationCommand, robotPose.getRotation(), false);
 

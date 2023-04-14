@@ -58,7 +58,7 @@ public class LimelightAutoScore extends ActionBase{
     @Override
     public void run() {
         mFrontLimelight.setPipeline(mPipeline);
-        mSwerve.setVisionSnap(mPlacementState);
+        mSwerve.setAutoPlace(mPlacementState);
               
         if(mNode.isCone()){
             mArm.setPlacementPosition(mLevel);
