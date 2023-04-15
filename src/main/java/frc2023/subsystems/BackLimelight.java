@@ -82,6 +82,7 @@ public class BackLimelight extends Subsystem{
         public int setPipeline = 0; // 0 - 9
         public int stream = 0; // sets stream layout if another webcam is attached
         public int snapshot = 0; // 0 - stop snapshots, 1 - 2 Hz
+        public Rotation2d thetaOffset;
     }
 
 
@@ -120,7 +121,7 @@ public class BackLimelight extends Subsystem{
         mPeriodicIO.targetArea = mNetworkTable.getEntry("ta").getDouble(0.0);
         mPeriodicIO.currentLEDMode = (int) mNetworkTable.getEntry("ledMode").getDouble(1.0);
 
-        updateOffsetsFromVisionTape();
+        updateOffsetsFromSubstationTag();
 
         mPeriodicIO.visionTimestamp = Timer.getFPGATimestamp() - mPeriodicIO.latency;//the time that the vision measurement was taken on the camera
         mPeriodicIO.lastUpdatedTimestamp = Timer.getFPGATimestamp();
@@ -160,7 +161,7 @@ public class BackLimelight extends Subsystem{
         //checks the target pose, and xOffset and yOffset from target, returns a translation2d for the robot and the stdDevs for the angle are infinite becasue we can't measure angle.
         Pose2d referencePose = PlacementConstants.singleSubstationConeRetrievalPoint.get(alliance);
         Translation2d offset = new Translation2d(-mPeriodicIO.yOffsetMeters, mPeriodicIO.xOffsetMeters);
-        Pose2d pose = new Pose2d(referencePose.getTranslation().plus(offset), mSwerve.getRobotRotation());
+        Pose2d pose = new Pose2d(referencePose.getTranslation().plus(offset), referencePose.getRotation().plus(mPeriodicIO.thetaOffset));
 
         return Optional.of(new TimestampedVisionUpdate(mPeriodicIO.visionTimestamp, pose, getSubstationTagSTD_Devs()));
     }
@@ -171,7 +172,7 @@ public class BackLimelight extends Subsystem{
     }
 
 
-    public void updateOffsetsFromVisionTape(){
+    public void updateOffsetsFromSubstationTag(){
         if(!mPeriodicIO.targetValid) return;
 
         final double limelightUp = 0.770;
@@ -180,15 +181,12 @@ public class BackLimelight extends Subsystem{
         final double limelightDistanceFromBumper = 0.587637970798052;
         final double limelightRightOffset = 0.17217;
 
+        Rotation2d angleToGoal = Rotation2d.fromDegrees(limelightPitch.getDegrees() + mPeriodicIO.targetY);
 
-        double angleToGoalDegrees = limelightPitch.getDegrees() + mPeriodicIO.targetY;
-        double angleToGoalRadians = Math.toRadians(angleToGoalDegrees);
-
-        //calculate distance
-        double distanceFromLimelightToGoalMeters = (substationUp - limelightUp)/Math.tan(angleToGoalRadians);
-        // System.out.println(distanceFromLimelightToGoalMeters);
+        double distanceFromLimelightToGoalMeters = (substationUp - limelightUp)/angleToGoal.getTan();
+        mPeriodicIO.thetaOffset = Rotation2d.fromDegrees(mPeriodicIO.targetX);
         mPeriodicIO.yOffsetMeters = distanceFromLimelightToGoalMeters - limelightDistanceFromBumper;
-        mPeriodicIO.xOffsetMeters = (Math.tan(Math.toRadians(mPeriodicIO.targetX))*distanceFromLimelightToGoalMeters)-limelightRightOffset;
+        mPeriodicIO.xOffsetMeters = (mPeriodicIO.thetaOffset.getTan()*distanceFromLimelightToGoalMeters)-limelightRightOffset;
     }
 
 

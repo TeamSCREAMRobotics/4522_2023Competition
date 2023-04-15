@@ -61,7 +61,6 @@ public class Swerve extends Subsystem{//this is the wrapper for a facade design 
 		mPoseEstimator = new PoseEstimator(SwerveConstants.stateStandardDeviations);
 
 		resetPose(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
-
 	}
 
 

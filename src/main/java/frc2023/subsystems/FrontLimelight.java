@@ -72,8 +72,9 @@ public class FrontLimelight extends Subsystem{
         public int currentLEDMode;
         public double targetX;
         public double targetY;
-        public double yOffsetMeters;
-        public double xOffsetMeters;
+        public double yVisionTapeOffsetMeters;
+        public double xVisionTapeOffsetMeters;
+        public Rotation2d visionTapeThetaOffset;
         public double targetArea;
         public boolean targetValid;
         public Optional<TimestampedVisionUpdate> robotPoseFromApriltag = Optional.empty();
@@ -207,16 +208,17 @@ public class FrontLimelight extends Subsystem{
 
         //checks the target pose, and xOffset and yOffset from target, returns a translation2d for the robot and the stdDevs for the angle are infinite becasue we can't measure angle.
         Pose2d referencePose = PlacementStates.getSwervePlacementPose(targetNode, DriverStation.getAlliance());
-        Translation2d offset = new Translation2d(mPeriodicIO.xOffsetMeters, mPeriodicIO.yOffsetMeters);
-        Pose2d pose = new Pose2d(referencePose.getTranslation().plus(offset), referencePose.getRotation());
+        Translation2d offset = new Translation2d(mPeriodicIO.xVisionTapeOffsetMeters, mPeriodicIO.yVisionTapeOffsetMeters);
+        Pose2d pose = new Pose2d(referencePose.getTranslation().plus(offset), referencePose.getRotation().plus(mPeriodicIO.visionTapeThetaOffset));
 
         return Optional.of(new TimestampedVisionUpdate(mPeriodicIO.visionTimestamp, pose, getRetroreflectiveSTD_Devs()));
     }
 
 
     public Matrix<N3, N1> getRetroreflectiveSTD_Devs(){
-        double stdDevScalar = FrontLimelightConstants.retroReflectiveTAToSTDDevScalarMap.get(mPeriodicIO.targetArea);
-        return FrontLimelightConstants.retroReflectiveMeasurementStandardDeviations.times(stdDevScalar);
+        double stdDevs = FrontLimelightConstants.retroReflectiveTAToTranslationSTDDevScalarMap.get(mPeriodicIO.targetArea);
+        // double angleSTDDevs = FrontLimelightConstants.retroReflectiveTAToAngleSTDDevScalarMap.get(mPeriodicIO.targetArea);//TODO either fix or remove, right now the scalar is 1 so it doesnt matter anyways
+        return FrontLimelightConstants.retroReflectiveMeasurementStandardDeviations.times(stdDevs);
     }
 
 
@@ -251,19 +253,18 @@ public class FrontLimelight extends Subsystem{
     if(!mPeriodicIO.targetValid) return;
         final double limelightUp = 0.770;//TODO extract to constants
         final double visionTapeUp = 0.6096;
-        final Rotation2d limelightPitch = Rotation2d.fromDegrees(0.0000001);//TODO clean up jank NaN fix
+        final Rotation2d limelightPitch = Rotation2d.fromDegrees(0.0000001);//TODO clean up this jank NaN fix
         final double limelightDistanceFromBumper = 0.102+0.4315734464756843;
         final double limelightRightOffset = 0.17217-0.3-0.0535;
 
 
-        double angleToGoalDegrees = limelightPitch.getDegrees() + mPeriodicIO.targetY;
-        double angleToGoalRadians = Math.toRadians(angleToGoalDegrees);
+        Rotation2d angleToGoal = Rotation2d.fromDegrees(limelightPitch.getDegrees() + mPeriodicIO.targetY);
 
-        //calculate distance
-        double distanceFromLimelightToGoalMeters = (visionTapeUp - limelightUp)/Math.tan(angleToGoalRadians);
-        // System.out.println(distanceFromLimelightToGoalMeters);
-        mPeriodicIO.yOffsetMeters = distanceFromLimelightToGoalMeters - limelightDistanceFromBumper;
-        mPeriodicIO.xOffsetMeters = (Math.tan(Math.toRadians(mPeriodicIO.targetX))*distanceFromLimelightToGoalMeters)-limelightRightOffset;
+        double distanceFromLimelightToGoalMeters = (visionTapeUp - limelightUp)/angleToGoal.getTan();
+        mPeriodicIO.visionTapeThetaOffset = Rotation2d.fromDegrees(mPeriodicIO.targetX);
+        mPeriodicIO.yVisionTapeOffsetMeters = distanceFromLimelightToGoalMeters - limelightDistanceFromBumper;
+        System.out.println("robotThetaOffset: " + mPeriodicIO.visionTapeThetaOffset.getDegrees());//TODO test back LL as well
+        mPeriodicIO.xVisionTapeOffsetMeters = (mPeriodicIO.visionTapeThetaOffset.getTan()*distanceFromLimelightToGoalMeters)-limelightRightOffset;
     }
 
 

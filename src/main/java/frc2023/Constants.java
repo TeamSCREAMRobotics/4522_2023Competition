@@ -224,7 +224,7 @@ public class Constants {
 
 
 		public static class FrontLimelightConstants{
-			public static final Matrix<N3, N1> retroReflectiveMeasurementStandardDeviations = VecBuilder.fill(0.0004, 0.0004, Integer.MAX_VALUE);// x, y, theta... We aren't using theta in the vision measurements, so put really high stddevs for it as a workaround
+			public static final Matrix<N3, N1> retroReflectiveMeasurementStandardDeviations = VecBuilder.fill(0.0004, 0.0004, 0.05);// x, y, theta... We aren't using theta in the vision measurements, so put really high stddevs for it as a workaround
 			public static final int kAprilTagPipeline = 0;
 			public static final int kConeLeftPipeline = 1;
 			public static final int kConeRightPipeline = 2;
@@ -276,7 +276,8 @@ public class Constants {
 			public static final InterpolatingTreeMap<Double, Double> aprilTagTAToAngleSTDDevs = new InterpolatingTreeMap<Double, Double>();
 
 
-			public static final InterpolatingTreeMap<Double, Double> retroReflectiveTAToSTDDevScalarMap = new InterpolatingTreeMap<Double, Double>();
+			public static final InterpolatingTreeMap<Double, Double> retroReflectiveTAToTranslationSTDDevScalarMap = new InterpolatingTreeMap<Double, Double>();
+			public static final InterpolatingTreeMap<Double, Double> retroReflectiveTAToAngleSTDDevScalarMap = new InterpolatingTreeMap<Double, Double>();
 
 			static{
 				aprilTagTAToTranslationSTDDevs.put(maxApriltagTA, 0.05);//TODO figure out how to actually measure stdDevs. These are mostly guesses to make it work.
@@ -288,7 +289,8 @@ public class Constants {
 				aprilTagTAToAngleSTDDevs.put(maxApriltagTA, 0.01);
 
 
-				retroReflectiveTAToSTDDevScalarMap.put(maxRetroReflectiveTA, 1.0);//we default the scaling to be 1 for now
+				retroReflectiveTAToTranslationSTDDevScalarMap.put(maxRetroReflectiveTA, 1.0);//we default the scaling to be 1 for now
+				retroReflectiveTAToAngleSTDDevScalarMap.put(maxRetroReflectiveTA, 1.0);
 			}
 		}
 
@@ -296,7 +298,7 @@ public class Constants {
 			public static final int kSubstationTagPipeline = 7;
 			public static final int kRobotBootedUpPipeline = 9;
 
-			public static final Matrix<N3, N1> substationTagMeasurementStandardDeviations = VecBuilder.fill(0.0004, 0.0004, Integer.MAX_VALUE);
+			public static final Matrix<N3, N1> substationTagMeasurementStandardDeviations = VecBuilder.fill(0.0004, 0.0004, 0.05);
 
 
 			public static final double kMaxAprilTagTA = 2.027;//TODO maybe remove since we don't use apriltags with back limelight anymore
