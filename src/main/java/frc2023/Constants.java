@@ -38,8 +38,8 @@ public class Constants {
 	public static final double kUpdatePIDsFromShuffleboardPeriodSeconds = 3.00;
 	public static final int kUpdatePIDsFromShuffleboardPeriodMilliseconds = (int) (kUpdatePIDsFromShuffleboardPeriodSeconds * 1000.0);
 
-    public static final boolean includeDebugTabs = true;
-	public static final boolean updatePIDsFromShuffleboard = true;
+    public static final boolean includeDebugTabs = false;
+	public static final boolean updatePIDsFromShuffleboard = false;
 	public static final boolean outputTelemetry = true;
 
 	public static class ControlBoardConstants {
@@ -180,7 +180,7 @@ public class Constants {
 		public static final MirroredTranslation gamePiece4ShootPathLocation9 = FieldConstants.stagingMark4.plus(new Translation2d(distanceForCubeAutoIntake, Rotation2d.fromDegrees(-70)));
 		
 		public static final MirroredPose singleSubstationConeRetrievalPoint = new MirroredPose(0.35, 5.575, Rotation2d.fromDegrees(180));
-		public static final MirroredTranslation swerveZeroBeforeSubstationPoint = new MirroredTranslation(0.8, 5.575);
+		public static final MirroredTranslation swerveZeroBeforeSubstationPoint = new MirroredTranslation(new Translation2d(0.8, 5.575), new Translation2d(0.3, 0), new Translation2d());//this offset is legitimately there for a reason, since the limelight is not centered on the robot
 
 		static MirroredPose[] swervePlacementStates = new MirroredPose[]{
 			new MirroredPose(FieldConstants.node1X, FieldConstants.coneSwervePlacementY, SwerveConstants.robotForwardAngle),
@@ -224,7 +224,7 @@ public class Constants {
 
 
 		public static class FrontLimelightConstants{
-			public static final Matrix<N3, N1> retroReflectiveMeasurementStandardDeviations = VecBuilder.fill(0.0004, 0.0004, 0.05);// x, y, theta... We aren't using theta in the vision measurements, so put really high stddevs for it as a workaround
+			public static final Matrix<N3, N1> retroReflectiveMeasurementStandardDeviations = VecBuilder.fill(0.0004, 0.0004, Integer.MAX_VALUE);// x, y, theta... We aren't using theta in the vision measurements, so we put really high stddevs for it as a workaround
 			public static final int kAprilTagPipeline = 0;
 			public static final int kConeLeftPipeline = 1;
 			public static final int kConeRightPipeline = 2;
@@ -286,7 +286,7 @@ public class Constants {
 				aprilTagTAToTranslationSTDDevs.put(0.05, 5.0);
 				aprilTagTAToTranslationSTDDevs.put(0.0, Double.MAX_VALUE);
 
-				aprilTagTAToAngleSTDDevs.put(maxApriltagTA, 0.01);
+				aprilTagTAToAngleSTDDevs.put(maxApriltagTA, 0.1);
 
 
 				retroReflectiveTAToTranslationSTDDevScalarMap.put(maxRetroReflectiveTA, 1.0);//we default the scaling to be 1 for now
@@ -298,7 +298,7 @@ public class Constants {
 			public static final int kSubstationTagPipeline = 7;
 			public static final int kRobotBootedUpPipeline = 9;
 
-			public static final Matrix<N3, N1> substationTagMeasurementStandardDeviations = VecBuilder.fill(0.0004, 0.0004, 0.05);
+			public static final Matrix<N3, N1> substationTagMeasurementStandardDeviations = VecBuilder.fill(0.0004, 0.0004, Integer.MAX_VALUE);
 
 
 			public static final double kMaxAprilTagTA = 2.027;//TODO maybe remove since we don't use apriltags with back limelight anymore
@@ -503,8 +503,13 @@ public class Constants {
 
 			public static final double gearRatio =  90.0/horizonalSensorPosition;
 
-			public static final PIDConstants kRodPID = new PIDConstants(6, 0, 0);
-			public static final MotionMagicConstants motionMagicConstants = new MotionMagicConstants(500, 400, 0);
+			public static final PIDConstants kRodOutPID = new PIDConstants(6, 0, 0);
+			public static final MotionMagicConstants outMotionMagicConstants = new MotionMagicConstants(2000, 1600, 0);
+			
+			public static final PIDConstants kRodInPID = new PIDConstants(1, 0, 0);
+			public static final MotionMagicConstants inMotionMagicConstants = new MotionMagicConstants(500, 1600, 0);
+
+
 			public static final double kRodGravityFeedforward = 0.02;
 		}
 	}
@@ -619,20 +624,20 @@ public class Constants {
 				SwerveConstants.slowSpeedConfig.kAutoMaxSpeed, SwerveConstants.slowSpeedConfig.kAutoMaxAcceleration)
 				.addConstraint(slowSpeedConstraint);
 
-		public static final double kAutoSlowdownForCableBumpRadius = 0.5;// meters
+		public static final double kAutoSlowdownForCableBumpRadius = 0.4;// meters
 
 		public static final TrajectoryConstraint nearCableBumpConstraint = new TrajectoryConstraint() {
 
 			@Override
 			public double getMaxVelocityMetersPerSecond(Pose2d poseMeters, double curvatureRadPerMeter,
 					double velocityMetersPerSecond) {
-				return 1.5;
+				return 1.35;
 			}
 
 			@Override
 			public MinMax getMinMaxAccelerationMetersPerSecondSq(Pose2d poseMeters, double curvatureRadPerMeter,
 					double velocityMetersPerSecond) {
-				return new MinMax(-1.5, 1.75);
+				return new MinMax(-3.0, 3.0);
 			}
 		};
 
@@ -824,19 +829,19 @@ public class Constants {
 				Ports.module1IDs);
 
 		public static final HotSwapConstants moduleID2Constants = new HotSwapConstants(
-				Rotation2d.fromDegrees(-141.8484375 + 180),
+				Rotation2d.fromDegrees(128.056640625-270),
 				Ports.module2IDs);
 
 		public static final HotSwapConstants moduleID3Constants = new HotSwapConstants(
-				Rotation2d.fromDegrees(-50.17851562499999),
+				Rotation2d.fromDegrees(-49.658203125-90-90),
 				Ports.module3IDs);
 
 		public static final HotSwapConstants moduleID4Constants = new HotSwapConstants(
-				Rotation2d.fromDegrees(117.06679687499998),
+				Rotation2d.fromDegrees(117.59765625),
 				Ports.module4IDs);
 
 		public static final HotSwapConstants moduleID5Constants = new HotSwapConstants(
-				Rotation2d.fromDegrees(-167.00 + 180),
+				Rotation2d.fromDegrees(103.798828125-180+90),
 				Ports.module5IDs);
 
 		public static final HotSwapConstants moduleID6Constants = new HotSwapConstants(
@@ -853,9 +858,9 @@ public class Constants {
 	}
 
 	public static class SelectedHotswapModules{//This is where we select which modules we are using
-		public static final HotSwapConstants selectedFLModule = HotSwapModules.moduleID8Constants;
-		public static final HotSwapConstants selectedBLModule = HotSwapModules.moduleID6Constants;
-		public static final HotSwapConstants selectedBRModule = HotSwapModules.moduleID7Constants;
-		public static final HotSwapConstants selectedFRModule = HotSwapModules.moduleID1Constants;
+		public static final HotSwapConstants selectedFLModule = HotSwapModules.moduleID4Constants;
+		public static final HotSwapConstants selectedBLModule = HotSwapModules.moduleID2Constants;
+		public static final HotSwapConstants selectedBRModule = HotSwapModules.moduleID3Constants;
+		public static final HotSwapConstants selectedFRModule = HotSwapModules.moduleID5Constants;
 	}
 }

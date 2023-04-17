@@ -53,9 +53,10 @@ public class Intake extends Subsystem{
 		mRodMotor = mDevices.dRodMotor;
 		mBeamBreak = mDevices.dBeamBreak;
 
-        DeviceUtil.configTalonSRXPID(mRodMotor, RodConstants.kRodPID, true);
-        DeviceUtil.configTalonSRXMotionMagic(mRodMotor, RodConstants.motionMagicConstants, true);
+        DeviceUtil.configTalonSRXPID(mRodMotor, RodConstants.kRodOutPID, true, 0);
+        DeviceUtil.configTalonSRXPID(mRodMotor, RodConstants.kRodInPID, true, 1);
 
+        DeviceUtil.configTalonSRXMotionMagic(mRodMotor, RodConstants.outMotionMagicConstants, true);
 		mRodMotor.configForwardSoftLimitEnable(true);
 		mRodMotor.configReverseSoftLimitEnable(true);
 	}
@@ -550,7 +551,21 @@ public class Intake extends Subsystem{
 	}
 
 	private void setRodExtended(boolean extended){
-		// mRodMotor.set(ControlMode.MotionMagic, (extended? RodConstants.targetOutPosition : RodConstants.targetInPosition), DemandType.ArbitraryFeedForward, RodConstants.kRodGravityFeedforward*getRodAngle().getSin());
+		if(extended){
+			mRodMotor.selectProfileSlot(0, 0);
+			mRodMotor.configMotionAcceleration(RodConstants.outMotionMagicConstants.acceleration);//TODO make htis a toggle
+			mRodMotor.configMotionCruiseVelocity(RodConstants.outMotionMagicConstants.cruiseVelocity);
+			mRodMotor.configMotionSCurveStrength(RodConstants.outMotionMagicConstants.sCurveStrength);
+
+
+		} else{
+			mRodMotor.selectProfileSlot(0, 0);
+
+			mRodMotor.configMotionAcceleration(RodConstants.inMotionMagicConstants.acceleration);
+			mRodMotor.configMotionCruiseVelocity(RodConstants.inMotionMagicConstants.cruiseVelocity);
+			mRodMotor.configMotionSCurveStrength(RodConstants.inMotionMagicConstants.sCurveStrength);
+		}
+		mRodMotor.set(ControlMode.MotionMagic, (extended? RodConstants.targetOutPosition : RodConstants.targetInPosition), DemandType.ArbitraryFeedForward, RodConstants.kRodGravityFeedforward*getRodAngle().getSin());
 	}
 
 	private double rodAngleToSensorPosition(Rotation2d angle){

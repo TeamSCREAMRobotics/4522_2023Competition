@@ -209,7 +209,7 @@ public class FrontLimelight extends Subsystem{
         //checks the target pose, and xOffset and yOffset from target, returns a translation2d for the robot and the stdDevs for the angle are infinite becasue we can't measure angle.
         Pose2d referencePose = PlacementStates.getSwervePlacementPose(targetNode, DriverStation.getAlliance());
         Translation2d offset = new Translation2d(mPeriodicIO.xVisionTapeOffsetMeters, mPeriodicIO.yVisionTapeOffsetMeters);
-        Pose2d pose = new Pose2d(referencePose.getTranslation().plus(offset), referencePose.getRotation().plus(mPeriodicIO.visionTapeThetaOffset));
+        Pose2d pose = new Pose2d(referencePose.getTranslation().plus(offset), referencePose.getRotation().minus(mPeriodicIO.visionTapeThetaOffset));
 
         return Optional.of(new TimestampedVisionUpdate(mPeriodicIO.visionTimestamp, pose, getRetroreflectiveSTD_Devs()));
     }
@@ -263,8 +263,9 @@ public class FrontLimelight extends Subsystem{
         double distanceFromLimelightToGoalMeters = (visionTapeUp - limelightUp)/angleToGoal.getTan();
         mPeriodicIO.visionTapeThetaOffset = Rotation2d.fromDegrees(mPeriodicIO.targetX);
         mPeriodicIO.yVisionTapeOffsetMeters = distanceFromLimelightToGoalMeters - limelightDistanceFromBumper;
-        System.out.println("robotThetaOffset: " + mPeriodicIO.visionTapeThetaOffset.getDegrees());//TODO test back LL as well
         mPeriodicIO.xVisionTapeOffsetMeters = (mPeriodicIO.visionTapeThetaOffset.getTan()*distanceFromLimelightToGoalMeters)-limelightRightOffset;
+        // System.out.println(" x: " + mPeriodicIO.xVisionTapeOffsetMeters + "  y: " + mPeriodicIO.yVisionTapeOffsetMeters + " theta: " + mPeriodicIO.visionTapeThetaOffset);
+
     }
 
 

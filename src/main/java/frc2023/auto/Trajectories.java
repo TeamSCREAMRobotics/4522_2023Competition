@@ -425,5 +425,4 @@ public class Trajectories {
 		   return TrajectoryGenerator.generateTrajectory(waypoints, speedConfig);
 		}
 	};
-
 }

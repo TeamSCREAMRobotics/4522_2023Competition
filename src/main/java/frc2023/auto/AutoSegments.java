@@ -238,10 +238,10 @@ public class AutoSegments {
 
 
 
-    public static ActionBase gamePiece3ToScoreNode8(Alliance alliance){
+    public static ActionBase gamePiece3ToScoreNode8(Alliance alliance, TrajectorySpeed speed){
         return new SeriesAction(
             new RaceAction(   
-                new FollowTrajectoryAction(Trajectories.gamePiece3ToNode8.getTrajectory(alliance, TrajectorySpeed.SLOW), SwerveConstants.robotForwardAngle, 2.3),
+                new FollowTrajectoryAction(Trajectories.gamePiece3ToNode8.getTrajectory(alliance, speed), SwerveConstants.robotForwardAngle, 2.3),
                 new RunArmAction(ArmConstants.Setpoints.kAutoWithGamePiece),
                 new SeriesAction(
                     new RaceAction(

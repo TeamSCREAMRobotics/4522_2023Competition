@@ -10,23 +10,29 @@ import com.team4522.lib.pid.PIDConstants;
 
 public class DeviceUtil {
     
-    public static void configTalonFXPID(TalonFX motor, PIDConstants pidConstants, boolean printInfo){
+    public static void configTalonFXPID(TalonFX motor, PIDConstants pidConstants, boolean printInfo, int slotID){
 		DeviceConfiguration deviceConfig = new DeviceConfiguration() {
             @Override
             public boolean configureSettings() {
                 return ErrorChecker.hasConfiguredWithoutErrors(
-                    motor.config_kP(0, pidConstants.kP()),
-					motor.config_kI(0, pidConstants.kI()),
-					motor.config_kD(0, pidConstants.kD()),
-					motor.config_kF(0, pidConstants.kF()),
+                    motor.config_kP(slotID, pidConstants.kP()),
+					motor.config_kI(slotID, pidConstants.kI()),
+					motor.config_kD(slotID, pidConstants.kD()),
+					motor.config_kF(slotID, pidConstants.kF()),
 					motor.config_IntegralZone(0, pidConstants.integralZone()),
-					motor.configMaxIntegralAccumulator(0, pidConstants.maxIntegralAccumulator()),
-					motor.configClosedLoopPeakOutput(0, pidConstants.maxOutput())
+					motor.configMaxIntegralAccumulator(slotID, pidConstants.maxIntegralAccumulator()),
+					motor.configClosedLoopPeakOutput(slotID, pidConstants.maxOutput())
                 );
             }
         };
         ErrorChecker.configureDevice(deviceConfig, "TalonFXPID", printInfo);
 	}
+
+	    
+    public static void configTalonFXPID(TalonFX motor, PIDConstants pidConstants, boolean printInfo){
+		configTalonFXPID(motor, pidConstants, printInfo, 0);
+	}
+
 
 	public static void configTalonFXMotionMagic(TalonFX motor, MotionMagicConstants motionMagicConstants, boolean printInfo){
 		DeviceConfiguration deviceConfig = new DeviceConfiguration() {
@@ -57,22 +63,27 @@ public class DeviceUtil {
         ErrorChecker.configureDevice(deviceConfig, "TalonSRXMotionMagic", printInfo);
 	}
     
-    public static void configTalonSRXPID(TalonSRX motor, PIDConstants pidConstants, boolean printInfo){
+    public static void configTalonSRXPID(TalonSRX motor, PIDConstants pidConstants, boolean printInfo, int slotID){
 		DeviceConfiguration deviceConfig = new DeviceConfiguration() {
             @Override
             public boolean configureSettings() {
                 return ErrorChecker.hasConfiguredWithoutErrors(
-					motor.config_kP(0, pidConstants.kP()),
-					motor.config_kI(0, pidConstants.kI()),
-					motor.config_kD(0, pidConstants.kD()),
-					motor.config_kF(0, pidConstants.kF()),
-					motor.config_IntegralZone(0, pidConstants.integralZone()),
-					motor.configMaxIntegralAccumulator(0, pidConstants.maxIntegralAccumulator()),
-					motor.configClosedLoopPeakOutput(0, pidConstants.maxOutput())
+					motor.config_kP(slotID, pidConstants.kP()),
+					motor.config_kI(slotID, pidConstants.kI()),
+					motor.config_kD(slotID, pidConstants.kD()),
+					motor.config_kF(slotID, pidConstants.kF()),
+					motor.config_IntegralZone(slotID, pidConstants.integralZone()),
+					motor.configMaxIntegralAccumulator(slotID, pidConstants.maxIntegralAccumulator()),
+					motor.configClosedLoopPeakOutput(slotID, pidConstants.maxOutput())
                 );
             }
         };
         ErrorChecker.configureDevice(deviceConfig, "TalonSRXPID", printInfo);
+	}
+
+
+    public static void configTalonSRXPID(TalonSRX motor, PIDConstants pidConstants, boolean printInfo){
+		configTalonSRXPID(motor, pidConstants, printInfo, 0);
 	}
 
 	public static void configCANSparkMaxPID(CANSparkMax motor, PIDConstants pidConstants, boolean printInfo){

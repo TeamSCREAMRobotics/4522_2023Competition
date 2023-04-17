@@ -47,7 +47,7 @@ public class AutoAlignWithSingleSubstationAction extends ActionBase{
         }
         mGripper.open();
         if(mNotZeroedYet && mZeroOnStart && mBackLimelight.getTargetValid()){
-            mSwerve.resetTranslation(PlacementConstants.swerveZeroBeforeSubstationPoint.getPoint(mAlliance));//TODO make different for differnet alliances
+            mSwerve.resetTranslation(PlacementConstants.swerveZeroBeforeSubstationPoint.getPoint(mAlliance));
             mNotZeroedYet = false;
         }
 

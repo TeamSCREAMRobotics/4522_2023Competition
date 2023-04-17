@@ -161,7 +161,7 @@ public class BackLimelight extends Subsystem{
         //checks the target pose, and xOffset and yOffset from target, returns a translation2d for the robot and the stdDevs for the angle are infinite becasue we can't measure angle.
         Pose2d referencePose = PlacementConstants.singleSubstationConeRetrievalPoint.get(alliance);
         Translation2d offset = new Translation2d(-mPeriodicIO.yOffsetMeters, mPeriodicIO.xOffsetMeters);
-        Pose2d pose = new Pose2d(referencePose.getTranslation().plus(offset), referencePose.getRotation().plus(mPeriodicIO.thetaOffset));
+        Pose2d pose = new Pose2d(referencePose.getTranslation().plus(offset), referencePose.getRotation().minus(mPeriodicIO.thetaOffset));
 
         return Optional.of(new TimestampedVisionUpdate(mPeriodicIO.visionTimestamp, pose, getSubstationTagSTD_Devs()));
     }

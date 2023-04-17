@@ -251,6 +251,26 @@ public class AutoRoutines {
         );
     }
 
+    
+    public static ActionBase start9_1Cone_2Cube(Alliance alliance){
+        return new SeriesAction(
+            new ResetRobotPoseAction(PlacementStates.getSwervePlacementPose(Node.NODE9, alliance)),
+            new ArmAutoPlaceAction(PlacementStates.getArmPlacementStateForAuto(Level.TOP)),
+            AutoSegments.node9ToGamePiece4(alliance, TrajectorySpeed.MEDIUM, false),
+            AutoSegments.gamePiece4ToScoreNode8FAST(alliance),
+            AutoSegments.node8ToGamePiece3(alliance, false),
+            AutoSegments.gamePiece3ToScoreNode8(alliance, TrajectorySpeed.FAST)
+        );
+    }
+
+      
+    public static ActionBase start9_1Cone_2Cube_CoastBack(Alliance alliance){
+        return new SeriesAction(
+            start9_1Cone_2Cube(alliance),
+            AutoSegments.coastBack(alliance)
+        );
+    }
+
 
     public static ActionBase start9_1Cone_1Cube_GrabCubeDontShoot(Alliance alliance){
         return new SeriesAction(
