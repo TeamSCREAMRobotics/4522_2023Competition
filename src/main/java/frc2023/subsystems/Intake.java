@@ -96,6 +96,7 @@ public class Intake extends Subsystem{
 		public double lowerConveyorPercentOutput = 0.0;
 		public double shooterPercentOutput = 0.0;
 		public boolean rodExtended = false;
+		public boolean rodExtendedLastLoop = false;
 	}
 
 //////////////////////////// Methods that set the intake state ////////////////////////////////////////////////////////////////////////
@@ -547,24 +548,28 @@ public class Intake extends Subsystem{
 		}
 
 		mPeriodicIO.lastState = mPeriodicIO.state;
+		mPeriodicIO.rodExtendedLastLoop = mPeriodicIO.rodExtended;
 		lastTimeStamp = timeStamp;
 	}
 
 	private void setRodExtended(boolean extended){
-		if(extended){
-			mRodMotor.selectProfileSlot(0, 0);
-			mRodMotor.configMotionAcceleration(RodConstants.outMotionMagicConstants.acceleration);//TODO make htis a toggle
-			mRodMotor.configMotionCruiseVelocity(RodConstants.outMotionMagicConstants.cruiseVelocity);
-			mRodMotor.configMotionSCurveStrength(RodConstants.outMotionMagicConstants.sCurveStrength);
-
-
-		} else{
-			mRodMotor.selectProfileSlot(0, 0);
-
-			mRodMotor.configMotionAcceleration(RodConstants.inMotionMagicConstants.acceleration);
-			mRodMotor.configMotionCruiseVelocity(RodConstants.inMotionMagicConstants.cruiseVelocity);
-			mRodMotor.configMotionSCurveStrength(RodConstants.inMotionMagicConstants.sCurveStrength);
+		if(extended != mPeriodicIO.rodExtendedLastLoop){//toggle, if rod extension changes, reconfigure the motionmagic. It would be better if the rod had an auxilary MotionMagic slot in addition to its auxilary PID
+			if(extended){
+				mRodMotor.selectProfileSlot(0, 0);
+				mRodMotor.configMotionAcceleration(RodConstants.outMotionMagicConstants.acceleration);//TODO make htis a toggle
+				mRodMotor.configMotionCruiseVelocity(RodConstants.outMotionMagicConstants.cruiseVelocity);
+				mRodMotor.configMotionSCurveStrength(RodConstants.outMotionMagicConstants.sCurveStrength);
+	
+	
+			} else{
+				mRodMotor.selectProfileSlot(1, 0);
+	
+				mRodMotor.configMotionAcceleration(RodConstants.inMotionMagicConstants.acceleration);
+				mRodMotor.configMotionCruiseVelocity(RodConstants.inMotionMagicConstants.cruiseVelocity);
+				mRodMotor.configMotionSCurveStrength(RodConstants.inMotionMagicConstants.sCurveStrength);
+			}
 		}
+	
 		mRodMotor.set(ControlMode.MotionMagic, (extended? RodConstants.targetOutPosition : RodConstants.targetInPosition), DemandType.ArbitraryFeedForward, RodConstants.kRodGravityFeedforward*getRodAngle().getSin());
 	}
 
@@ -586,6 +591,14 @@ public class Intake extends Subsystem{
 	@Override
 	public void outputTelemetry() {
 
+	}
+
+	public boolean getRodExtended(){
+		return mPeriodicIO.rodExtendedLastLoop;
+	}
+
+	public double getRodRawPosition(){
+		return mRodMotor.getSelectedSensorPosition();
 	}
 
 
@@ -635,5 +648,9 @@ public class Intake extends Subsystem{
 
 	public void zeroRodMotor(){
 		mRodMotor.setSelectedSensorPosition(RodConstants.startSensorPosition);
+	}
+
+	public void setRodMotorPosition(int position){
+		mRodMotor.setSelectedSensorPosition(position);
 	}
 }

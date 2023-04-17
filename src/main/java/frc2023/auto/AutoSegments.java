@@ -246,14 +246,14 @@ public class AutoSegments {
                 new SeriesAction(
                     new RaceAction(
                         new RunIntakeAction(IntakeState.DISABLED),
-                        new WaitUntilTrajectoryProgressAction(.70)                        
+                        new WaitUntilTrajectoryProgressAction(.83)                        
                     ),
                     new RunIntakeAction(IntakeState.SHOOT_CUBE_MID_AUTO)
                 )
             ),
             new RaceAction(
                 new RunIntakeAction(IntakeState.SHOOT_CUBE_MID_AUTO),
-                new WaitAction(1)
+                new WaitAction(0.5)
             ),
             new SetIntakeAction(IntakeState.DISABLED)
         );

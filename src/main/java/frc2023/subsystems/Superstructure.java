@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc2023.PlacementStates;
 import frc2023.Constants.ControlBoardConstants;
 import frc2023.Constants.SwerveConstants;
+import frc2023.Constants.IntakeConstants.RodConstants;
 import frc2023.PlacementStates.Level;
 import frc2023.PlacementStates.Node;
 import frc2023.auto.actions.autonomous.AutoAlignWithSingleSubstationAction;
@@ -242,6 +243,12 @@ public class Superstructure {
 			}
 			if(mControlBoard.getZeroTelescope()){
 				mArm.zeroTelescope();
+			}
+
+			if(mControlBoard.getZeroRodOut()){
+				mIntake.setRodMotorPosition(RodConstants.targetOutPosition);
+			} else if(mControlBoard.getZeroRodIn()){
+				mIntake.setRodMotorPosition(RodConstants.targetInPosition);
 			}
 
 

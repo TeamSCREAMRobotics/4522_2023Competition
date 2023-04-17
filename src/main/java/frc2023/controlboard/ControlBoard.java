@@ -333,4 +333,14 @@ public class ControlBoard {
 	public boolean getOverrideAutoPlaceGripper(){
 		return mButtonboard.getRawSwitch(4);
 	}
+
+
+    public boolean getZeroRodIn() {
+        return mManualController.getButton(Button.X);
+    }
+
+
+    public boolean getZeroRodOut() {
+        return mManualController.getButton(Button.B);
+    }
 }

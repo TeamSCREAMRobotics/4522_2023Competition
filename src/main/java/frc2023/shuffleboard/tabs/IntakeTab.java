@@ -24,6 +24,10 @@ public class IntakeTab extends ShuffleboardTabBase{
     private GenericPublisher mRollerSpeed;
     private GenericPublisher mUpperConveyorSpeed;
     private GenericPublisher mLowerConveyorSpeed;
+
+    
+    private GenericPublisher mRodExtended;
+    private GenericPublisher mRodRawPosition;
     
     @Override
     public void createEntries() {
@@ -34,6 +38,9 @@ public class IntakeTab extends ShuffleboardTabBase{
         
         mUpperConveyorSpeed = createNumberEntry("Upper Conveyor Speed", 0.0);
         mLowerConveyorSpeed = createNumberEntry("Lower Conveyor Speed", 0.0);
+
+        mRodExtended = createBooleanEntry("Rod Extened", false);
+        mRodRawPosition = createNumberEntry("Rod Raw Position", 0);
     }
 
     @Override
@@ -43,5 +50,7 @@ public class IntakeTab extends ShuffleboardTabBase{
         mRollerSpeed.setDouble(mIntake.getRollerSpeed());
         mUpperConveyorSpeed.setDouble(mIntake.getUpperConveyorSpeed());
         mLowerConveyorSpeed.setDouble(mIntake.getLowerConveyorSpeed());
+        mRodExtended.setBoolean(mIntake.getRodExtended());
+        mRodRawPosition.setDouble(mIntake.getRodRawPosition());
     }
 }

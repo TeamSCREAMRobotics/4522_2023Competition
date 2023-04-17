@@ -38,7 +38,7 @@ public class Constants {
 	public static final double kUpdatePIDsFromShuffleboardPeriodSeconds = 3.00;
 	public static final int kUpdatePIDsFromShuffleboardPeriodMilliseconds = (int) (kUpdatePIDsFromShuffleboardPeriodSeconds * 1000.0);
 
-    public static final boolean includeDebugTabs = false;
+    public static final boolean includeDebugTabs = true;
 	public static final boolean updatePIDsFromShuffleboard = false;
 	public static final boolean outputTelemetry = true;
 
@@ -507,8 +507,7 @@ public class Constants {
 			public static final MotionMagicConstants outMotionMagicConstants = new MotionMagicConstants(2000, 1600, 0);
 			
 			public static final PIDConstants kRodInPID = new PIDConstants(1, 0, 0);
-			public static final MotionMagicConstants inMotionMagicConstants = new MotionMagicConstants(500, 1600, 0);
-
+			public static final MotionMagicConstants inMotionMagicConstants = new MotionMagicConstants(500, 800, 0);
 
 			public static final double kRodGravityFeedforward = 0.02;
 		}
@@ -624,7 +623,7 @@ public class Constants {
 				SwerveConstants.slowSpeedConfig.kAutoMaxSpeed, SwerveConstants.slowSpeedConfig.kAutoMaxAcceleration)
 				.addConstraint(slowSpeedConstraint);
 
-		public static final double kAutoSlowdownForCableBumpRadius = 0.4;// meters
+		public static final double kAutoSlowdownForCableBumpRadius = 0.35;// meters
 
 		public static final TrajectoryConstraint nearCableBumpConstraint = new TrajectoryConstraint() {
 
@@ -715,7 +714,7 @@ public class Constants {
 		public final MotionMagicConstants steerMotionMagicConstants = new MotionMagicConstants(kMaxDriveVelocity * 0.8,
 				kMaxDriveVelocity / 0.3, 1);
 		public final Rotation2d kAngleOnTargetThreshold = Rotation2d.fromDegrees(0.5);
-		public static final double kDriveSlewRate = 18.0;
+		public static final double kDriveSlewRate = 12.0;
 
 		public enum ModuleLocation {
 			FL, BL, BR, FR

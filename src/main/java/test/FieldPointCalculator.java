@@ -12,12 +12,18 @@ public class FieldPointCalculator {
     public static final Translation2d fieldSize = new Translation2d(8.0, 16.51);
     
     public static void main(String[] args) {
-        System.out.println(convertPathplannerCoordsToScreamCoords(new Translation2d(5.14, 0.66)));
+        // System.out.println(convertScreamCoordsToPathPlannerCoordsBlue(new Translation2d()));
+        System.out.println(convertPathplannerCoordsToScreamCoords(new Translation2d(5.29, 0.97)));
     }
 
 
     public static Translation2d convertPathplannerCoordsToScreamCoords(Translation2d pathplannerCoords){
-        return new Translation2d(8.0-pathplannerCoords.getY(), pathplannerCoords.getX()-(fieldSize.getY()/2.0));
+        return new Translation2d(fieldSize.getX()-pathplannerCoords.getY(), pathplannerCoords.getX()-(fieldSize.getY()/2.0));
     }
+
+    public static Translation2d convertScreamCoordsToPathPlannerCoordsBlue(Translation2d screamCoords){//inverse function of pathplannerToScreamCoords
+        return new Translation2d(screamCoords.getY()+(fieldSize.getY()/2), fieldSize.getX()-screamCoords.getX());
+    }
+
 
 }
