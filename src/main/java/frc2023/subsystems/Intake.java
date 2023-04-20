@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
+import frc2023.Constants;
 import frc2023.Constants.*;
 import frc2023.Constants.IntakeConstants.ConveyorConstants;
 import frc2023.Constants.IntakeConstants.LowerConveyorConstants;
@@ -381,15 +382,18 @@ public class Intake extends Subsystem{
 				mPeriodicIO.rodExtended = false;
 
 				if(wheelsCanRun){
-					// mPeriodicIO.rollerPercentOutput = TestTab.getInstance().shootingSpeedRoller.getDouble(0);//we use these instead if we want to tune values from shuffleboard. In future years, we should have a better tuning setup.
-					// mPeriodicIO.upperConveyorPercentOutput = TestTab.getInstance().shootingSpeedTop.getDouble(0);
-					// mPeriodicIO.lowerConveyorPercentOutput = TestTab.getInstance().shootingSpeedBottom.getDouble(0);
-					// mPeriodicIO.shooterPercentOutput = TestTab.getInstance().shootingSpeedShooter.getDouble(0.0);
-
-					mPeriodicIO.rollerPercentOutput = IntakeConstants.kShootHighPO;
-					mPeriodicIO.upperConveyorPercentOutput = UpperConveyorConstants.kShootHighPO;
-					mPeriodicIO.lowerConveyorPercentOutput = LowerConveyorConstants.kShootHighPO;
-					mPeriodicIO.shooterPercentOutput = 0.0;
+					if(Constants.includeDebugTabs){
+						mPeriodicIO.rollerPercentOutput = TestTab.getInstance().shootingSpeedRoller.getDouble(0);//we use these instead if we want to tune values from shuffleboard. In future years, we should have a better tuning setup.
+						mPeriodicIO.upperConveyorPercentOutput = TestTab.getInstance().shootingSpeedTop.getDouble(0);
+						mPeriodicIO.lowerConveyorPercentOutput = TestTab.getInstance().shootingSpeedBottom.getDouble(0);
+						mPeriodicIO.shooterPercentOutput = TestTab.getInstance().shootingSpeedPoopShooter.getDouble(0.0);
+					} else{
+						mPeriodicIO.rollerPercentOutput = IntakeConstants.kShootHighPO;
+						mPeriodicIO.upperConveyorPercentOutput = UpperConveyorConstants.kShootHighPO;
+						mPeriodicIO.lowerConveyorPercentOutput = LowerConveyorConstants.kShootHighPO;
+						mPeriodicIO.shooterPercentOutput = 0.0;
+					}
+					
 				} else{
 					setPeriodicOutputsToZero();
 				} 
@@ -487,7 +491,7 @@ public class Intake extends Subsystem{
 				} else{
 					mPeriodicIO.lowerConveyorPercentOutput = LowerConveyorConstants.kPreparePoopShoot;
 				}
-				mPeriodicIO.shooterPercentOutput = ShooterConstants.kPoopShootFromChargeLineAutoPO;
+				mPeriodicIO.shooterPercentOutput = ShooterConstants.kPoopShootFromChargeLineAutoWithoutRodPO;
 				break;
 			case EJECT_ONLY_LOWER_CONVEYOR:
 				mPeriodicIO.isExtended = false;

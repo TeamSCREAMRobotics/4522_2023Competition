@@ -38,7 +38,7 @@ public class Constants {
 	public static final double kUpdatePIDsFromShuffleboardPeriodSeconds = 3.00;
 	public static final int kUpdatePIDsFromShuffleboardPeriodMilliseconds = (int) (kUpdatePIDsFromShuffleboardPeriodSeconds * 1000.0);
 
-    public static final boolean includeDebugTabs = true;
+    public static final boolean includeDebugTabs = false;
 	public static final boolean updatePIDsFromShuffleboard = false;
 	public static final boolean outputTelemetry = true;
 
@@ -98,7 +98,7 @@ public class Constants {
 		public static final MirroredTranslation cableBump = new MirroredTranslation(7.27, -4.38);
 
 		public static final double node1X = 3.0331;// starts on the closest to the feeder station
-		public static final double node2X = 3.5919-0.04;
+		public static final double node2X = 3.5919-0.04-0.04;
 		public static final double node3X = 4.1507;
 		public static final double node4X = 4.7095;
 		public static final double node5X = 5.2683;
@@ -108,7 +108,7 @@ public class Constants {
 		public static final double node9X = 7.575;
 
 		public static final double SwerveZeroBeforeAutoPlaceY = -6.32;
-		public static final double shootY = -3.23+1;
+		public static final double shootY = -3.23+1.02;
 		public static final double coneSwervePlacementY = -6.5657;
 		public static final double cubeSwervePlacementY = -6.5657;
 		
@@ -179,7 +179,7 @@ public class Constants {
 		public static final MirroredTranslation gamePiece3ShootPathLocation9 = FieldConstants.stagingMark3.plus(new Translation2d(distanceForCubeAutoIntake, Rotation2d.fromDegrees(-70)));
 		public static final MirroredTranslation gamePiece4ShootPathLocation9 = FieldConstants.stagingMark4.plus(new Translation2d(distanceForCubeAutoIntake, Rotation2d.fromDegrees(-70)));
 		
-		public static final MirroredPose singleSubstationConeRetrievalPoint = new MirroredPose(0.35, 5.575, Rotation2d.fromDegrees(180));
+		public static final MirroredPose singleSubstationConeRetrievalPoint = new MirroredPose(0.35, 5.334, Rotation2d.fromDegrees(180));
 		public static final MirroredTranslation swerveZeroBeforeSubstationPoint = new MirroredTranslation(new Translation2d(0.8, 5.575), new Translation2d(0.3, 0), new Translation2d());//this offset is legitimately there for a reason, since the limelight is not centered on the robot
 
 		static MirroredPose[] swervePlacementStates = new MirroredPose[]{
@@ -286,7 +286,7 @@ public class Constants {
 				aprilTagTAToTranslationSTDDevs.put(0.05, 5.0);
 				aprilTagTAToTranslationSTDDevs.put(0.0, Double.MAX_VALUE);
 
-				aprilTagTAToAngleSTDDevs.put(maxApriltagTA, 0.1);
+				aprilTagTAToAngleSTDDevs.put(maxApriltagTA, 0.25);// was 0.1
 
 
 				retroReflectiveTAToTranslationSTDDevScalarMap.put(maxRetroReflectiveTA, 1.0);//we default the scaling to be 1 for now
@@ -353,7 +353,7 @@ public class Constants {
 		public static final double kTelescopeTicksPerRotation = 2048.0;
 
 		public static final double kPivotGearRatio = 4.0 * 3.0 * 3.0 * 60.0 / 22.0;
-		public static final double kTelescopeGearRatio = 100.0 / 1.0;
+		public static final double kTelescopeGearRatio = 27.0 / 1.0;
 		public static final Rotation2d PivotAngleOffset = Rotation2d.fromDegrees(119.057552083);// adding makes it more negative
 
 		public static final double kMinTelescopeLength = 0.47;//meters
@@ -386,7 +386,7 @@ public class Constants {
 
 		/** The angle differnce of the arm as it wiggles without moving the chain. When measuring setpoints for the arm, we always measure the location of the arm. When setting the arm to
 		 * a setpoint, we add half of the slop in the direction opposite of gravity, so that when the arm drops lower because of play in the system, it drops to the correct position. */
-		public static final Rotation2d kArmSlop = Rotation2d.fromDegrees(4.4);
+		public static final Rotation2d kArmSlop = Rotation2d.fromDegrees(4.2);
 
 		public static final Rotation2d kPivotAngleThresholdForTelescopeOut = Rotation2d.fromDegrees(75.0);
 
@@ -440,7 +440,7 @@ public class Constants {
 		public static final double kIntakePO = 0.9;
 		public static final double kEjectPO = -0.6;
 		public static final double kShootHighPO = 0.68;
-		public static final double kShootMidPO = 0.45;
+		public static final double kShootMidPO = 0.40;
 		public static final double kShootHighAutoPO = 0.74;
 		public static final double kShootMidAutoPO = 0.42;
 		public static final double kRunWhileRetractedDuration = 0.15;
@@ -457,7 +457,7 @@ public class Constants {
 			public static final double kIntakePO = 0.5;
 			public static final double kEjectPO = -0.5;
 			public static final double kShootHighPO = -0.63;
-			public static final double kShootMidPO = -0.40;
+			public static final double kShootMidPO = -0.37;
 			public static final double kShootHighAutoPO = -0.68;
 			public static final double kShootMidAutoPO = -0.40;
 			public static final double kRetractAndRunPO = 0.7;
@@ -487,9 +487,10 @@ public class Constants {
 		public static class ShooterConstants {
 			public static final double kBackwardsEjectPO = 0.3;
             public static final double kTimeBeforeCanShoot = 0.18;
-            public static final double kPoopShootFromChargeLinePO = 0.42;
-            public static final double kPoopShootFromChargeLineAutoPO = 0.38;
-			public static final double kDefaultAutoShootDuration = 0.85;
+            public static final double kPoopShootFromChargeLinePO = 0.66;//0.42;
+            public static final double kPoopShootFromChargeLineAutoPO = 0.66;//0.38;//TODO make a different one for without
+			public static final double kPoopShootFromChargeLineAutoWithoutRodPO = 0.38;
+			public static final double kDefaultAutoShootDuration = 0.50;//was 0.85 before rod
 		}
 
 		public static class RodConstants{

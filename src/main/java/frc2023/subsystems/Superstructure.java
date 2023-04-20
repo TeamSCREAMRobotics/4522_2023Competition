@@ -176,7 +176,13 @@ public class Superstructure {
 			}
 
 			if(poopShootFromChargeLine){
-				mIntake.poopShootFromChargeLine();
+				System.out.println(" atReference: " + mSwerve.atAngleReference(SwerveConstants.robotBackwardAngle, Rotation2d.fromDegrees(8.0)));
+
+				if(mSwerve.atAngleReference(SwerveConstants.robotBackwardAngle, Rotation2d.fromDegrees(14.0))){//TODO extract to constant
+					mIntake.poopShootFromChargeLine();
+				} else{
+					mIntake.disable();//TODO maybe change to rev state
+				}
 				mArm.setPoopShootPosition();
 			}
 			

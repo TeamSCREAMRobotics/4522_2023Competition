@@ -252,10 +252,10 @@ public class FrontLimelight extends Subsystem{
     public void updateOffsetsFromVisionTape(){
     if(!mPeriodicIO.targetValid) return;
         final double limelightUp = 0.770;//TODO extract to constants
-        final double visionTapeUp = 0.6096;
+        final double visionTapeUp = 0.635;//0.6096
         final Rotation2d limelightPitch = Rotation2d.fromDegrees(0.0000001);//TODO clean up this jank NaN fix
-        final double limelightDistanceFromBumper = 0.102+0.4315734464756843;
-        final double limelightRightOffset = 0.17217-0.3-0.0535;
+        final double limelightDistanceFromBumper = 0.102+0.4315734464756843 - 0.06748696873522436;
+        final double limelightRightOffset = 0.17217-0.3-0.0535 + 0.015733521824793678;
 
 
         Rotation2d angleToGoal = Rotation2d.fromDegrees(limelightPitch.getDegrees() + mPeriodicIO.targetY);
@@ -264,7 +264,6 @@ public class FrontLimelight extends Subsystem{
         mPeriodicIO.visionTapeThetaOffset = Rotation2d.fromDegrees(mPeriodicIO.targetX);
         mPeriodicIO.yVisionTapeOffsetMeters = distanceFromLimelightToGoalMeters - limelightDistanceFromBumper;
         mPeriodicIO.xVisionTapeOffsetMeters = (mPeriodicIO.visionTapeThetaOffset.getTan()*distanceFromLimelightToGoalMeters)-limelightRightOffset;
-        // System.out.println(" x: " + mPeriodicIO.xVisionTapeOffsetMeters + "  y: " + mPeriodicIO.yVisionTapeOffsetMeters + " theta: " + mPeriodicIO.visionTapeThetaOffset);
 
     }
 

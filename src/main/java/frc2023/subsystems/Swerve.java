@@ -269,7 +269,7 @@ static final double test = -1084.0264892578125 % 360;//TODO remove
 
 
 	public boolean atAngleReference(Rotation2d targetAngle, Rotation2d angleTolerance){
-		return Math.abs(targetAngle.getRadians()-targetAngle.getRadians()) < angleTolerance.getRadians();
+		return Math.abs(targetAngle.getRadians()-getRobotRotation().getRadians()) < angleTolerance.getRadians();
 	}
 
 
@@ -541,6 +541,6 @@ static final double test = -1084.0264892578125 % 360;//TODO remove
 ///////////////////  Telemetry and Logging  //////////////////////////////////////////////////////
 	@Override
 	public void outputTelemetry() {
-
+// System.out.println("swerveRoll: " + getRoll().getDegrees() + "    swervePitch: " + getPitch().getDegrees() + "       ");
 	}
 }

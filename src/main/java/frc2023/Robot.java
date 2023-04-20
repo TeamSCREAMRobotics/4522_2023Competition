@@ -200,8 +200,8 @@ public class Robot extends TimedRobot {
     // }
     // Devices.getInstance().dRodMotor.set(ControlMode.PercentOutput, mControlBoard.getPivotPO()/2.0);
     
-    System.out.println("  PO: " +mControlBoard.getPivotPO()/5.0 + "  pos: " + Devices.getInstance().dRodMotor.getSelectedSensorPosition());
-    System.out.print("    RODANGLE: " + mIntake.getRodAngle().getDegrees());
+    // System.out.println("  PO: " +mControlBoard.getPivotPO()/5.0 + "  pos: " + Devices.getInstance().dRodMotor.getSelectedSensorPosition());
+    // System.out.print("    RODANGLE: " + mIntake.getRodAngle().getDegrees());
     mSubsystemManager.writeOutputs();
   }
 }

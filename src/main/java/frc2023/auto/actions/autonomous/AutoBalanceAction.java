@@ -22,11 +22,13 @@ public class AutoBalanceAction extends ActionBase{
     
     public CircularBuffer dPitchBuffer = new CircularBuffer(7);
     public CircularBuffer pitchBuffer = new CircularBuffer(7);
-    public final boolean mBackward;
+    public final boolean mSnapAngleBackward;
+    public final boolean mGamePieceSide;
 
-    public AutoBalanceAction(boolean backward){
+    public AutoBalanceAction(boolean snapAngleBackward, boolean gamePieceSide){
 		mAutoBalanceController = ScreamUtil.createPIDController(SwerveConstants.autoBalancePIDConstants, Constants.kSubsystemPeriodSeconds);
-        mBackward = backward;
+        mSnapAngleBackward = snapAngleBackward;
+        mGamePieceSide = gamePieceSide;
     }
 
     @Override
@@ -36,7 +38,7 @@ public class AutoBalanceAction extends ActionBase{
 
     @Override
     public void run() {
-        mSwerve.setSnapAngle((mBackward? SwerveConstants.robotBackwardAngle : SwerveConstants.robotForwardAngle));
+        mSwerve.setSnapAngle((mSnapAngleBackward? SwerveConstants.robotBackwardAngle : SwerveConstants.robotForwardAngle));
 
         Rotation2d pitch = mSwerve.getPitch();
 
@@ -47,7 +49,7 @@ public class AutoBalanceAction extends ActionBase{
         double bufferedDPitch = ScreamUtil.getCircularBufferAverage(dPitchBuffer);
         double bufferedPitch = ScreamUtil.getCircularBufferAverage(pitchBuffer);
 
-        double driveSpeed = (mBackward? -1: 1) * Math.signum(bufferedPitch)*mAutoBalanceController.calculate(bufferedPitch, 0) * pitch.getSin();
+        double driveSpeed = (mGamePieceSide? -1: 1) * Math.signum(bufferedPitch)*mAutoBalanceController.calculate(bufferedPitch, 0) * pitch.getSin();
         boolean platformFalling = Math.signum(bufferedDPitch) != Math.signum(bufferedPitch);
 
         if(platformFalling && Math.abs(bufferedPitch) < SwerveConstants.kPitchToStopSwerveDuringBalance){

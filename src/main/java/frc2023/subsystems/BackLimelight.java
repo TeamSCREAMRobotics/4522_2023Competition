@@ -176,10 +176,10 @@ public class BackLimelight extends Subsystem{
         if(!mPeriodicIO.targetValid) return;
 
         final double limelightUp = 0.770;
-        final double substationUp = 1.359;
+        final double substationUp = 1.346;
         final Rotation2d limelightPitch = Rotation2d.fromDegrees(30);
-        final double limelightDistanceFromBumper = 0.587637970798052;
-        final double limelightRightOffset = 0.17217;
+        final double limelightDistanceFromBumper = 0.587637970798052 - 0.015;
+        final double limelightRightOffset = 0.17217 - 0.03;
 
         Rotation2d angleToGoal = Rotation2d.fromDegrees(limelightPitch.getDegrees() + mPeriodicIO.targetY);
 
@@ -187,6 +187,8 @@ public class BackLimelight extends Subsystem{
         mPeriodicIO.thetaOffset = Rotation2d.fromDegrees(mPeriodicIO.targetX);
         mPeriodicIO.yOffsetMeters = distanceFromLimelightToGoalMeters - limelightDistanceFromBumper;
         mPeriodicIO.xOffsetMeters = (mPeriodicIO.thetaOffset.getTan()*distanceFromLimelightToGoalMeters)-limelightRightOffset;
+        // System.out.println(" x: " + mPeriodicIO.xOffsetMeters + "  y: " + mPeriodicIO.yOffsetMeters + " theta: " + mPeriodicIO.thetaOffset);
+
     }
 
 

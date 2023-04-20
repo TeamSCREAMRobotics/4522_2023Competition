@@ -421,7 +421,7 @@ public class AutoSegments {
             new SeriesAction(
                 new MoveToPoseAction(new Pose2d(chargeStationTarget.plus(new Translation2d(0, -1)).getPoint(alliance), SwerveConstants.robotForwardAngle), false),
                 driveForwardUntilChargeStation(),
-                new AutoBalanceAction(false)
+                new AutoBalanceAction(false, false)
             )
         );
     }
@@ -433,7 +433,7 @@ public class AutoSegments {
             new SeriesAction(
                 new MoveToPoseAction(new Pose2d(chargeStationTarget.plus(new Translation2d(0, 1)).getPoint(alliance), (robotForward? SwerveConstants.robotForwardAngle : SwerveConstants.robotBackwardAngle)), false),
                 driveBackUntilChargeStation(),
-                new AutoBalanceAction(!robotForward)
+                new AutoBalanceAction(!robotForward, true)//TODO we haven't tested if this works if the booleans are different
             )
         );
     }
@@ -454,7 +454,7 @@ public class AutoSegments {
                 new MoveToPoseAction(new Pose2d(chargeStationTarget.plus(new Translation2d(0, -1)).getPoint(alliance), SwerveConstants.robotForwardAngle), false),
                 new DriveAction(new Translation2d(0, 1.2), 0, false, 2.4),
                 driveBackUntilChargeStation(),
-                new AutoBalanceAction(false)
+                new AutoBalanceAction(false, true)//TODO not tested if this works with booleans different
             )
         );
     }
@@ -496,7 +496,7 @@ public class AutoSegments {
 
                 @Override
                 public boolean condition() {
-                    return Math.abs(mSwerve.getPitch().getDegrees()) > SwerveConstants.kPitchToConsiderOnChargeStation;
+                    return Math.abs(mSwerve.getPitch().getDegrees()) > 10;
                 }
 
                 @Override
