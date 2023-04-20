@@ -191,7 +191,14 @@ public class FrontLimelight extends Subsystem{
     public Matrix<N3, N1> getApriltagSTD_Devs(Pose2d visionPose){//we change the std devs based on the distance from the tag, measured by the limelight "ta" value.
         double translationSTDDevs = FrontLimelightConstants.aprilTagTAToTranslationSTDDevs.get(mPeriodicIO.targetArea);
         double angleStdDevs = FrontLimelightConstants.aprilTagTAToAngleSTDDevs.get(mPeriodicIO.targetArea);
+
+        
+        if(Math.abs(visionPose.getRotation().minus(mSwerve.getRobotRotation()).getDegrees()) > 6.0){//TODO clean up
+            angleStdDevs = Integer.MAX_VALUE;
+        }
+        
         var output = VecBuilder.fill(translationSTDDevs, translationSTDDevs, angleStdDevs);
+
         return output;
     }
 

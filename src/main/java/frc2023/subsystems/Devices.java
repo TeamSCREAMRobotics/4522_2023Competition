@@ -163,6 +163,7 @@ public class Devices {
         Pigeon2Config config = new Pigeon2Config();
         config.condStatus_9_SixDeg_YPR = Constants.kOdometryPeriodMilliseconds/2;
         Pigeon2 gyro = DeviceConfigurationUtil.configPigeon2(new Pigeon2(id.getDeviceNumber(), id.getBus()), config, "Pigeon2 "  + id.getDeviceNumber() + "  ");
+        // gyro.configZAxisGyroError()//TODO
         return gyro;
     }
 

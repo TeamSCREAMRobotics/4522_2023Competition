@@ -97,7 +97,7 @@ public class AutoSegments {
     public static ActionBase node2ToGamePiece2(Alliance alliance, TrajectorySpeed speed, boolean poopShootNext){
         return new SeriesAction(
             new RaceAction(
-                new FollowTrajectoryAction(Trajectories.node2ToGamePiece2.getTrajectory(alliance, speed), MirroredRotation.get(58-180, alliance), 3.0),
+                new FollowTrajectoryAction(Trajectories.node2ToGamePiece2.getTrajectory(alliance, speed), MirroredRotation.get(57.5-180, alliance), 3.0),
                 new SeriesAction(
                     new RaceAction(
                         new WaitUntilTrajectoryProgressAction(.5),
@@ -453,6 +453,7 @@ public class AutoSegments {
             new SeriesAction(
                 new MoveToPoseAction(new Pose2d(chargeStationTarget.plus(new Translation2d(0, -1)).getPoint(alliance), SwerveConstants.robotForwardAngle), false),
                 new DriveAction(new Translation2d(0, 1.2), 0, false, 2.4),
+                new WaitAction(1.5),
                 driveBackUntilChargeStation(),
                 new AutoBalanceAction(false, true)//TODO not tested if this works with booleans different
             )

@@ -124,9 +124,9 @@ public class ControlBoard {
 
 	Level mSelectedLevel = Level.TOP;
 	private void updateSelectedPlacementLevel(){
-		if(mButtonboard.getRawButton(12)) mSelectedLevel = Level.TOP;
-		else if(mButtonboard.getRawButton(11)) mSelectedLevel = Level.MIDDLE;
-		else if(mButtonboard.getRawButton(10)) mSelectedLevel = Level.HYBRID;
+		// if(mButtonboard.getRawButton(12)) mSelectedLevel = Level.TOP;
+		if(mButtonboard.getRawButton(11)) mSelectedLevel = Level.MIDDLE;
+		else if(mButtonboard.getRawButton(10)) mSelectedLevel = Level.TOP;
 	}
 
 

@@ -10,14 +10,19 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 
 import frc2023.Constants.ArmConstants;
 import frc2023.Constants.VisionConstants;
 import frc2023.Constants.VisionConstants.BackLimelightConstants;
+import frc2023.auto.AutoRoutines;
 import frc2023.auto.Trajectories;
+import frc2023.auto.actions.lib.ActionBase;
+import frc2023.auto.actions.lib.EmptyAction;
 import frc2023.auto.modes.AutoRoutineExecutor;
+import frc2023.auto.modes.VariableSpeedTrajectory.TrajectorySpeed;
 import frc2023.controlboard.ControlBoard;
 import frc2023.shuffleboard.ShuffleboardTabManager;
 import frc2023.subsystems.Arm;
@@ -48,6 +53,7 @@ public class Robot extends TimedRobot {
   private final PeriodicLoop mOdometryLoop;
   private final PeriodicLoop mTelemetryLoop;
   private final PeriodicLoop mUpdatePIDsFromShuffleboard;
+
 
   /**
    * We load all of our classes in a specific order on startup because our devices must be created before we use them. At the beginning of the season, we had an
@@ -82,6 +88,7 @@ public class Robot extends TimedRobot {
       mShuffleboardTabManager.testTab.updateRotationHelperPIDConstants();
 
     }, Constants.kUpdatePIDsFromShuffleboardPeriodSeconds);
+
     mSubsystemManager.setSubsystems(mSwerve, mIntake, mGripper, mArm, mFrontLimelight, mBackLimelight);
 
     mPDH.clearStickyFaults();

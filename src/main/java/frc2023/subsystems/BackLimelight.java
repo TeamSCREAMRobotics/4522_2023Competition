@@ -178,7 +178,7 @@ public class BackLimelight extends Subsystem{
         final double limelightUp = 0.770;
         final double substationUp = 1.346;
         final Rotation2d limelightPitch = Rotation2d.fromDegrees(30);
-        final double limelightDistanceFromBumper = 0.587637970798052 - 0.015;
+        final double limelightDistanceFromBumper = 0.587637970798052 - 0.015+0.04;
         final double limelightRightOffset = 0.17217 - 0.03;
 
         Rotation2d angleToGoal = Rotation2d.fromDegrees(limelightPitch.getDegrees() + mPeriodicIO.targetY);

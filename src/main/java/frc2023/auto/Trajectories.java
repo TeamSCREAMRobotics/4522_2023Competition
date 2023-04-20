@@ -35,13 +35,13 @@ public class Trajectories {
 	private Trajectories(){}
 
 	
-	private static TrajectoryConfig createTrajectoryConfigWithCableBumpSlowdown(TrajectoryConfig config){
-		return createTrajectoryConfigWithSlowdownArea(config, SwerveConstants.nearCableBumpConstraint, FieldConstants.cableBump.getPoint(DriverStation.getAlliance()), SwerveConstants.kAutoSlowdownForCableBumpRadius);
+	public static TrajectoryConfig createTrajectoryConfigWithCableBumpSlowdown(TrajectoryConfig config, Alliance alliance){
+		return createTrajectoryConfigWithSlowdownArea(config, SwerveConstants.nearCableBumpConstraint, FieldConstants.cableBump.getPoint(alliance), SwerveConstants.kAutoSlowdownForCableBumpRadius);
 	}
 
 	
 	private static TrajectoryConfig createTrajectoryConfigWithSlowdownArea(TrajectoryConfig config, TrajectoryConstraint constraint, Translation2d point, double radius){
-		return config.addConstraint(new EllipticalRegionConstraint(point, radius, radius, Rotation2d.fromDegrees(0), constraint));
+		return config.addConstraint(new EllipticalRegionConstraint(point, radius*2, radius*2, Rotation2d.fromDegrees(0), constraint));
 	}
 		
 
@@ -95,11 +95,14 @@ public class Trajectories {
 			Pose2d start = new MirroredPose(PlacementConstants.gamePiece4SwerveLocation, new MirroredRotation(-96)).get(alliance);
 			
 			Pose2d end = new MirroredPose(PlacementStates.getSwervePlacementTranslationAuto(Node.NODE8), new MirroredRotation(-88)).get(alliance);
+			end = new Pose2d(end.getTranslation().plus(new Translation2d(0, 0.3)), end.getRotation());
+
+
 			List<Translation2d> waypoints = Arrays.asList(
 				point1,
 				point2
 			);
-			return TrajectoryGenerator.generateTrajectory(start, waypoints, end, createTrajectoryConfigWithCableBumpSlowdown(speedConfig));
+			return TrajectoryGenerator.generateTrajectory(start, waypoints, end, createTrajectoryConfigWithCableBumpSlowdown(speedConfig, alliance));
 		}
 	};
 
@@ -115,7 +118,7 @@ public class Trajectories {
 			point1
 			);
 
-		return TrajectoryGenerator.generateTrajectory(start, waypoints, end, createTrajectoryConfigWithCableBumpSlowdown(speedConfig));
+		return TrajectoryGenerator.generateTrajectory(start, waypoints, end, createTrajectoryConfigWithCableBumpSlowdown(speedConfig, alliance));
 		}
 	};
 
@@ -142,6 +145,10 @@ public class Trajectories {
 			Translation2d point1 = new MirroredTranslation(3.15, -4.72).getPoint(alliance);
 			Pose2d end = new MirroredPose(PlacementConstants.gamePiece1SwerveLocation, new MirroredRotation(90)).get(alliance);
 
+			if(alliance == Alliance.Red){
+				end = new Pose2d(end.getTranslation().plus(new Translation2d(0.05, 0.0)), end.getRotation());
+			}
+
 			List<Translation2d> waypoints = Arrays.asList(
 				point1
 			);
@@ -162,7 +169,7 @@ public class Trajectories {
 				end			
 			);
 
-			return TrajectoryGenerator.generateTrajectory(waypoints, createTrajectoryConfigWithCableBumpSlowdown(speedConfig));
+			return TrajectoryGenerator.generateTrajectory(waypoints, createTrajectoryConfigWithCableBumpSlowdown(speedConfig, alliance));
 		}
 	}; 
 
@@ -176,11 +183,13 @@ public class Trajectories {
 			Translation2d point2 = new MirroredTranslation(7.03, -5.70).getPoint(alliance);
 			Pose2d end = new MirroredPose(PlacementStates.getSwervePlacementTranslationAuto(Node.NODE8), new MirroredRotation(-90)).get(alliance);
 
+			end = new Pose2d(end.getTranslation().plus(new Translation2d(0, 0.25)), end.getRotation());
+
 			List<Translation2d> waypoints = Arrays.asList(
 				// point1,//TODO uncomment this as well.
 				point2
 			);
-		   return TrajectoryGenerator.generateTrajectory(start, waypoints, end, createTrajectoryConfigWithCableBumpSlowdown(speedConfig));
+		   return TrajectoryGenerator.generateTrajectory(start, waypoints, end, createTrajectoryConfigWithCableBumpSlowdown(speedConfig, alliance));
 		}
 	};
 

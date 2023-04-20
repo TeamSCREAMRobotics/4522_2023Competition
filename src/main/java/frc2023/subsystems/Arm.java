@@ -294,14 +294,12 @@ public class Arm extends Subsystem{
                 }
 
                 break;
-            case RETRIEVE_CUBE:
-            case RETRIEVE_CONE:
             case PREPARE_PLACEMENT:
             case POOP_SHOOT:
-            case CONE_HOLD:
             case PLACE_HYBRID_CONE:
             case PLACE_TOP_CONE:
             case POSITION:
+            // System.out.println("((((()))))");
             
                 if(pivotOnThresholdForTelescopeOut(mPeriodicIO.targetSprocketAngle)){
                     moveTelescopeToTarget(mPeriodicIO.targetLength, mPeriodicIO.hasCone);
@@ -311,8 +309,12 @@ public class Arm extends Subsystem{
                 movePivotToTarget(mPeriodicIO.targetSprocketAngle, mPeriodicIO.hasCone);
 
                 break;
+            case RETRIEVE_CUBE:
             case POSITION_NO_LIMITS:
+            case CONE_HOLD:
+            case RETRIEVE_CONE:
                 moveTelescopeToTarget(mPeriodicIO.targetLength, mPeriodicIO.hasCone);
+                // System.out.println("&^^^^^&&&&");
                 movePivotToTarget(mPeriodicIO.targetSprocketAngle, mPeriodicIO.hasCone);
                 break;
             default:

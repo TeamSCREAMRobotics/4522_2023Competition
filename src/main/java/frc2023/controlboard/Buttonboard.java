@@ -49,8 +49,8 @@ public class Buttonboard {
         buttonMap.put(8, new ButtonboardPort(0, 5));
         buttonMap.put(9, new ButtonboardPort(0, 6));
         buttonMap.put(10, new ButtonboardPort(0, 10));
-        buttonMap.put(11, new ButtonboardPort(0, 7));
-        buttonMap.put(12, new ButtonboardPort(0, 11));
+        buttonMap.put(11, new ButtonboardPort(0, 11));
+        // buttonMap.put(12, new ButtonboardPort(0, 10));
 
         switchMap.put(1, new ButtonboardPort(1, 5, false));
         switchMap.put(2, new ButtonboardPort(1, 10, false));

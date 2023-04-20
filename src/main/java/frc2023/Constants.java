@@ -81,10 +81,10 @@ public class Constants {
 
 		public static final double stagingMarkY = -1.203;
 		
-		public static final MirroredTranslation stagingMark1 = new MirroredTranslation(new Translation2d(3.428-0.08, stagingMarkY), new Translation2d(0.0, 0.0), new Translation2d(0.0, 0.0));// closest game  piece  to  the  feeder station
-		public static final MirroredTranslation stagingMark2 = new MirroredTranslation(new Translation2d(4.647, stagingMarkY));
-		public static final MirroredTranslation stagingMark3 = new MirroredTranslation(new Translation2d(5.866+0.35, stagingMarkY+0.15), new Translation2d(), new Translation2d(0.0, 0.0));
-		public static final MirroredTranslation stagingMark4 = new MirroredTranslation(new Translation2d(7.086+0.08, stagingMarkY), new Translation2d(), new Translation2d(0.0, 0.0));
+		public static final MirroredTranslation stagingMark1 = new MirroredTranslation(new Translation2d(3.428-0.02, stagingMarkY), new Translation2d(0.0, 0.0), new Translation2d(0.0, 0.0));// closest game  piece  to  the  feeder station
+		public static final MirroredTranslation stagingMark2 = new MirroredTranslation(new Translation2d(4.647+0.3+0.02, stagingMarkY));
+		public static final MirroredTranslation stagingMark3 = new MirroredTranslation(new Translation2d(5.866+0.32-0.12, stagingMarkY+0.15), new Translation2d(), new Translation2d(0.0, 0.0));
+		public static final MirroredTranslation stagingMark4 = new MirroredTranslation(new Translation2d(7.086+0.03+0.03, stagingMarkY), new Translation2d(), new Translation2d(0.0, 0.0));
 
 		public static final MirroredTranslation chargeStationFL = new MirroredTranslation(new Translation2d(4.0375, -3.4183));
 		public static final MirroredTranslation chargeStationFR = new MirroredTranslation(new Translation2d(4.0375, -5.3511));
@@ -98,16 +98,16 @@ public class Constants {
 		public static final MirroredTranslation cableBump = new MirroredTranslation(7.27, -4.38);
 
 		public static final double node1X = 3.0331;// starts on the closest to the feeder station
-		public static final double node2X = 3.5919-0.04-0.04;
+		public static final double node2X = 3.5919-0.035;
 		public static final double node3X = 4.1507;
 		public static final double node4X = 4.7095;
 		public static final double node5X = 5.2683;
 		public static final double node6X = 5.8271;
 		public static final double node7X = 6.3684;
-		public static final double node8X = 6.9447+0.10;
+		public static final double node8X = 6.9447+0.05;
 		public static final double node9X = 7.575;
 
-		public static final double SwerveZeroBeforeAutoPlaceY = -6.32;
+		public static final double SwerveZeroBeforeAutoPlaceY = -6.40;
 		public static final double shootY = -3.23+1.02;
 		public static final double coneSwervePlacementY = -6.5657;
 		public static final double cubeSwervePlacementY = -6.5657;
@@ -359,23 +359,23 @@ public class Constants {
 		public static final double kMinTelescopeLength = 0.47;//meters
 		public static final double kMaxTelescopeLength = 1.138;//meters  //measured from pivot center to right past the cap that holds the end effector on the end of the telescope, does not include end effector
 		public static final double kPotentiometerMin = 0;//potentiometer reading at minimum arm extension
-		public static final double kPotentiometerMax = 7135;//potentiometer reading at maximum arm extension
+		public static final double kPotentiometerMax = 14148;//potentiometer reading at maximum arm extension
 		public static final double kDistanceForSoftLimit = 150;// native potentiometer units
 
 		public static final double kPivotCruiseVelocity = 21742 / 0.7;// measured 21742.0
 		public static final MotionMagicConstants pivotMotionMagicConstants = new MotionMagicConstants(
 				kPivotCruiseVelocity, kPivotCruiseVelocity / 0.7, 0);
 
-		public static final double kTelescopeCruiseVelocity = 4000;
-		public static final double kTelescopeAcceleration = 5000;
+		public static final double kTelescopeCruiseVelocity = 4000*2*2;
+		public static final double kTelescopeAcceleration = 5000*2*2;
 		public static final MotionMagicConstants telescopeMotionMagicConstants = new MotionMagicConstants(
-				kTelescopeCruiseVelocity, kTelescopeAcceleration, 1);
+				kTelescopeCruiseVelocity, kTelescopeAcceleration, 0);
 
 		public static final PIDConstants pivotPIDConstants = new PIDConstants(0.15, 0.000, 0);
 		static {
 			pivotPIDConstants.setIntegralZone(2000);
 		}
-		public static final PIDConstants telescopePIDConstants = new PIDConstants(2.2, 0.0, 0);
+		public static final PIDConstants telescopePIDConstants = new PIDConstants(2.2*2, 0.0, 0);
 		static {
 			telescopePIDConstants.setIntegralZone(700);
 		}
@@ -386,7 +386,7 @@ public class Constants {
 
 		/** The angle differnce of the arm as it wiggles without moving the chain. When measuring setpoints for the arm, we always measure the location of the arm. When setting the arm to
 		 * a setpoint, we add half of the slop in the direction opposite of gravity, so that when the arm drops lower because of play in the system, it drops to the correct position. */
-		public static final Rotation2d kArmSlop = Rotation2d.fromDegrees(4.2);
+		public static final Rotation2d kArmSlop = Rotation2d.fromDegrees(3.9);
 
 		public static final Rotation2d kPivotAngleThresholdForTelescopeOut = Rotation2d.fromDegrees(75.0);
 
@@ -425,7 +425,7 @@ public class Constants {
 			public static final Translation2d kAutoWithGamePiece = kCubeRetrieval;
             public static final Translation2d kAutoWithoutGamepiece = kCubeRetrieval;
 
-			public static final Translation2d kTopCone = new Translation2d(1.10712, Rotation2d.fromDegrees(64.2));
+			public static final Translation2d kTopCone = new Translation2d(1.10712+0.0075, Rotation2d.fromDegrees(64.2));
 			public static final Translation2d kMiddleCone = new Translation2d(0.60, Rotation2d.fromDegrees(74.0));
 			public static final Translation2d kHybridCone = new Translation2d(ArmConstants.kMinTelescopeLength+ 0.05, Rotation2d.fromDegrees(122));
 
@@ -438,11 +438,11 @@ public class Constants {
 	public static class IntakeConstants {
 		public static final double kWaitBeforeRunWheelsDuration = 0.20;
 		public static final double kIntakePO = 0.9;
-		public static final double kEjectPO = -0.6;
-		public static final double kShootHighPO = 0.68;
+		public static final double kEjectPO = -0.45;
+		public static final double kShootHighPO = 0.62;
 		public static final double kShootMidPO = 0.40;
-		public static final double kShootHighAutoPO = 0.74;
-		public static final double kShootMidAutoPO = 0.42;
+		public static final double kShootHighAutoPO = 0.64;
+		public static final double kShootMidAutoPO = 0.35;
 		public static final double kRunWhileRetractedDuration = 0.15;
 		public static final double kSweepPO = -0.3;
 		public static final double kAutoIntakePO = 0.7;
@@ -456,10 +456,10 @@ public class Constants {
 		public static class UpperConveyorConstants {
 			public static final double kIntakePO = 0.5;
 			public static final double kEjectPO = -0.5;
-			public static final double kShootHighPO = -0.63;
-			public static final double kShootMidPO = -0.37;
-			public static final double kShootHighAutoPO = -0.68;
-			public static final double kShootMidAutoPO = -0.40;
+			public static final double kShootHighPO = -0.60;
+			public static final double kShootMidPO = -0.45;
+			public static final double kShootHighAutoPO = -0.62;
+			public static final double kShootMidAutoPO = -0.35;
 			public static final double kRetractAndRunPO = 0.7;
 			public static final double kBackwardsEjectPO = 0.0;
             public static final double kAutoIntakePO = 0.4;
@@ -624,20 +624,20 @@ public class Constants {
 				SwerveConstants.slowSpeedConfig.kAutoMaxSpeed, SwerveConstants.slowSpeedConfig.kAutoMaxAcceleration)
 				.addConstraint(slowSpeedConstraint);
 
-		public static final double kAutoSlowdownForCableBumpRadius = 0.35;// meters
+		public static final double kAutoSlowdownForCableBumpRadius = 0.45;// meters
 
 		public static final TrajectoryConstraint nearCableBumpConstraint = new TrajectoryConstraint() {
 
 			@Override
 			public double getMaxVelocityMetersPerSecond(Pose2d poseMeters, double curvatureRadPerMeter,
 					double velocityMetersPerSecond) {
-				return 1.35;
+				return 1.75;
 			}
 
 			@Override
 			public MinMax getMinMaxAccelerationMetersPerSecondSq(Pose2d poseMeters, double curvatureRadPerMeter,
 					double velocityMetersPerSecond) {
-				return new MinMax(-3.0, 3.0);
+				return new MinMax(-4.2, 4.2);
 			}
 		};
 
