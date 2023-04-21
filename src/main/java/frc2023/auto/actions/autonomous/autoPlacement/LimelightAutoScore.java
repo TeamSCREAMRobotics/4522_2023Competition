@@ -75,7 +75,7 @@ public class LimelightAutoScore extends ActionBase{
         //Manual Override stuff
         final boolean manualOverride = mControlBoard.getArmManualOverride();
 
-        if(!manualOverride && !mControlBoard.getOverrideAutoPlaceGripper() && Timer.getFPGATimestamp()-mLastTimestampNotAtTarget > 0.08){   //TODO extract to constant      //this is the logic for the gripper to 
+        if(!manualOverride && !mControlBoard.getOverrideAutoPlaceGripper() && Timer.getFPGATimestamp()-mLastTimestampNotAtTarget > 0.12){   //TODO extract to constant      //this is the logic for the gripper to 
                                                                                                                                                     //auto place if the robot has been in the right spot for a 
                                                                                                                                                 // certain amount of time.
             mGripper.open();

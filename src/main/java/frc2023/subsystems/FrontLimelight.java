@@ -193,10 +193,10 @@ public class FrontLimelight extends Subsystem{
         double angleStdDevs = FrontLimelightConstants.aprilTagTAToAngleSTDDevs.get(mPeriodicIO.targetArea);
 
         
-        if(Math.abs(visionPose.getRotation().minus(mSwerve.getRobotRotation()).getDegrees()) > 6.0){//TODO clean up
+        if(Math.abs(visionPose.getRotation().minus(mSwerve.getRobotRotation()).getDegrees()) > 4.5){//TODO clean up
             angleStdDevs = Integer.MAX_VALUE;
         }
-        
+
         var output = VecBuilder.fill(translationSTDDevs, translationSTDDevs, angleStdDevs);
 
         return output;

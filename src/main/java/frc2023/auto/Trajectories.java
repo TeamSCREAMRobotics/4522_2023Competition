@@ -78,6 +78,9 @@ public class Trajectories {
 
 			Pose2d start = new MirroredPose(PlacementStates.getSwervePlacementTranslationAuto(Node.NODE2), new MirroredRotation(105)).get(alliance);
 			Pose2d end = new MirroredPose(PlacementConstants.gamePiece2SwerveLocation, new MirroredRotation(50)).get(alliance);
+			if(alliance == Alliance.Red){
+				end = new Pose2d(end.getTranslation().plus(new Translation2d(0.07, 0)), end.getRotation());
+			}
 			List<Translation2d> waypoints = Arrays.asList(
 				point1
 			);
@@ -90,7 +93,7 @@ public class Trajectories {
 		@Override
 		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig speedConfig) {
 			Translation2d point1 =  new MirroredTranslation(new Translation2d(7.30, -3.31)).getPoint(alliance);
-			Translation2d point2 =  new MirroredTranslation(new Translation2d(7.30, -5.7)).getPoint(alliance);
+			Translation2d point2 =  new MirroredTranslation(new Translation2d(7.1, -5.7)).getPoint(alliance);
 			
 			Pose2d start = new MirroredPose(PlacementConstants.gamePiece4SwerveLocation, new MirroredRotation(-96)).get(alliance);
 			
@@ -112,7 +115,7 @@ public class Trajectories {
 		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig speedConfig) {
 		Translation2d point1 = new MirroredTranslation(new Translation2d(7.20, -2.9)).getPoint(alliance);
 		Pose2d start = new MirroredPose(PlacementStates.getSwervePlacementTranslationAuto(Node.NODE8), new MirroredRotation(75)).get(alliance);
-		Pose2d end = new MirroredPose(PlacementConstants.gamePiece3SwerveLocation, new MirroredRotation(130)).get(alliance);
+		Pose2d end = new MirroredPose(PlacementConstants.gamePiece3SwerveLocation.plus(new Translation2d(-0.01, 0)), new MirroredRotation(130)).get(alliance);
 
 		List<Translation2d> waypoints = Arrays.asList(
 			point1
@@ -146,7 +149,7 @@ public class Trajectories {
 			Pose2d end = new MirroredPose(PlacementConstants.gamePiece1SwerveLocation, new MirroredRotation(90)).get(alliance);
 
 			if(alliance == Alliance.Red){
-				end = new Pose2d(end.getTranslation().plus(new Translation2d(0.05, 0.0)), end.getRotation());
+				end = new Pose2d(end.getTranslation().plus(new Translation2d(0.1, 0.0)), end.getRotation());
 			}
 
 			List<Translation2d> waypoints = Arrays.asList(
@@ -162,7 +165,7 @@ public class Trajectories {
 		@Override
 		public Trajectory generateTrajectories(Alliance alliance, TrajectoryConfig speedConfig) {
 			Pose2d start = new MirroredPose(PlacementStates.getSwervePlacementTranslation(Node.NODE9), new MirroredRotation(90)).get(alliance);
-			Pose2d end = new MirroredPose(PlacementConstants.gamePiece4SwerveLocation, new MirroredRotation(90)).get(alliance);
+			Pose2d end = new MirroredPose(PlacementConstants.gamePiece4SwerveLocation.plus(new Translation2d(0.07, 0)), new MirroredRotation(90)).get(alliance);
 			
 			List<Pose2d> waypoints = Arrays.asList(
 				start,
@@ -180,8 +183,8 @@ public class Trajectories {
 
 			Pose2d start = new MirroredPose(PlacementConstants.gamePiece3SwerveLocation, new MirroredRotation(-32)).get(alliance);
 			// Translation2d point1 = new MirroredTranslation(7.13, -2.97).getPoint(alliance);//TODO if the path runs into charge station, uncomment this to fix it --commented 4/17/2023
-			Translation2d point2 = new MirroredTranslation(7.03, -5.70).getPoint(alliance);
-			Pose2d end = new MirroredPose(PlacementStates.getSwervePlacementTranslationAuto(Node.NODE8), new MirroredRotation(-90)).get(alliance);
+			Translation2d point2 = new MirroredTranslation(6.95, -5.70).getPoint(alliance);
+			Pose2d end = new MirroredPose(PlacementStates.getSwervePlacementTranslationAuto(Node.NODE8).plus(new Translation2d(-0.02, 0)), new MirroredRotation(-90)).get(alliance);
 
 			end = new Pose2d(end.getTranslation().plus(new Translation2d(0, 0.25)), end.getRotation());
 

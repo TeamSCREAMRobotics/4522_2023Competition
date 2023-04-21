@@ -254,7 +254,7 @@ public class SwerveDriveHelper {
 // todo create filter based on angle, if angle is too far off, don't move y axis.... Also make seperate modes for align with substation and place
 
 
-        //if(Math.abs(xError) > SwerveConstants.visionThresholdBeforeMoveY) yFeedback = 0; //TODO clean up vision naming convention    //Makes the robot align with the x axis before aligning with the y axis.
+        if(Math.abs(xError) > 0.175) yFeedback = 0; //TODO clean up vision naming convention    //Makes the robot align with the x axis before aligning with the y axis.
         if(Math.abs(thetaError.getDegrees()) > 8){//TODO extract to constant
             yFeedback = 0;
             xFeedback = 0;

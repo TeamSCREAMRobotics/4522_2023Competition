@@ -46,7 +46,7 @@ public class ArmAutoPlaceAction extends ActionBase{
             mGripper.open();
         }
 
-        if(mTimerSinceStart.get() >= .25) mGripper.open();
+        if(mTimerSinceStart.get() >= .15) mGripper.open();
     }
 
     @Override

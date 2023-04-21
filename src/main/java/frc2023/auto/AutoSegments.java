@@ -183,7 +183,7 @@ public class AutoSegments {
             ),
             new RaceAction(
                 new RunIntakeAction(IntakeState.SHOOT_CUBE_HIGH_AUTO),
-                new WaitAction(.7)
+                new WaitAction(.5)
             ),
             new SetIntakeAction(IntakeState.DISABLED)
         );
@@ -211,7 +211,7 @@ public class AutoSegments {
             ),
             new RaceAction(
                 new RunIntakeAction(IntakeState.SHOOT_CUBE_HIGH_AUTO),
-                new WaitAction(.5)
+                new WaitAction(.35)
             ),
             new SetIntakeAction(IntakeState.DISABLED)
         );
@@ -467,6 +467,7 @@ public class AutoSegments {
             new RunUntilConditionAction(
                         new DriveAction(new Translation2d(0, SwerveConstants.kRunOntoChargeStationSpeed), 0, false, 3.0),
                         new DriveAction(new Translation2d(0, -SwerveConstants.kBackUpChargeStationJammedSpeed), 0, false, 0.4),//The last 2 actions are timeouts. If the charging  station gets stuck, we back up and try again.
+                        new WaitAction(1.0),
                         new DriveAction(new Translation2d(0, SwerveConstants.kRunOntoChargeStationSpeed), 0, false, 3.0)
                             ) {
                 @Override
@@ -553,7 +554,7 @@ public class AutoSegments {
         return new ParallelAction(
             new SeriesAction(
                 new WaitAction(0.45),
-                new RunIntakeAction(IntakeState.POOP_SHOOT_FROM_CHARGE_LINE_AUTO)
+                new RunIntakeAction(IntakeState.POOP_SHOOT_FROM_CHARGE_LINE_AUTO_WITHOUT_ROD)
             ),
             AutoSegments.autoBalanceFromGamePieceSide(chargeStationTarget, alliance, false, true, false)
         );

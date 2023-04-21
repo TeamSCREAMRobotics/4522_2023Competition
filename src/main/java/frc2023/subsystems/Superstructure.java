@@ -1,5 +1,6 @@
 package frc2023.subsystems;
 
+import java.lang.StackWalker.Option;
 import java.util.Optional;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -15,6 +16,7 @@ import frc2023.Constants.SwerveConstants;
 import frc2023.Constants.IntakeConstants.RodConstants;
 import frc2023.PlacementStates.Level;
 import frc2023.PlacementStates.Node;
+import frc2023.auto.AutoRoutines;
 import frc2023.auto.actions.autonomous.AutoAlignWithSingleSubstationAction;
 import frc2023.auto.actions.autonomous.MoveToPoseAction;
 import frc2023.auto.actions.autonomous.autoPlacement.LimelightAutoScore;
@@ -22,6 +24,7 @@ import frc2023.auto.actions.lib.ActionBase;
 import frc2023.auto.actions.lib.SeriesAction;
 import frc2023.auto.modes.AutoRoutineExecutor;
 import frc2023.controlboard.ControlBoard;
+import frc2023.shuffleboard.tabs.MatchTab;
 import frc2023.subsystems.Swerve.DodgeDirection;
 import frc2023.subsystems.Swerve.SwerveState;
 import frc2023.swerve.SwerveRotationHelper.RotationHelperMode;

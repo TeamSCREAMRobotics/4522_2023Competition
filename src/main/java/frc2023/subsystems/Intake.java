@@ -287,8 +287,10 @@ public class Intake extends Subsystem{
 				break;
 			case POOP_SHOOT_FROM_CHARGE_LINE_AUTO_WITHOUT_ROD:
 				poopShootFromChargeLineAutoWithoutRod();
+				break;
 			case EXTEND_ROD:
 				extendRod();
+				break;
 			default:
 			DriverStation.reportError("Wrong/Unimplemented IntakeState Chosen in setDesiredState()", false);
 		}

@@ -12,6 +12,7 @@ import frc2023.auto.actions.autonomous.RunArmAction;
 import frc2023.auto.actions.autonomous.autoPlacement.ArmAutoPlaceAction;
 import frc2023.auto.actions.lib.ActionBase;
 import frc2023.auto.actions.lib.SeriesAction;
+import frc2023.auto.actions.lib.WaitAction;
 import frc2023.auto.modes.VariableSpeedTrajectory.TrajectorySpeed;
 import frc2023.field.MirroredTranslation;
 import frc2023.field.MirroredPose;
@@ -224,6 +225,7 @@ public class AutoRoutines {
         return new SeriesAction(
             new ResetRobotPoseAction(PlacementStates.getSwervePlacementPose(Node.NODE9, alliance)),
             new ArmAutoPlaceAction(PlacementStates.getArmPlacementStateForAuto(Level.TOP)),
+            new WaitAction(ArmConstants.waitAfterPlace9),
             AutoSegments.node9ToGamePiece4(alliance, TrajectorySpeed.SLOW, false),
             AutoSegments.gamePiece4ToScoreNode8SLOW(alliance)
         );
@@ -234,6 +236,7 @@ public class AutoRoutines {
         return new SeriesAction(
             new ResetRobotPoseAction(PlacementStates.getSwervePlacementPose(Node.NODE9, alliance)),
             new ArmAutoPlaceAction(PlacementStates.getArmPlacementStateForAuto(Level.TOP)),
+            new WaitAction(ArmConstants.waitAfterPlace9),
             AutoSegments.node9ToGamePiece4(alliance, TrajectorySpeed.SLOW, false),
             AutoSegments.gamePiece4ToScoreNode8SLOW(alliance),
             AutoSegments.autoBalanceFromNodeSide(FieldConstants.chargeStationNode9SideTarget, alliance, true, true)
@@ -245,6 +248,7 @@ public class AutoRoutines {
         return new SeriesAction(
             new ResetRobotPoseAction(PlacementStates.getSwervePlacementPose(Node.NODE9, alliance)),
             new ArmAutoPlaceAction(PlacementStates.getArmPlacementStateForAuto(Level.TOP)),
+            new WaitAction(ArmConstants.waitAfterPlace9),
             AutoSegments.node9ToGamePiece4(alliance, TrajectorySpeed.SLOW, false),
             AutoSegments.gamePiece4ToScoreNode8SLOW(alliance),
             AutoSegments.coastBack(alliance)
@@ -256,6 +260,7 @@ public class AutoRoutines {
         return new SeriesAction(
             new ResetRobotPoseAction(PlacementStates.getSwervePlacementPose(Node.NODE9, alliance)),
             new ArmAutoPlaceAction(PlacementStates.getArmPlacementStateForAuto(Level.TOP)),
+            new WaitAction(ArmConstants.waitAfterPlace9),
             AutoSegments.node9ToGamePiece4(alliance, TrajectorySpeed.MEDIUM, false),
             AutoSegments.gamePiece4ToScoreNode8FAST(alliance),
             AutoSegments.node8ToGamePiece3(alliance, false),
@@ -276,9 +281,10 @@ public class AutoRoutines {
         return new SeriesAction(
             new ResetRobotPoseAction(PlacementStates.getSwervePlacementPose(Node.NODE9, alliance)),
             new ArmAutoPlaceAction(PlacementStates.getArmPlacementStateForAuto(Level.TOP)),
+            new WaitAction(ArmConstants.waitAfterPlace9),
             AutoSegments.node9ToGamePiece4(alliance, TrajectorySpeed.SLOW, false),
             AutoSegments.gamePiece4ToScoreNode8SLOW(alliance),
-            AutoSegments.node8ToGamePiece3(alliance, false)
+            AutoSegments.node8ToGamePiece3(alliance,false)
         );
     }
 
@@ -287,6 +293,7 @@ public class AutoRoutines {
         return new SeriesAction(
             new ResetRobotPoseAction(PlacementStates.getSwervePlacementPose(Node.NODE9, alliance)),
             new ArmAutoPlaceAction(PlacementStates.getArmPlacementStateForAuto(Level.TOP)),
+            new WaitAction(ArmConstants.waitAfterPlace9),
             AutoSegments.node9ToGamePiece4(alliance, TrajectorySpeed.MEDIUM, false),
             AutoSegments.gamePiece4ToScoreNode8SLOW(alliance),
             AutoSegments.node8ToGamePiece3(alliance, true),
@@ -299,6 +306,7 @@ public class AutoRoutines {
         return new SeriesAction(
             new ResetRobotPoseAction(PlacementStates.getSwervePlacementPose(Node.NODE9, alliance)),
             new ArmAutoPlaceAction(PlacementStates.getArmPlacementStateForAuto(Level.TOP)),
+            new WaitAction(ArmConstants.waitAfterPlace9),
             AutoSegments.node9ToGamePiece4(alliance, TrajectorySpeed.MEDIUM, true),
             AutoSegments.gamePiece4ToShoot8_9(alliance),
             AutoSegments.shoot8ToGamePiece3_9(alliance),
@@ -311,6 +319,7 @@ public class AutoRoutines {
         return new SeriesAction(
             new ResetRobotPoseAction(PlacementStates.getSwervePlacementPose(Node.NODE9, alliance)),
             new ArmAutoPlaceAction(PlacementStates.getArmPlacementStateForAuto(Level.TOP)),
+            new WaitAction(ArmConstants.waitAfterPlace9),
             AutoSegments.node9ToGamePiece4(alliance, TrajectorySpeed.MEDIUM, false),
             AutoSegments.gamePiece4ToScoreNode8FAST(alliance),
             AutoSegments.node8ToGamePiece3(alliance, true),
@@ -323,6 +332,7 @@ public class AutoRoutines {
         return new SeriesAction(
             new ResetRobotPoseAction(PlacementStates.getSwervePlacementPose(Node.NODE9, alliance)),
             new ArmAutoPlaceAction(PlacementStates.getArmPlacementStateForAuto(Level.TOP)),
+            new WaitAction(ArmConstants.waitAfterPlace9),
             AutoSegments.node9ToGamePiece4(alliance, TrajectorySpeed.MEDIUM, false),
             AutoSegments.gamePiece4ToScoreNode8FAST(alliance),
             AutoSegments.node8ToGamePiece3(alliance, false),
@@ -335,6 +345,7 @@ public class AutoRoutines {
         return new SeriesAction(
             new ResetRobotPoseAction(PlacementStates.getSwervePlacementPose(Node.NODE9, alliance)),
             new ArmAutoPlaceAction(PlacementStates.getArmPlacementStateForAuto(Level.TOP)),
+            new WaitAction(ArmConstants.waitAfterPlace9),
             AutoSegments.node9ToGamePiece4(alliance, TrajectorySpeed.MEDIUM, false),
             AutoSegments.gamePiece4ToScoreNode8SLOW(alliance),
             AutoSegments.node8ToGamePiece3(alliance, true),
@@ -348,6 +359,7 @@ public class AutoRoutines {
         return new SeriesAction(
             new ResetRobotPoseAction(PlacementStates.getSwervePlacementPose(Node.NODE9, alliance)),
             new ArmAutoPlaceAction(PlacementStates.getArmPlacementStateForAuto(Level.TOP)),
+            new WaitAction(ArmConstants.waitAfterPlace9),
             AutoSegments.node9ToGamePiece4(alliance, TrajectorySpeed.MEDIUM, true),
             AutoSegments.gamePiece4ToShoot8_9(alliance),
             AutoSegments.shoot8ToGamePiece3_9(alliance),
@@ -360,6 +372,7 @@ public class AutoRoutines {
         return new SeriesAction(
             new ResetRobotPoseAction(PlacementStates.getSwervePlacementPose(Node.NODE9, alliance)),
             new ArmAutoPlaceAction(PlacementStates.getArmPlacementStateForAuto(Level.TOP)),
+            new WaitAction(ArmConstants.waitAfterPlace9),
             AutoSegments.node9ToGamePiece4(alliance, TrajectorySpeed.MEDIUM, false),
             AutoSegments.gamePiece4ToScoreNode8FAST(alliance),
             AutoSegments.node8ToGamePiece3(alliance, true),
@@ -375,6 +388,7 @@ public class AutoRoutines {
         return new SeriesAction(
             new ResetRobotPoseAction(PlacementStates.getSwervePlacementPose(Node.NODE9, alliance)),
             new ArmAutoPlaceAction(PlacementStates.getArmPlacementStateForAuto(Level.TOP)),
+            new WaitAction(ArmConstants.waitAfterPlace9),
             AutoSegments.node9ToGamePiece4(alliance, TrajectorySpeed.MEDIUM, true),
             AutoSegments.gamePiece4ToShoot8_9(alliance),
             AutoSegments.shoot8ToGamePiece3_9(alliance),
@@ -389,6 +403,7 @@ public class AutoRoutines {
         return new SeriesAction(
             new ResetRobotPoseAction(PlacementStates.getSwervePlacementPose(Node.NODE9, alliance)),
             new ArmAutoPlaceAction(PlacementStates.getArmPlacementStateForAuto(Level.TOP)),
+            new WaitAction(ArmConstants.waitAfterPlace9),
             AutoSegments.node9ToGamePiece4(alliance, TrajectorySpeed.MEDIUM, true),
             AutoSegments.gamePiece4ToShoot8_9(alliance),
             AutoSegments.shoot8ToGamePiece3_9(alliance),
@@ -404,6 +419,7 @@ public class AutoRoutines {
         return new SeriesAction(
             new ResetRobotPoseAction(PlacementStates.getSwervePlacementPose(Node.NODE9, alliance)),
             new ArmAutoPlaceAction(PlacementStates.getArmPlacementStateForAuto(Level.TOP)),
+            new WaitAction(ArmConstants.waitAfterPlace9),
             AutoSegments.node9ToGamePiece4(alliance, TrajectorySpeed.MEDIUM, true),
             AutoSegments.gamePiece4ToShoot8_9(alliance),
             AutoSegments.shoot8ToGamePiece3_9(alliance),
