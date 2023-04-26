@@ -63,6 +63,10 @@ public class Trajectories {
 
 			Pose2d start = new MirroredPose(PlacementConstants.gamePiece1SwerveLocation, new MirroredRotation(-105)).get(alliance);
 			Pose2d end = new MirroredPose(PlacementStates.getSwervePlacementTranslationAuto(Node.NODE2), new MirroredRotation(-82)).get(alliance);
+
+			if(alliance == Alliance.Blue){
+				end = new Pose2d(end.getTranslation().plus(new Translation2d(-0.035, 0)), end.getRotation());
+			}
 			List<Translation2d> waypoints = Arrays.asList(
 
 			);
@@ -79,7 +83,7 @@ public class Trajectories {
 			Pose2d start = new MirroredPose(PlacementStates.getSwervePlacementTranslationAuto(Node.NODE2), new MirroredRotation(105)).get(alliance);
 			Pose2d end = new MirroredPose(PlacementConstants.gamePiece2SwerveLocation, new MirroredRotation(50)).get(alliance);
 			if(alliance == Alliance.Red){
-				end = new Pose2d(end.getTranslation().plus(new Translation2d(0.07, 0)), end.getRotation());
+				end = new Pose2d(end.getTranslation().plus(new Translation2d(0.07+0.07, 0)), end.getRotation());
 			}
 			List<Translation2d> waypoints = Arrays.asList(
 				point1
@@ -149,7 +153,9 @@ public class Trajectories {
 			Pose2d end = new MirroredPose(PlacementConstants.gamePiece1SwerveLocation, new MirroredRotation(90)).get(alliance);
 
 			if(alliance == Alliance.Red){
-				end = new Pose2d(end.getTranslation().plus(new Translation2d(0.1, 0.0)), end.getRotation());
+				end = new Pose2d(end.getTranslation().plus(new Translation2d(0.1, 0.1)), end.getRotation());
+			} else if(alliance == Alliance.Blue){
+				end = new Pose2d(end.getTranslation().plus(new Translation2d(-0.04, 0)), end.getRotation());
 			}
 
 			List<Translation2d> waypoints = Arrays.asList(

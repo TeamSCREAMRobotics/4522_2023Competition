@@ -426,7 +426,7 @@ public class Constants {
 			public static final Translation2d kAutoWithGamePiece = kCubeRetrieval;
             public static final Translation2d kAutoWithoutGamepiece = kCubeRetrieval;
 
-			public static final Translation2d kTopCone = new Translation2d(1.10712+0.015+0.015, Rotation2d.fromDegrees(62.90475260416666-0.5));
+			public static final Translation2d kTopCone = new Translation2d(1.10712+0.015+0.015+0.01, Rotation2d.fromDegrees(62.90475260416666-0.5));
 			public static final Translation2d kMiddleCone = new Translation2d(0.643015276804485, Rotation2d.fromDegrees(69.93193359375));
 			public static final Translation2d kHybridCone = new Translation2d(ArmConstants.kMinTelescopeLength+ 0.05, Rotation2d.fromDegrees(122));
 
@@ -444,7 +444,7 @@ public class Constants {
 		public static final double kShootHighPO = 0.62;
 		public static final double kShootMidPO = 0.32;
 		public static final double kShootHighAutoPO = 0.64;
-		public static final double kShootMidAutoPO = 0.4;
+		public static final double kShootMidAutoPO = 0.43;
 		public static final double kRunWhileRetractedDuration = 0.15;
 		public static final double kSweepPO = -0.3;
 		public static final double kAutoIntakePO = 0.7;
@@ -461,7 +461,7 @@ public class Constants {
 			public static final double kShootHighPO = -0.60;
 			public static final double kShootMidPO = -0.43;
 			public static final double kShootHighAutoPO = -0.62;
-			public static final double kShootMidAutoPO = -0.42;
+			public static final double kShootMidAutoPO = -0.42+0.06;
 			public static final double kRetractAndRunPO = 0.7;
 			public static final double kBackwardsEjectPO = 0.0;
             public static final double kAutoIntakePO = 0.4;
@@ -860,9 +860,9 @@ public class Constants {
 	}
 
 	public static class SelectedHotswapModules{//This is where we select which modules we are using
-		public static final HotSwapConstants selectedFLModule = HotSwapModules.moduleID4Constants;
+		public static final HotSwapConstants selectedFLModule = HotSwapModules.moduleID1Constants;
 		public static final HotSwapConstants selectedBLModule = HotSwapModules.moduleID2Constants;
-		public static final HotSwapConstants selectedBRModule = HotSwapModules.moduleID3Constants;
+		public static final HotSwapConstants selectedBRModule = HotSwapModules.moduleID7Constants;
 		public static final HotSwapConstants selectedFRModule = HotSwapModules.moduleID5Constants;
 	}
 }
