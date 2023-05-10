@@ -360,7 +360,7 @@ public class AutoSegments {
     public static ActionBase shoot5ToGamePiece3_1(Alliance alliance){
         return new SeriesAction(
             new RaceAction(
-                new FollowTrajectoryAction(Trajectories.shoot5ToGamePiece3_1.getTrajectory(alliance, TrajectorySpeed.FAST),  FieldConstants.stagingMark3.getPoint(alliance), 2.8, SwerveConstants.robotBackwardAngle),
+                new FollowTrajectoryAction(Trajectories.shoot5ToGamePiece3_1.getTrajectory(alliance, TrajectorySpeed.FAST),  MirroredRotation.get(120, alliance), 2.8),//idk what angle this should face
                 new RunArmAction(ArmConstants.Setpoints.kAutoWithGamePiece),
                 new SeriesAction(
                     new WaitUntilTrajectoryProgressAction(0.00),
@@ -374,7 +374,7 @@ public class AutoSegments {
     public static ActionBase shoot7ToGamePiece4_1(Alliance alliance){
         return new SeriesAction(
             new RaceAction(
-                new FollowTrajectoryAction(Trajectories.shoot7ToGamePiece4_1.getTrajectory(alliance, TrajectorySpeed.FAST),  FieldConstants.stagingMark4.getPoint(alliance), 2.8, SwerveConstants.robotBackwardAngle),
+                new FollowTrajectoryAction(Trajectories.shoot7ToGamePiece4_1.getTrajectory(alliance, TrajectorySpeed.FAST),  MirroredRotation.get(120, alliance), 2.8),//idk what angle this should face
                 new RunArmAction(ArmConstants.Setpoints.kAutoWithGamePiece),
                 new SeriesAction(
                     new WaitUntilTrajectoryProgressAction(0.00),

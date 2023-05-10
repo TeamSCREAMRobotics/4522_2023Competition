@@ -18,7 +18,6 @@ public class FollowTrajectoryAction extends ActionBase {
     private final Swerve mSwerve = Swerve.getInstance();
     private final Trajectory mTrajectory;
     private final Optional<Rotation2d> mEndAngle;
-    private final Optional<Translation2d> mFacePoint;
     private final Double mThetaKP;
     private final double mTimeout;
     private final Timer mTimer = new Timer();
@@ -31,24 +30,12 @@ public class FollowTrajectoryAction extends ActionBase {
     public FollowTrajectoryAction(Trajectory trajectory, Rotation2d endAngle, double thetaKP, double timeoutSeconds){
         mTrajectory = trajectory;
         mEndAngle = Optional.of(endAngle);
-        mFacePoint = Optional.empty();
         mThetaKP = thetaKP;
         mTimeout = timeoutSeconds + trajectory.getTotalTimeSeconds();
         mRobotForwardAngle = SwerveConstants.robotForwardAngle;
     }
 
-    public FollowTrajectoryAction(Trajectory trajectory, Translation2d facePoint, double thetaKP, Rotation2d robotForwardAngle){
-        this(trajectory, facePoint, thetaKP, robotForwardAngle, SwerveConstants.defaultTrajectoryTimeoutSeconds);
-    }
 
-    public FollowTrajectoryAction(Trajectory trajectory, Translation2d facePoint, double thetaKP, Rotation2d robotForwardAngle, double timeoutSeconds ){
-        mTrajectory = trajectory;
-        mFacePoint = Optional.of(facePoint);
-        mEndAngle = Optional.empty();
-        mThetaKP = thetaKP;
-        mTimeout = timeoutSeconds + trajectory.getTotalTimeSeconds();
-        mRobotForwardAngle = robotForwardAngle;
-    }
 
     @Override
     public void run() {
@@ -57,11 +44,9 @@ public class FollowTrajectoryAction extends ActionBase {
 
     @Override
     public void start() {
-        if(mEndAngle.isPresent()){
-            mSwerve.setTrajectoryWithEndAngle(mTrajectory, mEndAngle.get(), mThetaKP);
-        } else{
-            mSwerve.setTrajectoryWithFacePoint(mTrajectory, mFacePoint.get(), mThetaKP, mRobotForwardAngle);
-        }
+        
+        mSwerve.setTrajectory(mTrajectory, mEndAngle.get(), mThetaKP);
+        
         mTimer.reset();
         mTimer.start();
     }
@@ -78,6 +63,6 @@ public class FollowTrajectoryAction extends ActionBase {
     }
     @Override
     public String getID() {
-        return String.join(", ", "Follow TrajectoryAction", mTrajectory.toString(), mThetaKP.toString(), mEndAngle.toString(), mFacePoint.toString());
+        return String.join(", ", "Follow TrajectoryAction", mTrajectory.toString(), mThetaKP.toString(), mEndAngle.toString());
     }
 }

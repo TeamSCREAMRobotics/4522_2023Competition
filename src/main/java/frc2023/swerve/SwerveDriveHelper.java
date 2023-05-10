@@ -308,32 +308,17 @@ public class SwerveDriveHelper {
     
     ////////////////////////////////Trajectory following methods////////////////////////////////////////////////////////////////////////////////////////////////////
 	private Trajectory mCurrentTrajectory = null;
-	private Optional<Rotation2d> mTrajectoryEndAngle;
-	private Optional<Translation2d> mTrajectoryFacePoint;
+	private Rotation2d mTrajectoryEndAngle;
 	private Timer mTrajectoryTimer = new Timer();
 	private boolean mTrajectroyInProgress = false;
-    private Rotation2d mTrajectoryRobotFaceForwardDirection = SwerveConstants.robotForwardAngle;
 
     /**
      * We have two options for our angle when following trajectories. This option makes the swerve target the endAngle variable for the whole path.
      */
-    public void setTrajectoryWithEndAngle(Trajectory trajectory, Rotation2d endAngle, double thetaKP){
+    public void setTrajectory(Trajectory trajectory, Rotation2d endAngle, double thetaKP){
 		mCurrentTrajectory = trajectory;
-		mTrajectoryEndAngle = Optional.of(endAngle);
-        mTrajectoryFacePoint = Optional.empty();
+		mTrajectoryEndAngle = endAngle;
         mTrajectoryThetaController.setP(thetaKP);
-	}
-    
-
-    /**
-     * We have two options for our angle when following trajectories. This option makes the swerve face a point for the whole path.
-     */
-    public void setTrajectoryWithFacePoint(Trajectory trajectory, Translation2d facePoint, double thetaKP, Rotation2d robotFaceForwardDirection){
-		mCurrentTrajectory = trajectory;
-		mTrajectoryEndAngle = Optional.empty();
-        mTrajectoryFacePoint = Optional.of(facePoint);
-        mTrajectoryThetaController.setP(thetaKP);
-        mTrajectoryRobotFaceForwardDirection = robotFaceForwardDirection;
 	}
 
 
@@ -364,11 +349,8 @@ public class SwerveDriveHelper {
         double xError = mTrajectoryXTarget - robotPose.getX();
         double yError = mTrajectoryYTarget - robotPose.getY();
 
-        if(mTrajectoryEndAngle.isPresent()){
-            mTrajectoryThetaTarget = mTrajectoryEndAngle.get();
-        } else /* if(mTrajectoryFacePoint.isPresent()) */{
-            mTrajectoryThetaTarget = calculateAngleToFacePoint(ScreamUtil.getTangent(robotPose.getTranslation(), mTrajectoryFacePoint.get()), mTrajectoryRobotFaceForwardDirection);
-        }
+        mTrajectoryThetaTarget = mTrajectoryEndAngle;
+
         Rotation2d thetaError = (mTrajectoryThetaTarget.minus(robotPose.getRotation()));
 
         double xFF = desiredState.velocityMetersPerSecond * desiredState.poseMeters.getRotation().getCos();
@@ -378,9 +360,6 @@ public class SwerveDriveHelper {
         double yFeedback = mTrajectoryYController.calculate(-yError, 0);
         double thetaFeedback = mTrajectoryThetaController.calculate(-thetaError.getRadians(), 0);
 
-        if(mTrajectoryFacePoint.isPresent()){
-            if(mTrajectoryFacePoint.get().getDistance(robotPose.getTranslation()) < SwerveConstants.facePointMinimumDistance) thetaFeedback = 0.0;//if the robot is basically on the point we are facing, we don't want it to rotate, or it might go crazy
-        } 
 
 		ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
             xFF + xFeedback, yFF + yFeedback, thetaFeedback, robotPose.getRotation());	

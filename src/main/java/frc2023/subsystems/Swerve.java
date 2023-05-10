@@ -21,6 +21,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+
 import frc2023.Constants.*;
 import frc2023.Constants.VisionConstants.FrontLimelightConstants;
 import frc2023.swerve.SwerveDriveHelper;
@@ -227,13 +228,8 @@ static final double test = -1084.0264892578125 % 360;//TODO remove
 
 ///////////////////////////////////////  Trajectory  /////////////////////////////////////////////////////////////////
 
-	public void setTrajectoryWithEndAngle(Trajectory trajectory, Rotation2d endAngle, double thetaKP){
-		mSwerveDriveHelper.setTrajectoryWithEndAngle(trajectory, endAngle, thetaKP);
-	}
-
-
-	public void setTrajectoryWithFacePoint(Trajectory trajectory, Translation2d facePoint, double thetaKP, Rotation2d robotFaceForwardDirection){
-		mSwerveDriveHelper.setTrajectoryWithFacePoint(trajectory, facePoint, thetaKP, robotFaceForwardDirection);
+	public void setTrajectory(Trajectory trajectory, Rotation2d endAngle, double thetaKP){
+		mSwerveDriveHelper.setTrajectory(trajectory, endAngle, thetaKP);
 	}
 
 
