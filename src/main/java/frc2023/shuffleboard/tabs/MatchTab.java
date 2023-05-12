@@ -88,7 +88,7 @@ public class MatchTab extends ShuffleboardTabBase {
         mFrontLimelightPipeline.setInteger(mFrontLimelight.getPipeline());
         mBackLimelightPipeline.setInteger(mBackLimelight.getPipeline());
     }
-
+/* 
 
     public static ActionBase start1_DoNothing_BLUE = AutoRoutines.startX_DoNothing(PlacementStates.getSwervePlacementPose(Node.NODE1), Alliance.Blue);
     public static ActionBase start1_DoNothing_RED = AutoRoutines.startX_DoNothing(PlacementStates.getSwervePlacementPose(Node.NODE1), Alliance.Red);
@@ -254,9 +254,10 @@ public class MatchTab extends ShuffleboardTabBase {
     public static ActionBase start9_1Cone_3PoopShoot_AutoBalance_BLUE = AutoRoutines.start9_1Cone_3PoopShoot_AutoBalance(Alliance.Blue);
     public static ActionBase start9_1Cone_3PoopShoot_AutoBalance_RED = AutoRoutines.start9_1Cone_3PoopShoot_AutoBalance(Alliance.Red);
 
+     */
     public ActionBase getSelectedAutoRoutine(){//we do this seperately becuase the we want to create the autoroutine when it is called so that it has the right alliance
         Alliance alliance = DriverStation.getAlliance();
-
+/*
         switch(alliance){
             case Blue:
                 switch(mAutoChooser.getSelected()){
@@ -495,7 +496,7 @@ public class MatchTab extends ShuffleboardTabBase {
             break;
 
             }
-
+ */
             DriverStation.reportWarning("No Routine Selected", false);
             return new EmptyAction();
 
