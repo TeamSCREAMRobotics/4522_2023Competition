@@ -12,9 +12,8 @@
 
 * Trajectory generation with WPILib trajectory generator
 
-     For each path segment, we automatically generate slow, medium, and fast speed trajectories in our VariableSpeedTrajectory class. While this means we generate significantly more trajectories than we actually use, we can very easily change our trajectories. If, for example, a trajectory is moving too slowly and we want to change it easily during compeition, all we have to do is change the speed variable where we select the trajectory.
      
-     We also have a constraint to limit the speed of the robot while going over the cable bump during trajectory.
+     We have a constraint to limit the speed of the robot while going over the cable bump during trajectory.
      
      //TODO
      
