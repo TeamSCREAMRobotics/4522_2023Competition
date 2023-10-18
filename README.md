@@ -15,24 +15,13 @@
      
      We have a constraint to limit the speed of the robot while going over the cable bump during trajectory.
      
-     //TODO
-     
- *Hotswap Modules
+ * Hotswap Modules
  * 3 piece autobalance on both sides
  * Special coast auto
- *Mirrored coordinate system, but able to hold offsets for both alliances
+ * Mirrored coordinate system, but able to hold offsets for both alliances
  * Swerve module && arm controlled with onboard motionmagic/PID
  * Config class for every device to simplify setting status frames(part of device checker
  * Custom action(commands) setup, with superstructure setup to run autos in teleop
- 
- 
- ## Robot Mechanical Overview
- 
- //TODO
- 
- ## Robot Code Structure
- 
- //TODO
  
 ## Notable Files
 - [`./Robot.java`]()
@@ -47,9 +36,7 @@
 	- [`AutoSegments.java`](src/main/java/frc2023/auto/AutoSegments.java) - Each segment that out autos use as building blocks
 	- [`AutoRoutines.java`](src/main/java/frc2023/auto/AutoRoutines.java) - All of our autos
 	- [`AutoModeExecutor.java`](src/main/java/frc2023/auto/modes/AutoRoutineExecutor.java) -  Custom executor for Actions.
- 
-//TODO link all of the device checker classes
-//TODO link the variable trajectories, swervemodule, arm, controlboard, maybe the rotation helper
+
 
 
  
@@ -58,5 +45,3 @@
 - FRC Team 254's SwerveSetpointGenerator
 - FRC Team 6328's PoseEstimator
 - FRC Team 1678's Superstructure, ControlBoard setup, && README
-     
-     //TODO finish README
